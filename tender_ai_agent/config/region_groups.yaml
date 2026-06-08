@@ -1,0 +1,32 @@
+regions:
+  latam:
+    description: "Latin America procurement portals, regulators and utilities"
+    prompt_file: "prompts/discovery/latam.md"
+
+  africa:
+    description: "African procurement portals, regulators and utilities"
+    prompt_file: "prompts/discovery/africa.md"
+
+  eastern_europe:
+    description: "Eastern Europe public procurement and energy regulators"
+    prompt_file: "prompts/discovery/eastern_europe.md"
+
+  europe_global:
+    description: "European and global public procurement portals"
+    prompt_file: "prompts/discovery/europe_global.md"
+
+  oceania:
+    description: "Oceania procurement portals and energy authorities"
+    prompt_file: "prompts/discovery/oceania.md"
+
+  usa_cities:
+    description: "US municipal procurement and city utility RFP discovery"
+    prompt_file: "prompts/discovery/usa_cities.md"
+
+  global_cities:
+    description: "Non-US city and municipal utility opportunity discovery"
+    prompt_file: "prompts/discovery/global_cities.md"
+
+  multilaterals:
+    description: "Multilateral development banks and international organizations"
+    prompt_file: "prompts/discovery/multilaterals.md"

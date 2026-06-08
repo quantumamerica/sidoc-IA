@@ -1,0 +1,2335 @@
+sources:
+  - id: iadb
+    name: Inter-American Development Bank Procurement
+    region: latam
+    country:
+    url: https://www.iadb.org/en/project-procurement
+    requires_login: false
+    has_captcha: false
+    priority: high
+    enabled: true
+    source_type: multilateral
+    search_strategy: multilateral_search
+    notes: "Fuente multilateral para America Latina y Caribe."
+    keywords:
+      - electricity
+      - tariff
+      - regulation
+      - renewable energy
+      - natural gas
+      - green hydrogen
+      - energy storage
+      - grid planning
+      - transmission
+      - distribution
+      - energy efficiency
+      - demand-side management
+      - technical assistance
+      - feasibility study
+      - climate finance
+      - energy transition
+    search_domains:
+      - iadb.org
+    search_queries:
+      - "site:iadb.org/en/project-procurement electricity tariff regulation consulting services deadline"
+      - "site:iadb.org/en/project-procurement renewable energy power sector consultancy procurement notice"
+      - "site:iadb.org electricity tariff regulation consulting study technical assistance deadline"
+      - "site:iadb.org renewable energy solar wind distributed generation auctions grid integration consulting deadline"
+      - "site:iadb.org natural gas tariff market study gas-to-power regulatory consulting deadline"
+      - "site:iadb.org green hydrogen feasibility study strategy regulation market design consulting deadline"
+      - "site:iadb.org energy storage batteries grid integration storage regulation technical advisory deadline"
+      - "site:iadb.org transmission distribution grid planning interconnection loss reduction consulting deadline"
+      - "site:iadb.org energy efficiency demand-side management tariff incentives program evaluation consulting deadline"
+      - "site:iadb.org climate finance energy transition technical assistance advisory services deadline"
+    fallback_queries:
+      - "Inter-American Development Bank procurement electricity tariff regulation consulting deadline"
+      - "Inter-American Development Bank Procurement renewable energy natural gas green hydrogen consulting feasibility study deadline"
+      - "Inter-American Development Bank Procurement energy storage transmission distribution grid energy efficiency consulting deadline"
+      - "Inter-American Development Bank Procurement climate finance energy transition technical assistance advisory deadline"
+    language_hint: en
+    day_group_original: "Latinoamerica"
+
+  - id: chile_mercado_publico
+    name: ChileCompra Mercado Publico
+    region: latam
+    country: Chile
+    url: https://www.mercadopublico.cl
+    requires_login: unknown
+    has_captcha: unknown
+    priority: medium
+    enabled: true
+    source_type: national_portal
+    search_strategy: web_discovery
+    notes: "Portal nacional; validar que los detalles esenciales sean publicos sin login."
+    keywords:
+      - energia
+      - tarifas
+      - regulacion
+      - energias renovables
+      - gas natural
+      - hidrogeno verde
+      - almacenamiento energia
+      - redes electricas
+      - transmision
+      - distribucion
+      - eficiencia energetica
+      - gestion demanda
+      - asistencia tecnica
+      - estudio factibilidad
+    search_domains:
+      - mercadopublico.cl
+    search_queries:
+      - "site:mercadopublico.cl energia tarifas regulacion consultoria licitacion cierre"
+      - "site:mercadopublico.cl energia electrica consultoria renovables licitacion fecha cierre"
+      - "site:mercadopublico.cl energia electrica tarifas regulacion consultoria estudio fecha cierre"
+      - "site:mercadopublico.cl energias renovables solar eolica generacion distribuida consultoria estudio fecha cierre"
+      - "site:mercadopublico.cl gas natural tarifas mercado regulacion consultoria estudio fecha cierre"
+      - "site:mercadopublico.cl hidrogeno verde factibilidad estrategia regulacion consultoria fecha cierre"
+      - "site:mercadopublico.cl almacenamiento energia baterias integracion red consultoria estudio fecha cierre"
+      - "site:mercadopublico.cl transmision distribucion redes perdidas interconexion consultoria estudio fecha cierre"
+      - "site:mercadopublico.cl eficiencia energetica gestion demanda consultoria estudio fecha cierre"
+    fallback_queries:
+      - "ChileCompra Mercado Publico energia tarifas regulacion consultoria licitacion cierre"
+      - "ChileCompra Mercado Publico energias renovables gas natural hidrogeno verde consultoria estudio fecha cierre"
+      - "ChileCompra Mercado Publico almacenamiento energia transmision distribucion eficiencia energetica consultoria cierre"
+    language_hint: es
+    day_group_original: "Latinoamerica"
+
+  - id: colombia_secop
+    name: Colombia SECOP
+    region: latam
+    country: Colombia
+    url: https://www.colombiacompra.gov.co/secop
+    requires_login: unknown
+    has_captcha: unknown
+    priority: medium
+    enabled: true
+    source_type: national_portal
+    search_strategy: web_discovery
+    notes: "Usar busqueda web cuando el portal no permita validacion directa estable."
+    keywords:
+      - energia electrica
+      - regulacion
+      - consultoria
+      - energias renovables
+      - gas natural
+      - hidrogeno verde
+      - almacenamiento energia
+      - redes electricas
+      - transmision
+      - distribucion
+      - eficiencia energetica
+      - gestion demanda
+      - asistencia tecnica
+      - estudio factibilidad
+    search_domains:
+      - colombiacompra.gov.co
+      - community.secop.gov.co
+    search_queries:
+      - "site:colombiacompra.gov.co SECOP energia electrica regulacion consultoria fecha cierre"
+      - "site:community.secop.gov.co energia electrica consultoria regulacion proceso abierto"
+      - "site:colombiacompra.gov.co energia electrica tarifas regulacion consultoria estudio fecha cierre"
+      - "site:colombiacompra.gov.co energias renovables solar eolica generacion distribuida consultoria estudio fecha cierre"
+      - "site:colombiacompra.gov.co gas natural tarifas mercado regulacion consultoria estudio fecha cierre"
+      - "site:colombiacompra.gov.co hidrogeno verde factibilidad estrategia regulacion consultoria fecha cierre"
+      - "site:colombiacompra.gov.co almacenamiento energia baterias integracion red consultoria estudio fecha cierre"
+      - "site:colombiacompra.gov.co transmision distribucion redes perdidas interconexion consultoria estudio fecha cierre"
+      - "site:colombiacompra.gov.co eficiencia energetica gestion demanda consultoria estudio fecha cierre"
+    fallback_queries:
+      - "Colombia SECOP energia electrica regulacion consultoria licitacion fecha cierre"
+      - "Colombia SECOP energias renovables gas natural hidrogeno verde consultoria estudio fecha cierre"
+      - "Colombia SECOP almacenamiento energia transmision distribucion eficiencia energetica consultoria cierre"
+    language_hint: es
+    day_group_original: "Latinoamerica"
+
+  - id: african_development_bank
+    name: African Development Bank Procurement
+    region: africa
+    country:
+    url: https://www.afdb.org/en/projects-and-operations/procurement
+    requires_login: false
+    has_captcha: false
+    priority: high
+    enabled: true
+    source_type: multilateral
+    search_strategy: multilateral_search
+    notes: "Banco multilateral con oportunidades frecuentes de energia y utilities."
+    keywords:
+      - electricity
+      - power sector
+      - tariff
+      - utility
+      - renewable energy
+      - natural gas
+      - green hydrogen
+      - energy storage
+      - grid planning
+      - transmission
+      - distribution
+      - energy efficiency
+      - demand-side management
+      - technical assistance
+      - feasibility study
+      - climate finance
+      - energy transition
+    search_domains:
+      - afdb.org
+    search_queries:
+      - "site:afdb.org procurement electricity power sector tariff utility consulting services deadline"
+      - "site:afdb.org projects operations procurement renewable energy power sector consultancy expression of interest"
+      - "site:afdb.org electricity tariff regulation consulting study technical assistance deadline"
+      - "site:afdb.org renewable energy solar wind distributed generation auctions grid integration consulting deadline"
+      - "site:afdb.org natural gas tariff market study gas-to-power regulatory consulting deadline"
+      - "site:afdb.org green hydrogen feasibility study strategy regulation market design consulting deadline"
+      - "site:afdb.org energy storage batteries grid integration storage regulation technical advisory deadline"
+      - "site:afdb.org transmission distribution grid planning interconnection loss reduction consulting deadline"
+      - "site:afdb.org energy efficiency demand-side management tariff incentives program evaluation consulting deadline"
+      - "site:afdb.org climate finance energy transition technical assistance advisory services deadline"
+    fallback_queries:
+      - "African Development Bank procurement electricity tariff utility consulting services deadline"
+      - "African Development Bank Procurement renewable energy natural gas green hydrogen consulting feasibility study deadline"
+      - "African Development Bank Procurement energy storage transmission distribution grid energy efficiency consulting deadline"
+      - "African Development Bank Procurement climate finance energy transition technical assistance advisory deadline"
+    language_hint: en
+    day_group_original: "Africa"
+
+  - id: kenya_ppip
+    name: Kenya Public Procurement Information Portal
+    region: africa
+    country: Kenya
+    url: https://tenders.go.ke
+    requires_login: unknown
+    has_captcha: unknown
+    priority: medium
+    enabled: true
+    source_type: national_portal
+    search_strategy: web_discovery
+    notes: "Validar acceso publico a documentos y fechas de cierre."
+    keywords:
+      - energy
+      - electricity
+      - regulatory
+      - renewable energy
+      - natural gas
+      - green hydrogen
+      - energy storage
+      - grid planning
+      - transmission
+      - distribution
+      - energy efficiency
+      - demand-side management
+      - technical assistance
+      - feasibility study
+    search_domains:
+      - tenders.go.ke
+    search_queries:
+      - "site:tenders.go.ke energy electricity regulatory consulting tender deadline"
+      - "site:tenders.go.ke power sector tariff consultant expression of interest closing date"
+      - "site:tenders.go.ke electricity tariff regulation consulting study technical assistance deadline"
+      - "site:tenders.go.ke renewable energy solar wind distributed generation auctions grid integration consulting deadline"
+      - "site:tenders.go.ke natural gas tariff market study gas-to-power regulatory consulting deadline"
+      - "site:tenders.go.ke green hydrogen feasibility study strategy regulation market design consulting deadline"
+      - "site:tenders.go.ke energy storage batteries grid integration storage regulation technical advisory deadline"
+      - "site:tenders.go.ke transmission distribution grid planning interconnection loss reduction consulting deadline"
+      - "site:tenders.go.ke energy efficiency demand-side management tariff incentives program evaluation consulting deadline"
+    fallback_queries:
+      - "Kenya Public Procurement Information Portal energy electricity regulatory consulting tender deadline"
+      - "Kenya Public Procurement Information Portal renewable energy natural gas green hydrogen consulting feasibility study deadline"
+      - "Kenya Public Procurement Information Portal energy storage transmission distribution grid energy efficiency consulting deadline"
+    language_hint: en
+    day_group_original: "Africa"
+
+  - id: ebrd
+    name: EBRD Client E-Procurement Portal
+    region: eastern_europe
+    country:
+    url: https://ecepp.ebrd.com
+    requires_login: unknown
+    has_captcha: unknown
+    priority: high
+    enabled: true
+    source_type: multilateral
+    search_strategy: multilateral_search
+    notes: "Puede contener detalles publicos suficientes; omitir si exige login para validar."
+    keywords:
+      - power
+      - energy
+      - tariff
+      - consulting
+      - renewable energy
+      - natural gas
+      - green hydrogen
+      - energy storage
+      - grid planning
+      - transmission
+      - distribution
+      - energy efficiency
+      - demand-side management
+      - technical assistance
+      - feasibility study
+      - climate finance
+      - energy transition
+    search_domains:
+      - ecepp.ebrd.com
+      - ebrd.com
+    search_queries:
+      - "site:ecepp.ebrd.com power energy tariff consulting services expression of interest deadline"
+      - "site:ebrd.com procurement power sector tariff utility consultancy closing date"
+      - "site:ecepp.ebrd.com electricity tariff regulation consulting study technical assistance deadline"
+      - "site:ecepp.ebrd.com renewable energy solar wind distributed generation auctions grid integration consulting deadline"
+      - "site:ecepp.ebrd.com natural gas tariff market study gas-to-power regulatory consulting deadline"
+      - "site:ecepp.ebrd.com green hydrogen feasibility study strategy regulation market design consulting deadline"
+      - "site:ecepp.ebrd.com energy storage batteries grid integration storage regulation technical advisory deadline"
+      - "site:ecepp.ebrd.com transmission distribution grid planning interconnection loss reduction consulting deadline"
+      - "site:ecepp.ebrd.com energy efficiency demand-side management tariff incentives program evaluation consulting deadline"
+      - "site:ecepp.ebrd.com climate finance energy transition technical assistance advisory services deadline"
+    fallback_queries:
+      - "EBRD procurement power energy tariff consulting services expression of interest deadline"
+      - "EBRD Client E-Procurement Portal renewable energy natural gas green hydrogen consulting feasibility study deadline"
+      - "EBRD Client E-Procurement Portal energy storage transmission distribution grid energy efficiency consulting deadline"
+      - "EBRD Client E-Procurement Portal climate finance energy transition technical assistance advisory deadline"
+    language_hint: en
+    day_group_original: "Europa del Este"
+
+  - id: poland_public_procurement
+    name: Poland Public Procurement Bulletin
+    region: eastern_europe
+    country: Poland
+    url: https://ezamowienia.gov.pl
+    requires_login: unknown
+    has_captcha: unknown
+    priority: low
+    enabled: true
+    source_type: national_portal
+    search_strategy: web_discovery
+    notes: "Fuente nacional representativa para busquedas por energia/regulacion."
+    keywords:
+      - energy
+      - electricity
+      - consulting
+      - renewable energy
+      - natural gas
+      - green hydrogen
+      - energy storage
+      - grid planning
+      - transmission
+      - distribution
+      - energy efficiency
+      - demand-side management
+      - technical assistance
+      - feasibility study
+    search_domains:
+      - ezamowienia.gov.pl
+    search_queries:
+      - "site:ezamowienia.gov.pl energy electricity consulting tender deadline"
+      - "site:ezamowienia.gov.pl energia elektryczna doradztwo przetarg termin"
+      - "site:ezamowienia.gov.pl electricity tariff regulation consulting study technical assistance deadline"
+      - "site:ezamowienia.gov.pl renewable energy solar wind distributed generation auctions grid integration consulting deadline"
+      - "site:ezamowienia.gov.pl natural gas tariff market study gas-to-power regulatory consulting deadline"
+      - "site:ezamowienia.gov.pl green hydrogen feasibility study strategy regulation market design consulting deadline"
+      - "site:ezamowienia.gov.pl energy storage batteries grid integration storage regulation technical advisory deadline"
+      - "site:ezamowienia.gov.pl transmission distribution grid planning interconnection loss reduction consulting deadline"
+      - "site:ezamowienia.gov.pl energy efficiency demand-side management tariff incentives program evaluation consulting deadline"
+    fallback_queries:
+      - "Poland public procurement energy electricity consulting tender deadline"
+      - "Poland Public Procurement Bulletin renewable energy natural gas green hydrogen consulting feasibility study deadline"
+      - "Poland Public Procurement Bulletin energy storage transmission distribution grid energy efficiency consulting deadline"
+    language_hint: pl
+    day_group_original: "Europa del Este"
+
+  - id: ted_europa
+    name: Tenders Electronic Daily
+    region: europe_global
+    url: https://ted.europa.eu
+    country:
+    requires_login: false
+    has_captcha: false
+    priority: high
+    enabled: true
+    source_type: national_portal
+    search_strategy: direct_portal
+    notes: "Portal europeo oficial para oportunidades publicas."
+    keywords:
+      - energy consulting
+      - electricity regulation
+      - tariff
+      - renewable energy
+      - natural gas
+      - green hydrogen
+      - energy storage
+      - grid planning
+      - transmission
+      - distribution
+      - energy efficiency
+      - demand-side management
+      - technical assistance
+      - feasibility study
+    search_domains:
+      - ted.europa.eu
+    search_queries:
+      - "site:ted.europa.eu energy consulting electricity regulation tariff deadline"
+      - "site:ted.europa.eu renewable energy utility tariff consultancy contract notice"
+      - "site:ted.europa.eu electricity tariff regulation consulting study technical assistance deadline"
+      - "site:ted.europa.eu renewable energy solar wind distributed generation auctions grid integration consulting deadline"
+      - "site:ted.europa.eu natural gas tariff market study gas-to-power regulatory consulting deadline"
+      - "site:ted.europa.eu green hydrogen feasibility study strategy regulation market design consulting deadline"
+      - "site:ted.europa.eu energy storage batteries grid integration storage regulation technical advisory deadline"
+      - "site:ted.europa.eu transmission distribution grid planning interconnection loss reduction consulting deadline"
+      - "site:ted.europa.eu energy efficiency demand-side management tariff incentives program evaluation consulting deadline"
+    fallback_queries:
+      - "TED Europa energy consulting electricity regulation tariff deadline"
+      - "Tenders Electronic Daily renewable energy natural gas green hydrogen consulting feasibility study deadline"
+      - "Tenders Electronic Daily energy storage transmission distribution grid energy efficiency consulting deadline"
+    language_hint: en
+    day_group_original: "Europa/global/multilaterales"
+
+  - id: tenderlink_oceania
+    name: TenderLink
+    region: oceania
+    country:
+    url: https://www.tenderlink.com
+    requires_login: unknown
+    has_captcha: unknown
+    priority: low
+    enabled: false
+    source_type: aggregator
+    search_strategy: skip_if_login
+    notes: "Puede requerir validacion manual por restricciones de acceso."
+    keywords:
+      - energy
+      - electricity
+      - consulting
+      - renewable energy
+      - natural gas
+      - green hydrogen
+      - energy storage
+      - grid planning
+      - transmission
+      - distribution
+      - energy efficiency
+      - demand-side management
+      - technical assistance
+      - feasibility study
+    search_queries:
+      - "site:www.tenderlink.com electricity tariff regulation consulting study technical assistance deadline"
+      - "site:www.tenderlink.com renewable energy solar wind distributed generation auctions grid integration consulting deadline"
+      - "site:www.tenderlink.com natural gas tariff market study gas-to-power regulatory consulting deadline"
+      - "site:www.tenderlink.com green hydrogen feasibility study strategy regulation market design consulting deadline"
+      - "site:www.tenderlink.com energy storage batteries grid integration storage regulation technical advisory deadline"
+      - "site:www.tenderlink.com transmission distribution grid planning interconnection loss reduction consulting deadline"
+      - "site:www.tenderlink.com energy efficiency demand-side management tariff incentives program evaluation consulting deadline"
+    fallback_queries:
+      - "TenderLink renewable energy natural gas green hydrogen consulting feasibility study deadline"
+      - "TenderLink energy storage transmission distribution grid energy efficiency consulting deadline"
+    language_hint: en
+    day_group_original: "Oceania"
+
+  - id: australia_tenders
+    name: AusTender
+    region: oceania
+    country: Australia
+    url: https://www.tenders.gov.au
+    requires_login: false
+    has_captcha: false
+    priority: high
+    enabled: true
+    source_type: national_portal
+    search_strategy: direct_portal
+    notes: "Portal federal australiano."
+    keywords:
+      - energy
+      - electricity
+      - tariff
+      - modelling
+      - renewable energy
+      - natural gas
+      - green hydrogen
+      - energy storage
+      - grid planning
+      - transmission
+      - distribution
+      - energy efficiency
+      - demand-side management
+      - technical assistance
+      - feasibility study
+    search_domains:
+      - tenders.gov.au
+    search_queries:
+      - "site:tenders.gov.au energy electricity tariff modelling consulting tender closing date"
+      - "site:tenders.gov.au utility renewable energy financial modelling consultancy ATM"
+      - "site:tenders.gov.au electricity tariff regulation consulting study technical assistance deadline"
+      - "site:tenders.gov.au renewable energy solar wind distributed generation auctions grid integration consulting deadline"
+      - "site:tenders.gov.au natural gas tariff market study gas-to-power regulatory consulting deadline"
+      - "site:tenders.gov.au green hydrogen feasibility study strategy regulation market design consulting deadline"
+      - "site:tenders.gov.au energy storage batteries grid integration storage regulation technical advisory deadline"
+      - "site:tenders.gov.au transmission distribution grid planning interconnection loss reduction consulting deadline"
+      - "site:tenders.gov.au energy efficiency demand-side management tariff incentives program evaluation consulting deadline"
+    fallback_queries:
+      - "AusTender energy electricity tariff modelling consulting tender closing date"
+      - "AusTender renewable energy natural gas green hydrogen consulting feasibility study deadline"
+      - "AusTender energy storage transmission distribution grid energy efficiency consulting deadline"
+    language_hint: en
+    day_group_original: "Oceania"
+
+  - id: new_zealand_gets
+    name: New Zealand Government Electronic Tenders Service
+    region: oceania
+    country: New Zealand
+    url: https://www.gets.govt.nz
+    requires_login: unknown
+    has_captcha: unknown
+    priority: medium
+    enabled: true
+    source_type: national_portal
+    search_strategy: web_discovery
+    notes: "Validar si los documentos centrales son publicos sin cuenta."
+    keywords:
+      - electricity
+      - energy
+      - consulting
+      - renewable energy
+      - natural gas
+      - green hydrogen
+      - energy storage
+      - grid planning
+      - transmission
+      - distribution
+      - energy efficiency
+      - demand-side management
+      - technical assistance
+      - feasibility study
+    search_domains:
+      - gets.govt.nz
+    search_queries:
+      - "site:gets.govt.nz electricity energy consulting tender deadline"
+      - "site:gets.govt.nz utility renewable energy consultancy opportunity closing date"
+      - "site:gets.govt.nz electricity tariff regulation consulting study technical assistance deadline"
+      - "site:gets.govt.nz renewable energy solar wind distributed generation auctions grid integration consulting deadline"
+      - "site:gets.govt.nz natural gas tariff market study gas-to-power regulatory consulting deadline"
+      - "site:gets.govt.nz green hydrogen feasibility study strategy regulation market design consulting deadline"
+      - "site:gets.govt.nz energy storage batteries grid integration storage regulation technical advisory deadline"
+      - "site:gets.govt.nz transmission distribution grid planning interconnection loss reduction consulting deadline"
+      - "site:gets.govt.nz energy efficiency demand-side management tariff incentives program evaluation consulting deadline"
+    fallback_queries:
+      - "New Zealand GETS electricity energy consulting tender deadline"
+      - "New Zealand Government Electronic Tenders Service renewable energy natural gas green hydrogen consulting feasibility study deadline"
+      - "New Zealand Government Electronic Tenders Service energy storage transmission distribution grid energy efficiency consulting deadline"
+    language_hint: en
+    day_group_original: "Oceania"
+
+  - id: world_bank
+    name: World Bank Procurement
+    region: multilaterals
+    country:
+    url: https://projects.worldbank.org/en/projects-operations/procurement
+    requires_login: false
+    has_captcha: false
+    priority: high
+    enabled: true
+    source_type: multilateral
+    search_strategy: multilateral_search
+    notes: "Fuente global prioritaria para energia, regulacion y utilities."
+    keywords:
+      - electricity
+      - renewable energy
+      - tariff
+      - financial modeling
+      - natural gas
+      - green hydrogen
+      - energy storage
+      - grid planning
+      - transmission
+      - distribution
+      - energy efficiency
+      - demand-side management
+      - technical assistance
+      - feasibility study
+      - climate finance
+      - energy transition
+    search_domains:
+      - projects.worldbank.org
+      - worldbank.org
+    search_queries:
+      - "site:projects.worldbank.org procurement electricity renewable energy tariff financial modeling consulting services deadline"
+      - "site:worldbank.org procurement notice power sector utility tariff consultant expression of interest"
+      - "site:projects.worldbank.org electricity tariff regulation consulting study technical assistance deadline"
+      - "site:projects.worldbank.org renewable energy solar wind distributed generation auctions grid integration consulting deadline"
+      - "site:projects.worldbank.org natural gas tariff market study gas-to-power regulatory consulting deadline"
+      - "site:projects.worldbank.org green hydrogen feasibility study strategy regulation market design consulting deadline"
+      - "site:projects.worldbank.org energy storage batteries grid integration storage regulation technical advisory deadline"
+      - "site:projects.worldbank.org transmission distribution grid planning interconnection loss reduction consulting deadline"
+      - "site:projects.worldbank.org energy efficiency demand-side management tariff incentives program evaluation consulting deadline"
+      - "site:projects.worldbank.org climate finance energy transition technical assistance advisory services deadline"
+    fallback_queries:
+      - "World Bank procurement electricity renewable energy tariff financial modeling consulting deadline"
+      - "World Bank Procurement renewable energy natural gas green hydrogen consulting feasibility study deadline"
+      - "World Bank Procurement energy storage transmission distribution grid energy efficiency consulting deadline"
+      - "World Bank Procurement climate finance energy transition technical assistance advisory deadline"
+    language_hint: en
+    day_group_original: "Europa/global/multilaterales"
+
+  - id: asian_development_bank
+    name: Asian Development Bank Consultant Management System
+    region: multilaterals
+    country:
+    url: https://www.adb.org/projects/tenders
+    requires_login: unknown
+    has_captcha: unknown
+    priority: high
+    enabled: true
+    source_type: multilateral
+    search_strategy: multilateral_search
+    notes: "Usar solo oportunidades con informacion publica verificable."
+    keywords:
+      - power sector
+      - renewable energy
+      - tariff
+      - consulting services
+      - natural gas
+      - green hydrogen
+      - energy storage
+      - grid planning
+      - transmission
+      - distribution
+      - energy efficiency
+      - demand-side management
+      - technical assistance
+      - feasibility study
+      - climate finance
+      - energy transition
+    search_domains:
+      - adb.org
+    search_queries:
+      - "site:adb.org projects tenders power sector renewable energy tariff consulting services deadline"
+      - "site:adb.org consultant management system power sector utility tariff expression of interest"
+      - "site:adb.org electricity tariff regulation consulting study technical assistance deadline"
+      - "site:adb.org renewable energy solar wind distributed generation auctions grid integration consulting deadline"
+      - "site:adb.org natural gas tariff market study gas-to-power regulatory consulting deadline"
+      - "site:adb.org green hydrogen feasibility study strategy regulation market design consulting deadline"
+      - "site:adb.org energy storage batteries grid integration storage regulation technical advisory deadline"
+      - "site:adb.org transmission distribution grid planning interconnection loss reduction consulting deadline"
+      - "site:adb.org energy efficiency demand-side management tariff incentives program evaluation consulting deadline"
+      - "site:adb.org climate finance energy transition technical assistance advisory services deadline"
+    fallback_queries:
+      - "Asian Development Bank tenders power sector renewable energy tariff consulting services deadline"
+      - "Asian Development Bank Consultant Management System renewable energy natural gas green hydrogen consulting feasibility study deadline"
+      - "Asian Development Bank Consultant Management System energy storage transmission distribution grid energy efficiency consulting deadline"
+      - "Asian Development Bank Consultant Management System climate finance energy transition technical assistance advisory deadline"
+    language_hint: en
+    day_group_original: "Europa/global/multilaterales"
+
+  - id: sam_gov
+    name: SAM.gov Contract Opportunities
+    region: usa_cities
+    country: United States
+    url: https://sam.gov/content/opportunities
+    requires_login: unknown
+    has_captcha: unknown
+    priority: medium
+    enabled: true
+    source_type: national_portal
+    search_strategy: web_discovery
+    notes: "Validar si el detalle de oportunidad queda accesible sin login."
+    keywords:
+      - utility
+      - electricity
+      - rate study
+      - financial analysis
+      - renewable energy
+      - natural gas
+      - green hydrogen
+      - energy storage
+      - grid planning
+      - transmission
+      - distribution
+      - energy efficiency
+      - demand-side management
+      - technical assistance
+      - feasibility study
+    search_domains:
+      - sam.gov
+    search_queries:
+      - "site:sam.gov utility electricity rate study financial analysis consulting response date"
+      - "site:sam.gov electricity tariff cost of service utility consultant solicitation deadline"
+      - "site:sam.gov electricity tariff regulation consulting study technical assistance deadline"
+      - "site:sam.gov renewable energy solar wind distributed generation auctions grid integration consulting deadline"
+      - "site:sam.gov natural gas tariff market study gas-to-power regulatory consulting deadline"
+      - "site:sam.gov green hydrogen feasibility study strategy regulation market design consulting deadline"
+      - "site:sam.gov energy storage batteries grid integration storage regulation technical advisory deadline"
+      - "site:sam.gov transmission distribution grid planning interconnection loss reduction consulting deadline"
+      - "site:sam.gov energy efficiency demand-side management tariff incentives program evaluation consulting deadline"
+    fallback_queries:
+      - "SAM.gov utility electricity rate study financial analysis consulting response date"
+      - "SAM.gov Contract Opportunities renewable energy natural gas green hydrogen consulting feasibility study deadline"
+      - "SAM.gov Contract Opportunities energy storage transmission distribution grid energy efficiency consulting deadline"
+    language_hint: en
+    day_group_original: "EE.UU. por ciudades"
+
+  - id: nyc_city_record
+    name: New York City Record Online
+    region: usa_cities
+    country: United States
+    url: https://a856-cityrecord.nyc.gov
+    requires_login: false
+    has_captcha: false
+    priority: medium
+    enabled: true
+    source_type: municipal
+    search_strategy: city_search
+    notes: "Ejemplo de portal municipal de gran ciudad."
+    keywords:
+      - energy
+      - utility
+      - consulting
+      - renewable energy
+      - natural gas
+      - green hydrogen
+      - energy storage
+      - grid planning
+      - transmission
+      - distribution
+      - energy efficiency
+      - demand-side management
+      - technical assistance
+      - feasibility study
+    search_domains:
+      - a856-cityrecord.nyc.gov
+      - nyc.gov
+    search_queries:
+      - "site:a856-cityrecord.nyc.gov energy utility consulting solicitation due date"
+      - "site:nyc.gov energy utility consulting procurement city record due date"
+      - "site:a856-cityrecord.nyc.gov electricity tariff regulation consulting study technical assistance deadline"
+      - "site:a856-cityrecord.nyc.gov renewable energy solar wind distributed generation auctions grid integration consulting deadline"
+      - "site:a856-cityrecord.nyc.gov natural gas tariff market study gas-to-power regulatory consulting deadline"
+      - "site:a856-cityrecord.nyc.gov green hydrogen feasibility study strategy regulation market design consulting deadline"
+      - "site:a856-cityrecord.nyc.gov energy storage batteries grid integration storage regulation technical advisory deadline"
+      - "site:a856-cityrecord.nyc.gov transmission distribution grid planning interconnection loss reduction consulting deadline"
+      - "site:a856-cityrecord.nyc.gov energy efficiency demand-side management tariff incentives program evaluation consulting deadline"
+    fallback_queries:
+      - "New York City Record energy utility consulting solicitation due date"
+      - "New York City Record Online renewable energy natural gas green hydrogen consulting feasibility study deadline"
+      - "New York City Record Online energy storage transmission distribution grid energy efficiency consulting deadline"
+    language_hint: en
+    day_group_original: "EE.UU. por ciudades"
+
+  - id: los_angeles_ramp
+    name: Los Angeles Regional Alliance Marketplace for Procurement
+    region: usa_cities
+    country: United States
+    url: https://www.rampla.org
+    requires_login: unknown
+    has_captcha: unknown
+    priority: medium
+    enabled: true
+    source_type: municipal
+    search_strategy: city_search
+    notes: "Buscar oportunidades municipales y de utilities asociadas."
+    keywords:
+      - energy
+      - power
+      - rates
+      - renewable energy
+      - natural gas
+      - green hydrogen
+      - energy storage
+      - grid planning
+      - transmission
+      - distribution
+      - energy efficiency
+      - demand-side management
+      - technical assistance
+      - feasibility study
+    search_domains:
+      - rampla.org
+    search_queries:
+      - "site:rampla.org energy power rates consulting opportunity closing date"
+      - "site:rampla.org utility rate study renewable energy consultant solicitation"
+      - "site:rampla.org electricity tariff regulation consulting study technical assistance deadline"
+      - "site:rampla.org renewable energy solar wind distributed generation auctions grid integration consulting deadline"
+      - "site:rampla.org natural gas tariff market study gas-to-power regulatory consulting deadline"
+      - "site:rampla.org green hydrogen feasibility study strategy regulation market design consulting deadline"
+      - "site:rampla.org energy storage batteries grid integration storage regulation technical advisory deadline"
+      - "site:rampla.org transmission distribution grid planning interconnection loss reduction consulting deadline"
+      - "site:rampla.org energy efficiency demand-side management tariff incentives program evaluation consulting deadline"
+    fallback_queries:
+      - "Los Angeles RAMP energy power rates consulting opportunity closing date"
+      - "Los Angeles Regional Alliance Marketplace for Procurement renewable energy natural gas green hydrogen consulting feasibility study deadline"
+      - "Los Angeles Regional Alliance Marketplace for Procurement energy storage transmission distribution grid energy efficiency consulting deadline"
+    language_hint: en
+    day_group_original: "EE.UU. por ciudades"
+
+  - id: developmentaid
+    name: DevelopmentAid
+    region: global_cities
+    country:
+    url: https://www.developmentaid.org/tenders
+    requires_login: true
+    has_captcha: unknown
+    priority: low
+    enabled: false
+    source_type: aggregator
+    search_strategy: skip_if_login
+    notes: "Usar solo si la informacion verificable no queda bloqueada por login."
+    keywords:
+      - energy
+      - consulting
+      - renewable energy
+      - natural gas
+      - green hydrogen
+      - energy storage
+      - grid planning
+      - transmission
+      - distribution
+      - energy efficiency
+      - demand-side management
+      - technical assistance
+      - feasibility study
+    search_queries:
+      - "site:www.developmentaid.org electricity tariff regulation consulting study technical assistance deadline"
+      - "site:www.developmentaid.org renewable energy solar wind distributed generation auctions grid integration consulting deadline"
+      - "site:www.developmentaid.org natural gas tariff market study gas-to-power regulatory consulting deadline"
+      - "site:www.developmentaid.org green hydrogen feasibility study strategy regulation market design consulting deadline"
+      - "site:www.developmentaid.org energy storage batteries grid integration storage regulation technical advisory deadline"
+      - "site:www.developmentaid.org transmission distribution grid planning interconnection loss reduction consulting deadline"
+      - "site:www.developmentaid.org energy efficiency demand-side management tariff incentives program evaluation consulting deadline"
+    fallback_queries:
+      - "DevelopmentAid renewable energy natural gas green hydrogen consulting feasibility study deadline"
+      - "DevelopmentAid energy storage transmission distribution grid energy efficiency consulting deadline"
+    language_hint: en
+    day_group_original: "ciudades fuera de EE.UU."
+
+  - id: uk_find_tender
+    name: UK Find a Tender
+    region: global_cities
+    country: United Kingdom
+    url: https://www.find-tender.service.gov.uk
+    requires_login: false
+    has_captcha: false
+    priority: medium
+    enabled: true
+    source_type: national_portal
+    search_strategy: web_discovery
+    notes: "Util para autoridades locales y utilities publicas fuera de EE.UU."
+    keywords:
+      - electricity
+      - energy consulting
+      - regulation
+      - renewable energy
+      - natural gas
+      - green hydrogen
+      - energy storage
+      - grid planning
+      - transmission
+      - distribution
+      - energy efficiency
+      - demand-side management
+      - technical assistance
+      - feasibility study
+    search_domains:
+      - find-tender.service.gov.uk
+    search_queries:
+      - "site:find-tender.service.gov.uk electricity energy consulting regulation tender deadline"
+      - "site:find-tender.service.gov.uk utility tariff renewable energy consultancy closing date"
+      - "site:find-tender.service.gov.uk electricity tariff regulation consulting study technical assistance deadline"
+      - "site:find-tender.service.gov.uk renewable energy solar wind distributed generation auctions grid integration consulting deadline"
+      - "site:find-tender.service.gov.uk natural gas tariff market study gas-to-power regulatory consulting deadline"
+      - "site:find-tender.service.gov.uk green hydrogen feasibility study strategy regulation market design consulting deadline"
+      - "site:find-tender.service.gov.uk energy storage batteries grid integration storage regulation technical advisory deadline"
+      - "site:find-tender.service.gov.uk transmission distribution grid planning interconnection loss reduction consulting deadline"
+      - "site:find-tender.service.gov.uk energy efficiency demand-side management tariff incentives program evaluation consulting deadline"
+    fallback_queries:
+      - "UK Find a Tender electricity energy consulting regulation deadline"
+      - "UK Find a Tender renewable energy natural gas green hydrogen consulting feasibility study deadline"
+      - "UK Find a Tender energy storage transmission distribution grid energy efficiency consulting deadline"
+    language_hint: en
+    day_group_original: "ciudades fuera de EE.UU."
+
+  - id: canada_buyandsell
+    name: CanadaBuys Tender Opportunities
+    region: global_cities
+    country: Canada
+    url: https://canadabuys.canada.ca/en/tender-opportunities
+    requires_login: false
+    has_captcha: false
+    priority: medium
+    enabled: true
+    source_type: national_portal
+    search_strategy: web_discovery
+    notes: "Incluir oportunidades provinciales/municipales cuando sean verificables."
+    keywords:
+      - energy
+      - utility
+      - rate study
+      - renewable energy
+      - natural gas
+      - green hydrogen
+      - energy storage
+      - grid planning
+      - transmission
+      - distribution
+      - energy efficiency
+      - demand-side management
+      - technical assistance
+      - feasibility study
+    search_domains:
+      - canadabuys.canada.ca
+    search_queries:
+      - "site:canadabuys.canada.ca energy utility rate study consulting tender closing date"
+      - "site:canadabuys.canada.ca electricity tariff utility financial analysis consultant"
+      - "site:canadabuys.canada.ca electricity tariff regulation consulting study technical assistance deadline"
+      - "site:canadabuys.canada.ca renewable energy solar wind distributed generation auctions grid integration consulting deadline"
+      - "site:canadabuys.canada.ca natural gas tariff market study gas-to-power regulatory consulting deadline"
+      - "site:canadabuys.canada.ca green hydrogen feasibility study strategy regulation market design consulting deadline"
+      - "site:canadabuys.canada.ca energy storage batteries grid integration storage regulation technical advisory deadline"
+      - "site:canadabuys.canada.ca transmission distribution grid planning interconnection loss reduction consulting deadline"
+      - "site:canadabuys.canada.ca energy efficiency demand-side management tariff incentives program evaluation consulting deadline"
+    fallback_queries:
+      - "CanadaBuys energy utility rate study consulting tender closing date"
+      - "CanadaBuys Tender Opportunities renewable energy natural gas green hydrogen consulting feasibility study deadline"
+      - "CanadaBuys Tender Opportunities energy storage transmission distribution grid energy efficiency consulting deadline"
+    language_hint: en
+    day_group_original: "ciudades fuera de EE.UU."
+
+  # Prioridad Alta
+  - id: ungm
+    name: United Nations Global Marketplace
+    region: multilaterals
+    country:
+    url: https://www.ungm.org/Public/Notice
+    requires_login: false
+    has_captcha: unknown
+    priority: high
+    enabled: true
+    source_type: multilateral
+    search_strategy: multilateral_search
+    notes: "Portal oficial de procurement del sistema ONU; priorizar consultorias verificables de energia, utilities, regulacion y transicion energetica."
+    keywords:
+      - energy
+      - electricity
+      - consulting
+      - regulation
+      - renewable energy
+      - natural gas
+      - green hydrogen
+      - energy storage
+      - grid planning
+      - transmission
+      - distribution
+      - energy efficiency
+      - demand-side management
+      - technical assistance
+      - feasibility study
+      - climate finance
+      - energy transition
+    search_domains:
+      - ungm.org
+    search_queries:
+      - "site:ungm.org/Public/Notice electricity energy regulation consulting services deadline"
+      - "site:ungm.org/Public/Notice renewable energy utility tariff consultant expression of interest"
+      - "site:ungm.org electricity tariff regulation consulting study technical assistance deadline"
+      - "site:ungm.org renewable energy solar wind distributed generation auctions grid integration consulting deadline"
+      - "site:ungm.org natural gas tariff market study gas-to-power regulatory consulting deadline"
+      - "site:ungm.org green hydrogen feasibility study strategy regulation market design consulting deadline"
+      - "site:ungm.org energy storage batteries grid integration storage regulation technical advisory deadline"
+      - "site:ungm.org transmission distribution grid planning interconnection loss reduction consulting deadline"
+      - "site:ungm.org energy efficiency demand-side management tariff incentives program evaluation consulting deadline"
+      - "site:ungm.org climate finance energy transition technical assistance advisory services deadline"
+    fallback_queries:
+      - "UNGM electricity energy regulation consulting services tender deadline"
+      - "United Nations Global Marketplace renewable energy natural gas green hydrogen consulting feasibility study deadline"
+      - "United Nations Global Marketplace energy storage transmission distribution grid energy efficiency consulting deadline"
+      - "United Nations Global Marketplace climate finance energy transition technical assistance advisory deadline"
+    language_hint: en
+    day_group_original: "Europa/global/multilaterales"
+
+  - id: undp_procurement
+    name: UNDP Procurement Notices
+    region: multilaterals
+    country:
+    url: https://procurement-notices.undp.org
+    requires_login: false
+    has_captcha: unknown
+    priority: high
+    enabled: true
+    source_type: multilateral
+    search_strategy: multilateral_search
+    notes: "Fuente oficial UNDP para oportunidades de consultoria en energia, clima, utilities y fortalecimiento institucional."
+    keywords:
+      - energy
+      - renewable energy
+      - climate
+      - consulting
+      - natural gas
+      - green hydrogen
+      - energy storage
+      - grid planning
+      - transmission
+      - distribution
+      - energy efficiency
+      - demand-side management
+      - technical assistance
+      - feasibility study
+      - climate finance
+      - energy transition
+    search_domains:
+      - procurement-notices.undp.org
+    search_queries:
+      - "site:procurement-notices.undp.org energy renewable electricity consulting deadline"
+      - "site:procurement-notices.undp.org power sector regulation tariff consultant procurement notice"
+      - "site:procurement-notices.undp.org electricity tariff regulation consulting study technical assistance deadline"
+      - "site:procurement-notices.undp.org renewable energy solar wind distributed generation auctions grid integration consulting deadline"
+      - "site:procurement-notices.undp.org natural gas tariff market study gas-to-power regulatory consulting deadline"
+      - "site:procurement-notices.undp.org green hydrogen feasibility study strategy regulation market design consulting deadline"
+      - "site:procurement-notices.undp.org energy storage batteries grid integration storage regulation technical advisory deadline"
+      - "site:procurement-notices.undp.org transmission distribution grid planning interconnection loss reduction consulting deadline"
+      - "site:procurement-notices.undp.org energy efficiency demand-side management tariff incentives program evaluation consulting deadline"
+      - "site:procurement-notices.undp.org climate finance energy transition technical assistance advisory services deadline"
+    fallback_queries:
+      - "UNDP procurement notices energy electricity consulting deadline"
+      - "UNDP Procurement Notices renewable energy natural gas green hydrogen consulting feasibility study deadline"
+      - "UNDP Procurement Notices energy storage transmission distribution grid energy efficiency consulting deadline"
+      - "UNDP Procurement Notices climate finance energy transition technical assistance advisory deadline"
+    language_hint: en
+    day_group_original: "Europa/global/multilaterales"
+
+  - id: eib_tenders
+    name: European Investment Bank Calls for Tenders
+    region: multilaterals
+    country:
+    url: https://www.eib.org/en/about/procurement/calls-for-tender
+    requires_login: false
+    has_captcha: false
+    priority: high
+    enabled: true
+    source_type: multilateral
+    search_strategy: multilateral_search
+    notes: "Banco multilateral europeo; buscar asesorias tecnico-financieras, energia, infraestructura y regulacion."
+    keywords:
+      - energy
+      - infrastructure
+      - consulting
+      - financial advisory
+      - renewable energy
+      - natural gas
+      - green hydrogen
+      - energy storage
+      - grid planning
+      - transmission
+      - distribution
+      - energy efficiency
+      - demand-side management
+      - technical assistance
+      - feasibility study
+      - climate finance
+      - energy transition
+    search_domains:
+      - eib.org
+    search_queries:
+      - "site:eib.org/en/about/procurement/calls-for-tender energy consulting services deadline"
+      - "site:eib.org procurement electricity renewable energy technical assistance tender"
+      - "site:eib.org electricity tariff regulation consulting study technical assistance deadline"
+      - "site:eib.org renewable energy solar wind distributed generation auctions grid integration consulting deadline"
+      - "site:eib.org natural gas tariff market study gas-to-power regulatory consulting deadline"
+      - "site:eib.org green hydrogen feasibility study strategy regulation market design consulting deadline"
+      - "site:eib.org energy storage batteries grid integration storage regulation technical advisory deadline"
+      - "site:eib.org transmission distribution grid planning interconnection loss reduction consulting deadline"
+      - "site:eib.org energy efficiency demand-side management tariff incentives program evaluation consulting deadline"
+      - "site:eib.org climate finance energy transition technical assistance advisory services deadline"
+    fallback_queries:
+      - "EIB calls for tender energy consulting technical assistance deadline"
+      - "European Investment Bank Calls for Tenders renewable energy natural gas green hydrogen consulting feasibility study deadline"
+      - "European Investment Bank Calls for Tenders energy storage transmission distribution grid energy efficiency consulting deadline"
+      - "European Investment Bank Calls for Tenders climate finance energy transition technical assistance advisory deadline"
+    language_hint: en
+    day_group_original: "Europa/global/multilaterales"
+
+  - id: giz_procurement
+    name: GIZ Bidding and Procurement
+    region: multilaterals
+    country: Germany
+    url: https://www.giz.de/en/workingwithgiz/bidding_procurement.html
+    requires_login: false
+    has_captcha: unknown
+    priority: high
+    enabled: true
+    source_type: multilateral
+    search_strategy: multilateral_search
+    notes: "Cooperacion tecnica alemana; fuente relevante para energia, eficiencia, renovables y regulacion."
+    keywords:
+      - energy transition
+      - renewable energy
+      - consulting
+      - technical assistance
+      - natural gas
+      - green hydrogen
+      - energy storage
+      - grid planning
+      - transmission
+      - distribution
+      - energy efficiency
+      - demand-side management
+      - feasibility study
+      - climate finance
+    search_domains:
+      - giz.de
+    search_queries:
+      - "site:giz.de tender energy transition renewable energy consulting deadline"
+      - "site:giz.de procurement electricity regulation technical assistance consultant"
+      - "site:giz.de electricity tariff regulation consulting study technical assistance deadline"
+      - "site:giz.de renewable energy solar wind distributed generation auctions grid integration consulting deadline"
+      - "site:giz.de natural gas tariff market study gas-to-power regulatory consulting deadline"
+      - "site:giz.de green hydrogen feasibility study strategy regulation market design consulting deadline"
+      - "site:giz.de energy storage batteries grid integration storage regulation technical advisory deadline"
+      - "site:giz.de transmission distribution grid planning interconnection loss reduction consulting deadline"
+      - "site:giz.de energy efficiency demand-side management tariff incentives program evaluation consulting deadline"
+      - "site:giz.de climate finance energy transition technical assistance advisory services deadline"
+    fallback_queries:
+      - "GIZ procurement energy transition renewable energy consulting tender deadline"
+      - "GIZ Bidding and Procurement renewable energy natural gas green hydrogen consulting feasibility study deadline"
+      - "GIZ Bidding and Procurement energy storage transmission distribution grid energy efficiency consulting deadline"
+      - "GIZ Bidding and Procurement climate finance energy transition technical assistance advisory deadline"
+    language_hint: en
+    day_group_original: "Europa/global/multilaterales"
+
+  - id: mcc_procurement
+    name: Millennium Challenge Corporation Procurements
+    region: multilaterals
+    country: United States
+    url: https://www.mcc.gov/work-with-us/procurements
+    requires_login: false
+    has_captcha: false
+    priority: high
+    enabled: true
+    source_type: multilateral
+    search_strategy: multilateral_search
+    notes: "Fuente oficial MCC; buscar consultorias de energia, utilities, planificacion y fortalecimiento institucional."
+    keywords:
+      - energy
+      - power sector
+      - utility
+      - consulting
+      - renewable energy
+      - natural gas
+      - green hydrogen
+      - energy storage
+      - grid planning
+      - transmission
+      - distribution
+      - energy efficiency
+      - demand-side management
+      - technical assistance
+      - feasibility study
+      - climate finance
+      - energy transition
+    search_domains:
+      - mcc.gov
+    search_queries:
+      - "site:mcc.gov/work-with-us/procurements energy power sector utility consulting deadline"
+      - "site:mcc.gov procurement electricity tariff regulation consultant"
+      - "site:mcc.gov electricity tariff regulation consulting study technical assistance deadline"
+      - "site:mcc.gov renewable energy solar wind distributed generation auctions grid integration consulting deadline"
+      - "site:mcc.gov natural gas tariff market study gas-to-power regulatory consulting deadline"
+      - "site:mcc.gov green hydrogen feasibility study strategy regulation market design consulting deadline"
+      - "site:mcc.gov energy storage batteries grid integration storage regulation technical advisory deadline"
+      - "site:mcc.gov transmission distribution grid planning interconnection loss reduction consulting deadline"
+      - "site:mcc.gov energy efficiency demand-side management tariff incentives program evaluation consulting deadline"
+      - "site:mcc.gov climate finance energy transition technical assistance advisory services deadline"
+    fallback_queries:
+      - "MCC procurements energy power sector utility consulting deadline"
+      - "Millennium Challenge Corporation Procurements renewable energy natural gas green hydrogen consulting feasibility study deadline"
+      - "Millennium Challenge Corporation Procurements energy storage transmission distribution grid energy efficiency consulting deadline"
+      - "Millennium Challenge Corporation Procurements climate finance energy transition technical assistance advisory deadline"
+    language_hint: en
+    day_group_original: "Europa/global/multilaterales"
+
+  - id: green_climate_fund
+    name: Green Climate Fund Procurement
+    region: multilaterals
+    country:
+    url: https://www.greenclimate.fund/about/procurement
+    requires_login: false
+    has_captcha: unknown
+    priority: high
+    enabled: true
+    source_type: multilateral
+    search_strategy: multilateral_search
+    notes: "Fuente oficial GCF; priorizar consultorias de energia, clima, financiamiento y modelizacion."
+    keywords:
+      - energy
+      - climate finance
+      - renewable energy
+      - consulting
+      - natural gas
+      - green hydrogen
+      - energy storage
+      - grid planning
+      - transmission
+      - distribution
+      - energy efficiency
+      - demand-side management
+      - technical assistance
+      - feasibility study
+      - energy transition
+    search_domains:
+      - greenclimate.fund
+    search_queries:
+      - "site:greenclimate.fund procurement energy renewable consulting deadline"
+      - "site:greenclimate.fund procurement climate finance electricity technical assistance"
+      - "site:greenclimate.fund electricity tariff regulation consulting study technical assistance deadline"
+      - "site:greenclimate.fund renewable energy solar wind distributed generation auctions grid integration consulting deadline"
+      - "site:greenclimate.fund natural gas tariff market study gas-to-power regulatory consulting deadline"
+      - "site:greenclimate.fund green hydrogen feasibility study strategy regulation market design consulting deadline"
+      - "site:greenclimate.fund energy storage batteries grid integration storage regulation technical advisory deadline"
+      - "site:greenclimate.fund transmission distribution grid planning interconnection loss reduction consulting deadline"
+      - "site:greenclimate.fund energy efficiency demand-side management tariff incentives program evaluation consulting deadline"
+      - "site:greenclimate.fund climate finance energy transition technical assistance advisory services deadline"
+    fallback_queries:
+      - "Green Climate Fund procurement energy renewable consulting deadline"
+      - "Green Climate Fund Procurement renewable energy natural gas green hydrogen consulting feasibility study deadline"
+      - "Green Climate Fund Procurement energy storage transmission distribution grid energy efficiency consulting deadline"
+      - "Green Climate Fund Procurement climate finance energy transition technical assistance advisory deadline"
+    language_hint: en
+    day_group_original: "Europa/global/multilaterales"
+
+  - id: ndb_procurement
+    name: New Development Bank Procurement
+    region: multilaterals
+    country:
+    url: https://www.ndb.int/procurement/
+    requires_login: false
+    has_captcha: unknown
+    priority: high
+    enabled: true
+    source_type: multilateral
+    search_strategy: multilateral_search
+    notes: "Banco multilateral BRICS; buscar infraestructura energetica, consultoria y asistencia tecnica."
+    keywords:
+      - energy
+      - infrastructure
+      - consulting
+      - technical assistance
+      - renewable energy
+      - natural gas
+      - green hydrogen
+      - energy storage
+      - grid planning
+      - transmission
+      - distribution
+      - energy efficiency
+      - demand-side management
+      - feasibility study
+      - climate finance
+      - energy transition
+    search_domains:
+      - ndb.int
+    search_queries:
+      - "site:ndb.int procurement energy electricity consulting services deadline"
+      - "site:ndb.int procurement renewable energy technical assistance consultant"
+      - "site:ndb.int electricity tariff regulation consulting study technical assistance deadline"
+      - "site:ndb.int renewable energy solar wind distributed generation auctions grid integration consulting deadline"
+      - "site:ndb.int natural gas tariff market study gas-to-power regulatory consulting deadline"
+      - "site:ndb.int green hydrogen feasibility study strategy regulation market design consulting deadline"
+      - "site:ndb.int energy storage batteries grid integration storage regulation technical advisory deadline"
+      - "site:ndb.int transmission distribution grid planning interconnection loss reduction consulting deadline"
+      - "site:ndb.int energy efficiency demand-side management tariff incentives program evaluation consulting deadline"
+      - "site:ndb.int climate finance energy transition technical assistance advisory services deadline"
+    fallback_queries:
+      - "New Development Bank procurement energy consulting services deadline"
+      - "New Development Bank Procurement renewable energy natural gas green hydrogen consulting feasibility study deadline"
+      - "New Development Bank Procurement energy storage transmission distribution grid energy efficiency consulting deadline"
+      - "New Development Bank Procurement climate finance energy transition technical assistance advisory deadline"
+    language_hint: en
+    day_group_original: "Europa/global/multilaterales"
+
+  - id: aiib_business_opportunities
+    name: Asian Infrastructure Investment Bank Business Opportunities
+    region: multilaterals
+    country:
+    url: https://www.aiib.org/en/opportunities/business/index.html
+    requires_login: false
+    has_captcha: unknown
+    priority: high
+    enabled: true
+    source_type: multilateral
+    search_strategy: multilateral_search
+    notes: "Fuente oficial AIIB para oportunidades de negocio, incluyendo energia, infraestructura y consultorias."
+    keywords:
+      - energy
+      - power sector
+      - infrastructure
+      - consulting
+      - renewable energy
+      - natural gas
+      - green hydrogen
+      - energy storage
+      - grid planning
+      - transmission
+      - distribution
+      - energy efficiency
+      - demand-side management
+      - technical assistance
+      - feasibility study
+      - climate finance
+      - energy transition
+    search_domains:
+      - aiib.org
+    search_queries:
+      - "site:aiib.org/en/opportunities/business energy power sector consulting deadline"
+      - "site:aiib.org procurement electricity renewable energy consultant expression of interest"
+      - "site:aiib.org electricity tariff regulation consulting study technical assistance deadline"
+      - "site:aiib.org renewable energy solar wind distributed generation auctions grid integration consulting deadline"
+      - "site:aiib.org natural gas tariff market study gas-to-power regulatory consulting deadline"
+      - "site:aiib.org green hydrogen feasibility study strategy regulation market design consulting deadline"
+      - "site:aiib.org energy storage batteries grid integration storage regulation technical advisory deadline"
+      - "site:aiib.org transmission distribution grid planning interconnection loss reduction consulting deadline"
+      - "site:aiib.org energy efficiency demand-side management tariff incentives program evaluation consulting deadline"
+      - "site:aiib.org climate finance energy transition technical assistance advisory services deadline"
+    fallback_queries:
+      - "AIIB business opportunities energy power sector consulting deadline"
+      - "Asian Infrastructure Investment Bank Business Opportunities renewable energy natural gas green hydrogen consulting feasibility study deadline"
+      - "Asian Infrastructure Investment Bank Business Opportunities energy storage transmission distribution grid energy efficiency consulting deadline"
+      - "Asian Infrastructure Investment Bank Business Opportunities climate finance energy transition technical assistance advisory deadline"
+    language_hint: en
+    day_group_original: "Europa/global/multilaterales"
+
+  - id: pa_puc_rfps
+    name: Pennsylvania Public Utility Commission RFPs
+    region: usa_cities
+    country: United States
+    url: https://www.puc.pa.gov/about-the-puc/request-for-proposals/
+    requires_login: false
+    has_captcha: false
+    priority: high
+    enabled: true
+    source_type: regulator
+    search_strategy: web_discovery
+    notes: "RFPs regulatorias de utilities: rate studies, resource adequacy, energia electrica y eficiencia."
+    keywords:
+      - electric utility
+      - rate study
+      - resource adequacy
+      - evaluator
+      - renewable energy
+      - natural gas
+      - green hydrogen
+      - energy storage
+      - grid planning
+      - transmission
+      - distribution
+      - energy efficiency
+      - demand-side management
+      - technical assistance
+      - feasibility study
+    search_domains:
+      - puc.pa.gov
+      - emarketplace.state.pa.us
+    search_queries:
+      - "site:puc.pa.gov request for proposals electric utility rate study consultant deadline"
+      - "site:emarketplace.state.pa.us PUC electric resource adequacy evaluator RFP deadline"
+      - "site:puc.pa.gov electricity tariff regulation consulting study technical assistance deadline"
+      - "site:puc.pa.gov renewable energy solar wind distributed generation auctions grid integration consulting deadline"
+      - "site:puc.pa.gov natural gas tariff market study gas-to-power regulatory consulting deadline"
+      - "site:puc.pa.gov green hydrogen feasibility study strategy regulation market design consulting deadline"
+      - "site:puc.pa.gov energy storage batteries grid integration storage regulation technical advisory deadline"
+      - "site:puc.pa.gov transmission distribution grid planning interconnection loss reduction consulting deadline"
+      - "site:puc.pa.gov energy efficiency demand-side management tariff incentives program evaluation consulting deadline"
+    fallback_queries:
+      - "Pennsylvania PUC request for proposals electric utility consultant deadline"
+      - "Pennsylvania Public Utility Commission RFPs renewable energy natural gas green hydrogen consulting feasibility study deadline"
+      - "Pennsylvania Public Utility Commission RFPs energy storage transmission distribution grid energy efficiency consulting deadline"
+    language_hint: en
+    day_group_original: "EE.UU. por ciudades"
+
+  - id: dc_psc_procurement
+    name: District of Columbia Public Service Commission Procurement
+    region: usa_cities
+    country: United States
+    url: https://dcpsc.org/About-PSC/Procurement/Contracting-and-Procurement.aspx
+    requires_login: false
+    has_captcha: false
+    priority: high
+    enabled: true
+    source_type: regulator
+    search_strategy: web_discovery
+    notes: "RFPs de consultoria tecnica para rate cases, revenue requirements, rate design y utilities."
+    keywords:
+      - rate case
+      - rate design
+      - revenue requirements
+      - technical consulting
+      - renewable energy
+      - natural gas
+      - green hydrogen
+      - energy storage
+      - grid planning
+      - transmission
+      - distribution
+      - energy efficiency
+      - demand-side management
+      - technical assistance
+      - feasibility study
+    search_domains:
+      - dcpsc.org
+    search_queries:
+      - "site:dcpsc.org RFP technical consulting services rate case rate design deadline"
+      - "site:dcpsc.org procurement utility revenue requirements engineering review consultant"
+      - "site:dcpsc.org electricity tariff regulation consulting study technical assistance deadline"
+      - "site:dcpsc.org renewable energy solar wind distributed generation auctions grid integration consulting deadline"
+      - "site:dcpsc.org natural gas tariff market study gas-to-power regulatory consulting deadline"
+      - "site:dcpsc.org green hydrogen feasibility study strategy regulation market design consulting deadline"
+      - "site:dcpsc.org energy storage batteries grid integration storage regulation technical advisory deadline"
+      - "site:dcpsc.org transmission distribution grid planning interconnection loss reduction consulting deadline"
+      - "site:dcpsc.org energy efficiency demand-side management tariff incentives program evaluation consulting deadline"
+    fallback_queries:
+      - "DC Public Service Commission procurement rate case consulting RFP deadline"
+      - "District of Columbia Public Service Commission Procurement renewable energy natural gas green hydrogen consulting feasibility study deadline"
+      - "District of Columbia Public Service Commission Procurement energy storage transmission distribution grid energy efficiency consulting deadline"
+    language_hint: en
+    day_group_original: "EE.UU. por ciudades"
+
+  - id: georgia_psc
+    name: Georgia Public Service Commission
+    region: usa_cities
+    country: United States
+    url: https://psc.ga.gov
+    requires_login: false
+    has_captcha: false
+    priority: high
+    enabled: true
+    source_type: regulator
+    search_strategy: web_discovery
+    notes: "Buscar RFPs de cost of service, IRP, base rate cases y analisis regulatorio."
+    keywords:
+      - cost of service
+      - rate case
+      - IRP
+      - regulatory consulting
+      - renewable energy
+      - natural gas
+      - green hydrogen
+      - energy storage
+      - grid planning
+      - transmission
+      - distribution
+      - energy efficiency
+      - demand-side management
+      - technical assistance
+      - feasibility study
+    search_domains:
+      - psc.ga.gov
+    search_queries:
+      - "site:psc.ga.gov RFP cost of service study consultant deadline"
+      - "site:psc.ga.gov Georgia Power rate case IRP consulting services proposal"
+      - "site:psc.ga.gov electricity tariff regulation consulting study technical assistance deadline"
+      - "site:psc.ga.gov renewable energy solar wind distributed generation auctions grid integration consulting deadline"
+      - "site:psc.ga.gov natural gas tariff market study gas-to-power regulatory consulting deadline"
+      - "site:psc.ga.gov green hydrogen feasibility study strategy regulation market design consulting deadline"
+      - "site:psc.ga.gov energy storage batteries grid integration storage regulation technical advisory deadline"
+      - "site:psc.ga.gov transmission distribution grid planning interconnection loss reduction consulting deadline"
+      - "site:psc.ga.gov energy efficiency demand-side management tariff incentives program evaluation consulting deadline"
+    fallback_queries:
+      - "Georgia Public Service Commission cost of service RFP consultant deadline"
+      - "Georgia Public Service Commission renewable energy natural gas green hydrogen consulting feasibility study deadline"
+      - "Georgia Public Service Commission energy storage transmission distribution grid energy efficiency consulting deadline"
+    language_hint: en
+    day_group_original: "EE.UU. por ciudades"
+
+  - id: ohio_occ
+    name: Ohio Consumers' Counsel RFPs
+    region: usa_cities
+    country: United States
+    url: https://www.occ.ohio.gov
+    requires_login: false
+    has_captcha: false
+    priority: high
+    enabled: true
+    source_type: regulator
+    search_strategy: web_discovery
+    notes: "Fuente para consultorias de cost of service, revenue allocation, rate design y casos electricos."
+    keywords:
+      - cost of service
+      - revenue allocation
+      - rate design
+      - electric utility
+      - renewable energy
+      - natural gas
+      - green hydrogen
+      - energy storage
+      - grid planning
+      - transmission
+      - distribution
+      - energy efficiency
+      - demand-side management
+      - technical assistance
+      - feasibility study
+    search_domains:
+      - occ.ohio.gov
+    search_queries:
+      - "site:occ.ohio.gov RFP cost of service revenue allocation rate design electric deadline"
+      - "site:occ.ohio.gov technical assistance consultant electric utility rate case"
+      - "site:occ.ohio.gov electricity tariff regulation consulting study technical assistance deadline"
+      - "site:occ.ohio.gov renewable energy solar wind distributed generation auctions grid integration consulting deadline"
+      - "site:occ.ohio.gov natural gas tariff market study gas-to-power regulatory consulting deadline"
+      - "site:occ.ohio.gov green hydrogen feasibility study strategy regulation market design consulting deadline"
+      - "site:occ.ohio.gov energy storage batteries grid integration storage regulation technical advisory deadline"
+      - "site:occ.ohio.gov transmission distribution grid planning interconnection loss reduction consulting deadline"
+      - "site:occ.ohio.gov energy efficiency demand-side management tariff incentives program evaluation consulting deadline"
+    fallback_queries:
+      - "Ohio Consumers Counsel RFP cost of service rate design electric utility consultant"
+      - "Ohio Consumers' Counsel RFPs renewable energy natural gas green hydrogen consulting feasibility study deadline"
+      - "Ohio Consumers' Counsel RFPs energy storage transmission distribution grid energy efficiency consulting deadline"
+    language_hint: en
+    day_group_original: "EE.UU. por ciudades"
+
+  - id: central_coast_community_energy
+    name: Central Coast Community Energy RFPs
+    region: usa_cities
+    country: United States
+    url: https://3cenergy.org/about-us/work-with-us/request-for-proposals/
+    requires_login: false
+    has_captcha: false
+    priority: high
+    enabled: true
+    source_type: utility
+    search_strategy: city_search
+    notes: "Community Choice Aggregator con RFPs de rate design, cost analysis y load/rate modeling."
+    keywords:
+      - rate design
+      - cost analysis
+      - load analysis
+      - energy rates
+      - renewable energy
+      - natural gas
+      - green hydrogen
+      - energy storage
+      - grid planning
+      - transmission
+      - distribution
+      - energy efficiency
+      - demand-side management
+      - technical assistance
+      - feasibility study
+    search_domains:
+      - 3cenergy.org
+    search_queries:
+      - "site:3cenergy.org request for proposals rate design cost analysis energy deadline"
+      - "site:3cenergy.org RFP energy rate comparison load analysis consultant"
+      - "site:3cenergy.org electricity tariff regulation consulting study technical assistance deadline"
+      - "site:3cenergy.org renewable energy solar wind distributed generation auctions grid integration consulting deadline"
+      - "site:3cenergy.org natural gas tariff market study gas-to-power regulatory consulting deadline"
+      - "site:3cenergy.org green hydrogen feasibility study strategy regulation market design consulting deadline"
+      - "site:3cenergy.org energy storage batteries grid integration storage regulation technical advisory deadline"
+      - "site:3cenergy.org transmission distribution grid planning interconnection loss reduction consulting deadline"
+      - "site:3cenergy.org energy efficiency demand-side management tariff incentives program evaluation consulting deadline"
+    fallback_queries:
+      - "Central Coast Community Energy RFP rate design cost analysis consultant deadline"
+      - "Central Coast Community Energy RFPs renewable energy natural gas green hydrogen consulting feasibility study deadline"
+      - "Central Coast Community Energy RFPs energy storage transmission distribution grid energy efficiency consulting deadline"
+    language_hint: en
+    day_group_original: "EE.UU. por ciudades"
+
+  # Prioridad Media-Alta
+  - id: uk_desnz_find_tender
+    name: UK DESNZ and Great British Energy Tenders
+    region: global_cities
+    country: United Kingdom
+    url: https://www.find-tender.service.gov.uk
+    requires_login: false
+    has_captcha: false
+    priority: high
+    enabled: true
+    source_type: national_portal
+    search_strategy: web_discovery
+    notes: "Busqueda enfocada en DESNZ, Great British Energy, net zero professional services y consultoria electrica."
+    keywords:
+      - DESNZ
+      - Great British Energy
+      - energy consulting
+      - electricity
+      - renewable energy
+      - natural gas
+      - green hydrogen
+      - energy storage
+      - grid planning
+      - transmission
+      - distribution
+      - energy efficiency
+      - demand-side management
+      - technical assistance
+      - feasibility study
+    search_domains:
+      - find-tender.service.gov.uk
+    search_queries:
+      - "site:find-tender.service.gov.uk DESNZ electricity energy consulting tender deadline"
+      - "site:find-tender.service.gov.uk Great British Energy technical professional advisory support deadline"
+      - "site:find-tender.service.gov.uk electricity tariff regulation consulting study technical assistance deadline"
+      - "site:find-tender.service.gov.uk renewable energy solar wind distributed generation auctions grid integration consulting deadline"
+      - "site:find-tender.service.gov.uk natural gas tariff market study gas-to-power regulatory consulting deadline"
+      - "site:find-tender.service.gov.uk green hydrogen feasibility study strategy regulation market design consulting deadline"
+      - "site:find-tender.service.gov.uk energy storage batteries grid integration storage regulation technical advisory deadline"
+      - "site:find-tender.service.gov.uk transmission distribution grid planning interconnection loss reduction consulting deadline"
+      - "site:find-tender.service.gov.uk energy efficiency demand-side management tariff incentives program evaluation consulting deadline"
+    fallback_queries:
+      - "UK Find a Tender DESNZ Great British Energy energy consulting deadline"
+      - "UK DESNZ and Great British Energy Tenders renewable energy natural gas green hydrogen consulting feasibility study deadline"
+      - "UK DESNZ and Great British Energy Tenders energy storage transmission distribution grid energy efficiency consulting deadline"
+    language_hint: en
+    day_group_original: "ciudades fuera de EE.UU."
+
+  - id: acer_open_calls
+    name: ACER Open Calls
+    region: europe_global
+    country:
+    url: https://www.acer.europa.eu/the-agency/public-procurement/open-calls
+    requires_login: false
+    has_captcha: false
+    priority: medium
+    enabled: true
+    source_type: regulator
+    search_strategy: direct_portal
+    notes: "Agencia europea de reguladores energeticos; revisar open calls vinculadas a electricidad, tarifas y mercados."
+    keywords:
+      - electricity
+      - tariff
+      - energy regulation
+      - market monitoring
+      - renewable energy
+      - natural gas
+      - green hydrogen
+      - energy storage
+      - grid planning
+      - transmission
+      - distribution
+      - energy efficiency
+      - demand-side management
+      - technical assistance
+      - feasibility study
+    search_domains:
+      - acer.europa.eu
+    search_queries:
+      - "site:acer.europa.eu/the-agency/public-procurement/open-calls electricity tariff regulation consulting deadline"
+      - "site:acer.europa.eu procurement energy market monitoring consultant open call"
+      - "site:acer.europa.eu electricity tariff regulation consulting study technical assistance deadline"
+      - "site:acer.europa.eu renewable energy solar wind distributed generation auctions grid integration consulting deadline"
+      - "site:acer.europa.eu natural gas tariff market study gas-to-power regulatory consulting deadline"
+      - "site:acer.europa.eu green hydrogen feasibility study strategy regulation market design consulting deadline"
+      - "site:acer.europa.eu energy storage batteries grid integration storage regulation technical advisory deadline"
+      - "site:acer.europa.eu transmission distribution grid planning interconnection loss reduction consulting deadline"
+      - "site:acer.europa.eu energy efficiency demand-side management tariff incentives program evaluation consulting deadline"
+    fallback_queries:
+      - "ACER open calls electricity tariff regulation consulting deadline"
+      - "ACER Open Calls renewable energy natural gas green hydrogen consulting feasibility study deadline"
+      - "ACER Open Calls energy storage transmission distribution grid energy efficiency consulting deadline"
+    language_hint: en
+    day_group_original: "Europa/global/multilaterales"
+
+  - id: eu_funding_tenders
+    name: EU Funding and Tenders Portal
+    region: europe_global
+    country:
+    url: https://ec.europa.eu/info/funding-tenders/opportunities/portal/screen/opportunities/tenders
+    requires_login: false
+    has_captcha: unknown
+    priority: medium
+    enabled: true
+    source_type: national_portal
+    search_strategy: web_discovery
+    notes: "Portal europeo para oportunidades y licitaciones; usar queries restrictivas para energia, redes y consultoria."
+    keywords:
+      - electricity
+      - energy
+      - grid
+      - consulting
+      - renewable energy
+      - natural gas
+      - green hydrogen
+      - energy storage
+      - grid planning
+      - transmission
+      - distribution
+      - energy efficiency
+      - demand-side management
+      - technical assistance
+      - feasibility study
+    search_domains:
+      - ec.europa.eu
+    search_queries:
+      - "site:ec.europa.eu/info/funding-tenders/opportunities electricity grid energy consulting tender deadline"
+      - "site:ec.europa.eu energy regulation tariff consultancy services call for tenders"
+      - "site:ec.europa.eu electricity tariff regulation consulting study technical assistance deadline"
+      - "site:ec.europa.eu renewable energy solar wind distributed generation auctions grid integration consulting deadline"
+      - "site:ec.europa.eu natural gas tariff market study gas-to-power regulatory consulting deadline"
+      - "site:ec.europa.eu green hydrogen feasibility study strategy regulation market design consulting deadline"
+      - "site:ec.europa.eu energy storage batteries grid integration storage regulation technical advisory deadline"
+      - "site:ec.europa.eu transmission distribution grid planning interconnection loss reduction consulting deadline"
+      - "site:ec.europa.eu energy efficiency demand-side management tariff incentives program evaluation consulting deadline"
+    fallback_queries:
+      - "EU Funding and Tenders electricity energy consulting tender deadline"
+      - "EU Funding and Tenders Portal renewable energy natural gas green hydrogen consulting feasibility study deadline"
+      - "EU Funding and Tenders Portal energy storage transmission distribution grid energy efficiency consulting deadline"
+    language_hint: en
+    day_group_original: "Europa/global/multilaterales"
+
+  - id: south_africa_etenders
+    name: South Africa eTender Publication Portal
+    region: africa
+    country: South Africa
+    url: https://www.etenders.gov.za
+    requires_login: false
+    has_captcha: unknown
+    priority: medium
+    enabled: true
+    source_type: national_portal
+    search_strategy: web_discovery
+    notes: "Portal nacional oficial sudafricano; buscar consultorias de electricidad, tarifas, utilities y energia."
+    keywords:
+      - electricity
+      - energy
+      - tariff
+      - consulting
+      - renewable energy
+      - natural gas
+      - green hydrogen
+      - energy storage
+      - grid planning
+      - transmission
+      - distribution
+      - energy efficiency
+      - demand-side management
+      - technical assistance
+      - feasibility study
+    search_domains:
+      - etenders.gov.za
+    search_queries:
+      - "site:etenders.gov.za electricity tariff energy consulting tender closing date"
+      - "site:etenders.gov.za utility rate study renewable energy consultant bid"
+      - "site:etenders.gov.za electricity tariff regulation consulting study technical assistance deadline"
+      - "site:etenders.gov.za renewable energy solar wind distributed generation auctions grid integration consulting deadline"
+      - "site:etenders.gov.za natural gas tariff market study gas-to-power regulatory consulting deadline"
+      - "site:etenders.gov.za green hydrogen feasibility study strategy regulation market design consulting deadline"
+      - "site:etenders.gov.za energy storage batteries grid integration storage regulation technical advisory deadline"
+      - "site:etenders.gov.za transmission distribution grid planning interconnection loss reduction consulting deadline"
+      - "site:etenders.gov.za energy efficiency demand-side management tariff incentives program evaluation consulting deadline"
+    fallback_queries:
+      - "South Africa eTender electricity energy tariff consulting closing date"
+      - "South Africa eTender Publication Portal renewable energy natural gas green hydrogen consulting feasibility study deadline"
+      - "South Africa eTender Publication Portal energy storage transmission distribution grid energy efficiency consulting deadline"
+    language_hint: en
+    day_group_original: "Africa"
+
+  - id: nersa
+    name: National Energy Regulator of South Africa
+    region: africa
+    country: South Africa
+    url: https://www.nersa.org.za
+    requires_login: false
+    has_captcha: unknown
+    priority: medium
+    enabled: true
+    source_type: regulator
+    search_strategy: web_discovery
+    notes: "Regulador energetico sudafricano; buscar RFPs/quotes de tarifas, mercados y regulacion."
+    keywords:
+      - electricity tariffs
+      - regulation
+      - consulting
+      - market analysis
+      - renewable energy
+      - natural gas
+      - green hydrogen
+      - energy storage
+      - grid planning
+      - transmission
+      - distribution
+      - energy efficiency
+      - demand-side management
+      - technical assistance
+      - feasibility study
+    search_domains:
+      - nersa.org.za
+    search_queries:
+      - "site:nersa.org.za tender electricity tariff regulation consulting deadline"
+      - "site:nersa.org.za request for proposals energy market analysis consultant"
+      - "site:nersa.org.za electricity tariff regulation consulting study technical assistance deadline"
+      - "site:nersa.org.za renewable energy solar wind distributed generation auctions grid integration consulting deadline"
+      - "site:nersa.org.za natural gas tariff market study gas-to-power regulatory consulting deadline"
+      - "site:nersa.org.za green hydrogen feasibility study strategy regulation market design consulting deadline"
+      - "site:nersa.org.za energy storage batteries grid integration storage regulation technical advisory deadline"
+      - "site:nersa.org.za transmission distribution grid planning interconnection loss reduction consulting deadline"
+      - "site:nersa.org.za energy efficiency demand-side management tariff incentives program evaluation consulting deadline"
+    fallback_queries:
+      - "NERSA tender electricity tariff regulation consulting deadline"
+      - "National Energy Regulator of South Africa renewable energy natural gas green hydrogen consulting feasibility study deadline"
+      - "National Energy Regulator of South Africa energy storage transmission distribution grid energy efficiency consulting deadline"
+    language_hint: en
+    day_group_original: "Africa"
+
+  - id: ethiopian_electric_power
+    name: Ethiopian Electric Power Procurement
+    region: africa
+    country: Ethiopia
+    url: https://www.eep.com.et
+    requires_login: false
+    has_captcha: unknown
+    priority: medium
+    enabled: true
+    source_type: utility
+    search_strategy: web_discovery
+    notes: "Utility electrica; buscar EOI/RFP de feasibility studies, power planning, solar PV y analisis tecnico-economico."
+    keywords:
+      - feasibility study
+      - power sector
+      - solar PV
+      - consulting
+      - renewable energy
+      - natural gas
+      - green hydrogen
+      - energy storage
+      - grid planning
+      - transmission
+      - distribution
+      - energy efficiency
+      - demand-side management
+      - technical assistance
+    search_domains:
+      - eep.com.et
+    search_queries:
+      - "site:eep.com.et expression of interest feasibility study power sector consultant deadline"
+      - "site:eep.com.et procurement solar PV electricity consulting services deadline"
+      - "site:eep.com.et electricity tariff regulation consulting study technical assistance deadline"
+      - "site:eep.com.et renewable energy solar wind distributed generation auctions grid integration consulting deadline"
+      - "site:eep.com.et natural gas tariff market study gas-to-power regulatory consulting deadline"
+      - "site:eep.com.et green hydrogen feasibility study strategy regulation market design consulting deadline"
+      - "site:eep.com.et energy storage batteries grid integration storage regulation technical advisory deadline"
+      - "site:eep.com.et transmission distribution grid planning interconnection loss reduction consulting deadline"
+      - "site:eep.com.et energy efficiency demand-side management tariff incentives program evaluation consulting deadline"
+    fallback_queries:
+      - "Ethiopian Electric Power procurement feasibility study power sector consultant deadline"
+      - "Ethiopian Electric Power Procurement renewable energy natural gas green hydrogen consulting feasibility study deadline"
+      - "Ethiopian Electric Power Procurement energy storage transmission distribution grid energy efficiency consulting deadline"
+    language_hint: en
+    day_group_original: "Africa"
+
+  - id: rwanda_reg_edcl
+    name: Rwanda Energy Group and EDCL Procurement
+    region: africa
+    country: Rwanda
+    url: https://www.reg.rw
+    requires_login: false
+    has_captcha: unknown
+    priority: medium
+    enabled: true
+    source_type: utility
+    search_strategy: web_discovery
+    notes: "Fuente para EDCL/REG; buscar estudios de factibilidad, redes de transmision/distribucion y capacity building."
+    keywords:
+      - feasibility study
+      - transmission
+      - distribution
+      - consulting
+      - renewable energy
+      - natural gas
+      - green hydrogen
+      - energy storage
+      - grid planning
+      - energy efficiency
+      - demand-side management
+      - technical assistance
+    search_domains:
+      - reg.rw
+      - edcl.reg.rw
+    search_queries:
+      - "site:reg.rw consulting services feasibility study transmission distribution deadline"
+      - "site:edcl.reg.rw procurement energy utility consultant expression of interest deadline"
+      - "site:reg.rw electricity tariff regulation consulting study technical assistance deadline"
+      - "site:reg.rw renewable energy solar wind distributed generation auctions grid integration consulting deadline"
+      - "site:reg.rw natural gas tariff market study gas-to-power regulatory consulting deadline"
+      - "site:reg.rw green hydrogen feasibility study strategy regulation market design consulting deadline"
+      - "site:reg.rw energy storage batteries grid integration storage regulation technical advisory deadline"
+      - "site:reg.rw transmission distribution grid planning interconnection loss reduction consulting deadline"
+      - "site:reg.rw energy efficiency demand-side management tariff incentives program evaluation consulting deadline"
+    fallback_queries:
+      - "Rwanda Energy Group EDCL consulting services feasibility study deadline"
+      - "Rwanda Energy Group and EDCL Procurement renewable energy natural gas green hydrogen consulting feasibility study deadline"
+      - "Rwanda Energy Group and EDCL Procurement energy storage transmission distribution grid energy efficiency consulting deadline"
+    language_hint: en
+    day_group_original: "Africa"
+
+  - id: eapp
+    name: Eastern Africa Power Pool
+    region: africa
+    country:
+    url: https://eappool.org
+    requires_login: false
+    has_captcha: unknown
+    priority: medium
+    enabled: true
+    source_type: multilateral
+    search_strategy: web_discovery
+    notes: "Organismo regional; buscar consultorias de power pool, interconectores, tarifas transfronterizas y regulacion."
+    keywords:
+      - power pool
+      - cross-border tariffs
+      - interconnector
+      - consulting
+      - renewable energy
+      - natural gas
+      - green hydrogen
+      - energy storage
+      - grid planning
+      - transmission
+      - distribution
+      - energy efficiency
+      - demand-side management
+      - technical assistance
+      - feasibility study
+      - climate finance
+      - energy transition
+    search_domains:
+      - eappool.org
+    search_queries:
+      - "site:eappool.org tender power pool cross-border tariff consulting deadline"
+      - "site:eappool.org procurement interconnector electricity regulation consultant"
+      - "site:eappool.org electricity tariff regulation consulting study technical assistance deadline"
+      - "site:eappool.org renewable energy solar wind distributed generation auctions grid integration consulting deadline"
+      - "site:eappool.org natural gas tariff market study gas-to-power regulatory consulting deadline"
+      - "site:eappool.org green hydrogen feasibility study strategy regulation market design consulting deadline"
+      - "site:eappool.org energy storage batteries grid integration storage regulation technical advisory deadline"
+      - "site:eappool.org transmission distribution grid planning interconnection loss reduction consulting deadline"
+      - "site:eappool.org energy efficiency demand-side management tariff incentives program evaluation consulting deadline"
+      - "site:eappool.org climate finance energy transition technical assistance advisory services deadline"
+    fallback_queries:
+      - "Eastern Africa Power Pool procurement cross-border tariff consulting deadline"
+      - "Eastern Africa Power Pool renewable energy natural gas green hydrogen consulting feasibility study deadline"
+      - "Eastern Africa Power Pool energy storage transmission distribution grid energy efficiency consulting deadline"
+      - "Eastern Africa Power Pool climate finance energy transition technical assistance advisory deadline"
+    language_hint: en
+    day_group_original: "Africa"
+
+  - id: morocco_anre
+    name: Morocco National Electricity Regulatory Authority
+    region: africa
+    country: Morocco
+    url: https://anre.ma/en/home-page/
+    requires_login: false
+    has_captcha: unknown
+    priority: medium
+    enabled: true
+    source_type: regulator
+    search_strategy: web_discovery
+    notes: "Regulador electrico marroqui; buscar consultorias sobre tarifas de red, acceso, mercado y regulacion."
+    keywords:
+      - electricity tariffs
+      - network access
+      - regulation
+      - consulting
+      - renewable energy
+      - natural gas
+      - green hydrogen
+      - energy storage
+      - grid planning
+      - transmission
+      - distribution
+      - energy efficiency
+      - demand-side management
+      - technical assistance
+      - feasibility study
+    search_domains:
+      - anre.ma
+    search_queries:
+      - "site:anre.ma tender electricity tariff network access regulation consultant"
+      - "site:anre.ma procurement electricity market regulation consulting deadline"
+      - "site:anre.ma electricity tariff regulation consulting study technical assistance deadline"
+      - "site:anre.ma renewable energy solar wind distributed generation auctions grid integration consulting deadline"
+      - "site:anre.ma natural gas tariff market study gas-to-power regulatory consulting deadline"
+      - "site:anre.ma green hydrogen feasibility study strategy regulation market design consulting deadline"
+      - "site:anre.ma energy storage batteries grid integration storage regulation technical advisory deadline"
+      - "site:anre.ma transmission distribution grid planning interconnection loss reduction consulting deadline"
+      - "site:anre.ma energy efficiency demand-side management tariff incentives program evaluation consulting deadline"
+    fallback_queries:
+      - "Morocco ANRE electricity tariff regulation consulting tender deadline"
+      - "Morocco National Electricity Regulatory Authority renewable energy natural gas green hydrogen consulting feasibility study deadline"
+      - "Morocco National Electricity Regulatory Authority energy storage transmission distribution grid energy efficiency consulting deadline"
+    language_hint: en
+    day_group_original: "Africa"
+
+  - id: colombia_fenoge
+    name: Colombia FENOGE Convocatorias
+    region: latam
+    country: Colombia
+    url: https://fenoge.gov.co/convocatorias/
+    requires_login: false
+    has_captcha: unknown
+    priority: medium
+    enabled: true
+    source_type: national_portal
+    search_strategy: web_discovery
+    notes: "Fondo colombiano de energias no convencionales y gestion eficiente; buscar convocatorias y procesos de consultoria."
+    keywords:
+      - energia
+      - eficiencia energetica
+      - renovables
+      - consultoria
+      - energias renovables
+      - gas natural
+      - hidrogeno verde
+      - almacenamiento energia
+      - redes electricas
+      - transmision
+      - distribucion
+      - gestion demanda
+      - asistencia tecnica
+      - estudio factibilidad
+    search_domains:
+      - fenoge.gov.co
+    search_queries:
+      - "site:fenoge.gov.co convocatoria energia eficiencia energetica consultoria cierre"
+      - "site:fenoge.gov.co proceso seleccion energias renovables consultor fecha cierre"
+      - "site:fenoge.gov.co energia electrica tarifas regulacion consultoria estudio fecha cierre"
+      - "site:fenoge.gov.co energias renovables solar eolica generacion distribuida consultoria estudio fecha cierre"
+      - "site:fenoge.gov.co gas natural tarifas mercado regulacion consultoria estudio fecha cierre"
+      - "site:fenoge.gov.co hidrogeno verde factibilidad estrategia regulacion consultoria fecha cierre"
+      - "site:fenoge.gov.co almacenamiento energia baterias integracion red consultoria estudio fecha cierre"
+      - "site:fenoge.gov.co transmision distribucion redes perdidas interconexion consultoria estudio fecha cierre"
+      - "site:fenoge.gov.co eficiencia energetica gestion demanda consultoria estudio fecha cierre"
+    fallback_queries:
+      - "FENOGE convocatorias energia eficiencia energetica consultoria cierre"
+      - "Colombia FENOGE Convocatorias energias renovables gas natural hidrogeno verde consultoria estudio fecha cierre"
+      - "Colombia FENOGE Convocatorias almacenamiento energia transmision distribucion eficiencia energetica consultoria cierre"
+    language_hint: es
+    day_group_original: "Latinoamerica"
+
+  # Portales Nacionales Oficiales Para Ampliar Cobertura
+  - id: argentina_comprar
+    name: Argentina COMPR.AR
+    region: latam
+    country: Argentina
+    url: https://comprar.gob.ar
+    requires_login: false
+    has_captcha: unknown
+    priority: medium
+    enabled: true
+    source_type: national_portal
+    search_strategy: web_discovery
+    notes: "Portal nacional argentino para bienes y servicios; buscar consultorias energeticas, tarifarias y regulatorias."
+    keywords:
+      - energia electrica
+      - tarifas
+      - regulacion
+      - consultoria
+      - energias renovables
+      - gas natural
+      - hidrogeno verde
+      - almacenamiento energia
+      - redes electricas
+      - transmision
+      - distribucion
+      - eficiencia energetica
+      - gestion demanda
+      - asistencia tecnica
+      - estudio factibilidad
+    search_domains:
+      - comprar.gob.ar
+    search_queries:
+      - "site:comprar.gob.ar energia electrica tarifas regulacion consultoria fecha apertura"
+      - "site:comprar.gob.ar renovables planificacion energetica consultoria licitacion cierre"
+      - "site:comprar.gob.ar energia electrica tarifas regulacion consultoria estudio fecha cierre"
+      - "site:comprar.gob.ar energias renovables solar eolica generacion distribuida consultoria estudio fecha cierre"
+      - "site:comprar.gob.ar gas natural tarifas mercado regulacion consultoria estudio fecha cierre"
+      - "site:comprar.gob.ar hidrogeno verde factibilidad estrategia regulacion consultoria fecha cierre"
+      - "site:comprar.gob.ar almacenamiento energia baterias integracion red consultoria estudio fecha cierre"
+      - "site:comprar.gob.ar transmision distribucion redes perdidas interconexion consultoria estudio fecha cierre"
+      - "site:comprar.gob.ar eficiencia energetica gestion demanda consultoria estudio fecha cierre"
+    fallback_queries:
+      - "Argentina COMPR.AR energia electrica tarifas regulacion consultoria licitacion"
+      - "Argentina COMPR.AR energias renovables gas natural hidrogeno verde consultoria estudio fecha cierre"
+      - "Argentina COMPR.AR almacenamiento energia transmision distribucion eficiencia energetica consultoria cierre"
+    language_hint: es
+    day_group_original: "Latinoamerica"
+
+  - id: argentina_contratar
+    name: Argentina CONTRAT.AR
+    region: latam
+    country: Argentina
+    url: https://contratar.gob.ar
+    requires_login: false
+    has_captcha: unknown
+    priority: low
+    enabled: true
+    source_type: national_portal
+    search_strategy: web_discovery
+    notes: "Portal argentino de obra publica; usar con queries restrictivas para evitar EPC/obra y capturar estudios o consultorias."
+    keywords:
+      - energia electrica
+      - estudio
+      - consultoria
+      - planificacion
+      - energias renovables
+      - gas natural
+      - hidrogeno verde
+      - almacenamiento energia
+      - redes electricas
+      - transmision
+      - distribucion
+      - eficiencia energetica
+      - gestion demanda
+      - asistencia tecnica
+      - estudio factibilidad
+    search_domains:
+      - contratar.gob.ar
+    search_queries:
+      - "site:contratar.gob.ar energia electrica estudio consultoria planificacion fecha apertura"
+      - "site:contratar.gob.ar tarifas electricas consultoria regulacion licitacion cierre"
+      - "site:contratar.gob.ar energia electrica tarifas regulacion consultoria estudio fecha cierre"
+      - "site:contratar.gob.ar energias renovables solar eolica generacion distribuida consultoria estudio fecha cierre"
+      - "site:contratar.gob.ar gas natural tarifas mercado regulacion consultoria estudio fecha cierre"
+      - "site:contratar.gob.ar hidrogeno verde factibilidad estrategia regulacion consultoria fecha cierre"
+      - "site:contratar.gob.ar almacenamiento energia baterias integracion red consultoria estudio fecha cierre"
+      - "site:contratar.gob.ar transmision distribucion redes perdidas interconexion consultoria estudio fecha cierre"
+      - "site:contratar.gob.ar eficiencia energetica gestion demanda consultoria estudio fecha cierre"
+    fallback_queries:
+      - "Argentina CONTRAT.AR energia electrica estudio consultoria licitacion cierre"
+      - "Argentina CONTRAT.AR energias renovables gas natural hidrogeno verde consultoria estudio fecha cierre"
+      - "Argentina CONTRAT.AR almacenamiento energia transmision distribucion eficiencia energetica consultoria cierre"
+    language_hint: es
+    day_group_original: "Latinoamerica"
+
+  - id: brazil_compras
+    name: Brazil Compras.gov.br
+    region: latam
+    country: Brazil
+    url: https://www.gov.br/compras
+    requires_login: false
+    has_captcha: unknown
+    priority: medium
+    enabled: true
+    source_type: national_portal
+    search_strategy: web_discovery
+    notes: "Portal federal brasileno de compras; buscar consultorias de energia eletrica, tarifas, regulacao y renovables."
+    keywords:
+      - energia eletrica
+      - tarifas
+      - regulacao
+      - consultoria
+      - energias renovaveis
+      - gas natural
+      - hidrogenio verde
+      - armazenamento energia
+      - redes eletricas
+      - transmissao
+      - distribuicao
+      - eficiencia energetica
+      - gestao demanda
+      - assistencia tecnica
+      - estudo viabilidade
+    search_domains:
+      - gov.br
+      - compras.gov.br
+    search_queries:
+      - "site:compras.gov.br energia eletrica tarifas regulacao consultoria licitacao prazo"
+      - "site:gov.br/compras energia eletrica renovaveis planejamento consultoria licitacao"
+      - "site:gov.br energia eletrica tarifas regulacao consultoria estudo prazo"
+      - "site:gov.br energias renovaveis solar eolica geracao distribuida consultoria estudo prazo"
+      - "site:gov.br gas natural tarifas mercado regulacao consultoria estudo prazo"
+      - "site:gov.br hidrogenio verde viabilidade estrategia regulacao consultoria prazo"
+      - "site:gov.br armazenamento energia baterias integracao rede consultoria estudo prazo"
+      - "site:gov.br transmissao distribuicao rede perdas interconexao consultoria estudo prazo"
+      - "site:gov.br eficiencia energetica gestao demanda consultoria estudo prazo"
+    fallback_queries:
+      - "Compras.gov.br energia eletrica tarifas regulacao consultoria licitacao prazo"
+      - "Brazil Compras.gov.br energias renovaveis gas natural hidrogenio verde consultoria estudo prazo"
+      - "Brazil Compras.gov.br armazenamento energia transmissao distribuicao eficiencia energetica consultoria prazo"
+    language_hint: pt
+    day_group_original: "Latinoamerica"
+
+  - id: mexico_compranet
+    name: Mexico CompraNet
+    region: latam
+    country: Mexico
+    url: https://compranet.hacienda.gob.mx
+    requires_login: false
+    has_captcha: unknown
+    priority: medium
+    enabled: true
+    source_type: national_portal
+    search_strategy: web_discovery
+    notes: "Portal federal mexicano; buscar consultorias de energia electrica, tarifas, regulacion y planeacion."
+    keywords:
+      - energia electrica
+      - tarifas
+      - regulacion
+      - consultoria
+      - energias renovables
+      - gas natural
+      - hidrogeno verde
+      - almacenamiento energia
+      - redes electricas
+      - transmision
+      - distribucion
+      - eficiencia energetica
+      - gestion demanda
+      - asistencia tecnica
+      - estudio factibilidad
+    search_domains:
+      - compranet.hacienda.gob.mx
+      - hacienda.gob.mx
+    search_queries:
+      - "site:compranet.hacienda.gob.mx energia electrica tarifas regulacion consultoria fecha cierre"
+      - "site:hacienda.gob.mx CompraNet energia renovable planeacion electrica consultoria licitacion"
+      - "site:compranet.hacienda.gob.mx energia electrica tarifas regulacion consultoria estudio fecha cierre"
+      - "site:compranet.hacienda.gob.mx energias renovables solar eolica generacion distribuida consultoria estudio fecha cierre"
+      - "site:compranet.hacienda.gob.mx gas natural tarifas mercado regulacion consultoria estudio fecha cierre"
+      - "site:compranet.hacienda.gob.mx hidrogeno verde factibilidad estrategia regulacion consultoria fecha cierre"
+      - "site:compranet.hacienda.gob.mx almacenamiento energia baterias integracion red consultoria estudio fecha cierre"
+      - "site:compranet.hacienda.gob.mx transmision distribucion redes perdidas interconexion consultoria estudio fecha cierre"
+      - "site:compranet.hacienda.gob.mx eficiencia energetica gestion demanda consultoria estudio fecha cierre"
+    fallback_queries:
+      - "Mexico CompraNet energia electrica tarifas regulacion consultoria fecha cierre"
+      - "Mexico CompraNet energias renovables gas natural hidrogeno verde consultoria estudio fecha cierre"
+      - "Mexico CompraNet almacenamiento energia transmision distribucion eficiencia energetica consultoria cierre"
+    language_hint: es
+    day_group_original: "Latinoamerica"
+
+  - id: peru_seace
+    name: Peru SEACE
+    region: latam
+    country: Peru
+    url: https://www.seace.gob.pe
+    requires_login: false
+    has_captcha: unknown
+    priority: medium
+    enabled: true
+    source_type: national_portal
+    search_strategy: web_discovery
+    notes: "Sistema peruano de contrataciones; buscar consultorias de energia, tarifas, regulacion y planeamiento."
+    keywords:
+      - energia electrica
+      - tarifas
+      - regulacion
+      - consultoria
+      - energias renovables
+      - gas natural
+      - hidrogeno verde
+      - almacenamiento energia
+      - redes electricas
+      - transmision
+      - distribucion
+      - eficiencia energetica
+      - gestion demanda
+      - asistencia tecnica
+      - estudio factibilidad
+    search_domains:
+      - seace.gob.pe
+      - gob.pe
+    search_queries:
+      - "site:seace.gob.pe energia electrica tarifas regulacion consultoria fecha cierre"
+      - "site:gob.pe SEACE energia renovable planeamiento electrico consultoria licitacion"
+      - "site:seace.gob.pe energia electrica tarifas regulacion consultoria estudio fecha cierre"
+      - "site:seace.gob.pe energias renovables solar eolica generacion distribuida consultoria estudio fecha cierre"
+      - "site:seace.gob.pe gas natural tarifas mercado regulacion consultoria estudio fecha cierre"
+      - "site:seace.gob.pe hidrogeno verde factibilidad estrategia regulacion consultoria fecha cierre"
+      - "site:seace.gob.pe almacenamiento energia baterias integracion red consultoria estudio fecha cierre"
+      - "site:seace.gob.pe transmision distribucion redes perdidas interconexion consultoria estudio fecha cierre"
+      - "site:seace.gob.pe eficiencia energetica gestion demanda consultoria estudio fecha cierre"
+    fallback_queries:
+      - "Peru SEACE energia electrica tarifas regulacion consultoria fecha cierre"
+      - "Peru SEACE energias renovables gas natural hidrogeno verde consultoria estudio fecha cierre"
+      - "Peru SEACE almacenamiento energia transmision distribucion eficiencia energetica consultoria cierre"
+    language_hint: es
+    day_group_original: "Latinoamerica"
+
+  - id: ecuador_sercop
+    name: Ecuador SERCOP Compras Publicas
+    region: latam
+    country: Ecuador
+    url: https://www.compraspublicas.gob.ec
+    requires_login: false
+    has_captcha: unknown
+    priority: medium
+    enabled: true
+    source_type: national_portal
+    search_strategy: web_discovery
+    notes: "Portal ecuatoriano de compras publicas; buscar consultorias electricas, regulatorias y energeticas."
+    keywords:
+      - energia electrica
+      - tarifas
+      - regulacion
+      - consultoria
+      - energias renovables
+      - gas natural
+      - hidrogeno verde
+      - almacenamiento energia
+      - redes electricas
+      - transmision
+      - distribucion
+      - eficiencia energetica
+      - gestion demanda
+      - asistencia tecnica
+      - estudio factibilidad
+    search_domains:
+      - compraspublicas.gob.ec
+      - portal.compraspublicas.gob.ec
+    search_queries:
+      - "site:compraspublicas.gob.ec energia electrica tarifas regulacion consultoria fecha cierre"
+      - "site:portal.compraspublicas.gob.ec energia renovable consultoria licitacion apertura"
+      - "site:compraspublicas.gob.ec energia electrica tarifas regulacion consultoria estudio fecha cierre"
+      - "site:compraspublicas.gob.ec energias renovables solar eolica generacion distribuida consultoria estudio fecha cierre"
+      - "site:compraspublicas.gob.ec gas natural tarifas mercado regulacion consultoria estudio fecha cierre"
+      - "site:compraspublicas.gob.ec hidrogeno verde factibilidad estrategia regulacion consultoria fecha cierre"
+      - "site:compraspublicas.gob.ec almacenamiento energia baterias integracion red consultoria estudio fecha cierre"
+      - "site:compraspublicas.gob.ec transmision distribucion redes perdidas interconexion consultoria estudio fecha cierre"
+      - "site:compraspublicas.gob.ec eficiencia energetica gestion demanda consultoria estudio fecha cierre"
+    fallback_queries:
+      - "Ecuador SERCOP energia electrica tarifas regulacion consultoria fecha cierre"
+      - "Ecuador SERCOP Compras Publicas energias renovables gas natural hidrogeno verde consultoria estudio fecha cierre"
+      - "Ecuador SERCOP Compras Publicas almacenamiento energia transmision distribucion eficiencia energetica consultoria cierre"
+    language_hint: es
+    day_group_original: "Latinoamerica"
+
+  - id: dominican_dgcp
+    name: Dominican Republic DGCP Compras Dominicanas
+    region: latam
+    country: Dominican Republic
+    url: https://www.dgcp.gob.do
+    requires_login: false
+    has_captcha: unknown
+    priority: low
+    enabled: true
+    source_type: national_portal
+    search_strategy: web_discovery
+    notes: "Portal/organismo rector dominicano; buscar procesos de energia, regulacion, tarifas y consultoria."
+    keywords:
+      - energia electrica
+      - tarifas
+      - regulacion
+      - consultoria
+      - energias renovables
+      - gas natural
+      - hidrogeno verde
+      - almacenamiento energia
+      - redes electricas
+      - transmision
+      - distribucion
+      - eficiencia energetica
+      - gestion demanda
+      - asistencia tecnica
+      - estudio factibilidad
+    search_domains:
+      - dgcp.gob.do
+      - comprasdominicana.gob.do
+    search_queries:
+      - "site:dgcp.gob.do energia electrica tarifas regulacion consultoria fecha cierre"
+      - "site:comprasdominicana.gob.do energia renovable consultoria licitacion apertura"
+      - "site:dgcp.gob.do energia electrica tarifas regulacion consultoria estudio fecha cierre"
+      - "site:dgcp.gob.do energias renovables solar eolica generacion distribuida consultoria estudio fecha cierre"
+      - "site:dgcp.gob.do gas natural tarifas mercado regulacion consultoria estudio fecha cierre"
+      - "site:dgcp.gob.do hidrogeno verde factibilidad estrategia regulacion consultoria fecha cierre"
+      - "site:dgcp.gob.do almacenamiento energia baterias integracion red consultoria estudio fecha cierre"
+      - "site:dgcp.gob.do transmision distribucion redes perdidas interconexion consultoria estudio fecha cierre"
+      - "site:dgcp.gob.do eficiencia energetica gestion demanda consultoria estudio fecha cierre"
+    fallback_queries:
+      - "Republica Dominicana DGCP energia electrica tarifas regulacion consultoria fecha cierre"
+      - "Dominican Republic DGCP Compras Dominicanas energias renovables gas natural hidrogeno verde consultoria estudio fecha cierre"
+      - "Dominican Republic DGCP Compras Dominicanas almacenamiento energia transmision distribucion eficiencia energetica consultoria cierre"
+    language_hint: es
+    day_group_original: "Latinoamerica"

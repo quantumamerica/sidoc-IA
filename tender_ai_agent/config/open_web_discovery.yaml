@@ -1,0 +1,226 @@
+enabled: true
+
+official_source_policy:
+  description: "Open web discovery must only return official or publicly verifiable sources."
+  allowed_source_types:
+    - official procurement portals
+    - government ministries and agencies
+    - energy regulators
+    - public utilities and system operators
+    - municipalities and public authorities
+    - multilateral development banks
+    - international organizations
+  excluded_source_types:
+    - aggregators
+    - news articles
+    - blogs
+    - social media
+    - job boards
+    - press-only references without an official opportunity URL
+
+themes:
+  - id: electricity_tariffs_regulation
+    name: Electricity tariffs and regulation
+    search_queries:
+      - "official tender electricity tariff regulation consulting services deadline"
+      - "official procurement power sector tariff study regulatory advisory deadline"
+      - "public utility rate design cost of service consulting RFP deadline"
+    keywords:
+      - electricity
+      - tariff
+      - regulation
+      - rate design
+      - cost of service
+      - regulatory advisory
+
+  - id: renewable_energy
+    name: Renewable energy, auctions and grid integration
+    search_queries:
+      - "official tender renewable energy solar wind consulting feasibility study deadline"
+      - "government procurement renewable energy auctions grid integration advisory deadline"
+      - "official RFP distributed generation renewable energy technical assistance"
+    keywords:
+      - renewable energy
+      - solar
+      - wind
+      - distributed generation
+      - auctions
+      - grid integration
+
+  - id: natural_gas
+    name: Natural gas markets and regulation
+    search_queries:
+      - "official tender natural gas tariff market study regulatory consulting deadline"
+      - "government procurement gas-to-power natural gas advisory services deadline"
+      - "energy regulator natural gas market design consulting RFP"
+    keywords:
+      - natural gas
+      - gas tariffs
+      - gas market
+      - gas-to-power
+      - market design
+      - regulatory consulting
+
+  - id: green_hydrogen
+    name: Green hydrogen strategy and feasibility
+    search_queries:
+      - "official tender green hydrogen feasibility study consulting deadline"
+      - "government procurement hydrogen strategy regulation market design advisory"
+      - "public agency green hydrogen technical assistance RFP deadline"
+    keywords:
+      - green hydrogen
+      - hydrogen strategy
+      - feasibility study
+      - market design
+      - regulation
+      - technical assistance
+
+  - id: energy_storage
+    name: Energy storage and batteries
+    search_queries:
+      - "official tender energy storage battery feasibility study consulting deadline"
+      - "public procurement BESS grid integration advisory services deadline"
+      - "utility energy storage regulation technical assistance RFP"
+    keywords:
+      - energy storage
+      - batteries
+      - BESS
+      - grid integration
+      - storage regulation
+      - technical advisory
+
+  - id: transmission_distribution_grid
+    name: Transmission, distribution and grid planning
+    search_queries:
+      - "official tender transmission distribution grid planning consulting deadline"
+      - "utility procurement interconnection loss reduction technical assistance RFP"
+      - "government tender electricity network planning advisory services deadline"
+    keywords:
+      - transmission
+      - distribution
+      - grid planning
+      - interconnection
+      - loss reduction
+      - electricity network
+
+  - id: energy_efficiency_dsm
+    name: Energy efficiency and demand-side management
+    search_queries:
+      - "official tender energy efficiency demand-side management consulting deadline"
+      - "government procurement DSM tariff incentives program evaluation advisory"
+      - "public utility demand response energy efficiency technical assistance RFP"
+    keywords:
+      - energy efficiency
+      - demand-side management
+      - demand response
+      - tariff incentives
+      - program evaluation
+      - technical assistance
+
+  - id: climate_finance_transition
+    name: Climate finance and energy transition
+    search_queries:
+      - "official tender climate finance energy transition technical assistance deadline"
+      - "multilateral procurement energy transition advisory services consulting"
+      - "government climate finance renewable energy strategy consulting RFP"
+    keywords:
+      - climate finance
+      - energy transition
+      - advisory services
+      - technical assistance
+      - renewable energy strategy
+      - public finance
+
+regions:
+  latam:
+    languages:
+      - es
+      - pt
+      - en
+    region_scope: "Latin America and the Caribbean; prioritize Spanish, Portuguese and English official sources."
+    query_terms:
+      - "America Latina"
+      - "Latinoamerica"
+      - "Brasil"
+      - "energia"
+      - "consultoria"
+
+  africa:
+    languages:
+      - en
+      - fr
+      - ar
+    region_scope: "Africa; prioritize national procurement portals, energy regulators, public utilities and regional power pools."
+    query_terms:
+      - "Africa"
+      - "Afrique"
+      - "energy regulator"
+      - "public utility"
+
+  eastern_europe:
+    languages:
+      - en
+      - pl
+      - uk
+      - ro
+    region_scope: "Eastern Europe, Balkans, Caucasus and neighboring transition economies."
+    query_terms:
+      - "Eastern Europe"
+      - "Balkans"
+      - "Caucasus"
+      - "energy market"
+
+  europe_global:
+    languages:
+      - en
+    region_scope: "European Union, United Kingdom and pan-European official procurement sources."
+    query_terms:
+      - "European Union"
+      - "EU"
+      - "United Kingdom"
+      - "energy regulation"
+
+  oceania:
+    languages:
+      - en
+    region_scope: "Australia, New Zealand and Pacific public procurement and energy authorities."
+    query_terms:
+      - "Australia"
+      - "New Zealand"
+      - "Pacific"
+      - "public procurement"
+
+  usa_cities:
+    languages:
+      - en
+    region_scope: "United States city, state, regulator, public utility and federal official procurement sources."
+    query_terms:
+      - "United States"
+      - "municipal utility"
+      - "public service commission"
+      - "RFP"
+
+  global_cities:
+    languages:
+      - en
+      - es
+      - fr
+      - pt
+    region_scope: "Non-US cities, municipalities and public utilities worldwide."
+    query_terms:
+      - "city procurement"
+      - "municipal utility"
+      - "energy consulting"
+      - "official tender"
+
+  multilaterals:
+    languages:
+      - en
+      - es
+      - fr
+    region_scope: "Multilateral development banks, UN agencies, climate funds and international organizations."
+    query_terms:
+      - "World Bank"
+      - "UN"
+      - "development bank"
+      - "climate fund"
