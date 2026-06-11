@@ -26,6 +26,7 @@ outputs/
 logs/
 tender_ai_agent/outputs/
 tender_ai_agent/logs/
+tender_ai_agent/script_log.txt
 
 # OS and editor noise
 .DS_Store
