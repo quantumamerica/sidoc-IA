@@ -25,6 +25,8 @@ STAGE_FILE_NAMES = {
     PipelineStage.ELIGIBILITY.value: "eligibility_results.json",
     PipelineStage.ENRICHMENT.value: "enriched_opportunities.json",
     PipelineStage.VALIDATION.value: "validation_results.json",
+    PipelineStage.CONTENT_QUALITY_VALIDATION.value: "content_quality_validation_results.json",
+    PipelineStage.AI_VALIDATION.value: "ai_validation.json",
     PipelineStage.DEDUPLICATION.value: "deduplication_results.json",
     PipelineStage.DB_MAPPING.value: "db_mapped.json",
 }

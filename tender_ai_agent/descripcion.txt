@@ -1,0 +1,96 @@
+1. La arquitectura (el "embudo")
+El pipeline es un funnel secuencial de 7 etapas por proveedor/región, orquestado en provider_runner.py:
+
+discovery → identification → eligibility → enrichment → validation → deduplication → db_mapping
+Con dos modos de descubrimiento que corren en paralelo por región:
+
+contextual: una llamada por cada fuente de sources.yaml (search_agent.md)
+open_web: una llamada por tema configurado (open_web_discovery_agent.md)
+El diseño en sí es sólido (separación por etapas, auditoría, tracking de costos, comparación entre proveedores). El problema no es la estructura sino dónde y cómo se pierde el caudal.
+
+2. Diagnóstico de la última corrida (20260608_144533)
+contextual: raw=47 → candidatas=8  → elegibles=0 → validadas=0   (descartadas=8)
+open_web:   raw=64 → candidatas=6  → elegibles=1 → validadas=1   (descartadas=5)
+TOTAL: 14 candidatas → 1 validada → 1 insertada | costo 2.49 USD
+Dos hechos que saltan inmediatamente:
+
+El modo contextual produjo CERO validadas pese a consultar 47 fuentes y costar ~1 USD. Es el 60% del gasto tirado.
+Hay pérdidas invisibles antes incluso de contar "candidatas".
+3. Cuellos de botella concretos (ordenados por impacto)
+🔴 (1) Pérdida silenciosa por el enum process_type
+En el log se ven muchísimos descartes como:
+
+23:26:c-Users-adamonte-Desktop-AGUSTIN-Python-SGQ-Quantum-sidoc-ia\1
+process_type
+  Input should be 'EOI', 'RFP', 'RFQ', 'Tender', 'Procurement Notice' or 'Other' [input_value='Request for proposal']
+El LLM devuelve texto libre ("Request for proposal", "framework agreement", "Procurement of Service", "Technical Assistance", "Request for Proposals (RFP)"...) que no matchea el enum estricto ProcessType (schemas.py L99-105, usado en L307). Como Pydantic lanza ValidationError, en identification.py se descarta toda la candidata, no solo el campo:
+
+
+identification.py
+Lines 54-62
+                try:
+                    candidates.append(OpportunityCandidate.model_validate(item_with_provider))
+                except ValidationError as exc:
+                    logger.warning(
+                        "Candidata descartada por validacion Pydantic source_id=%s provider=%s error=%s",
+Peor aún: estas pérdidas ni siquiera entran en el conteo de "candidatas" ni de "descartadas", así que son invisibles en el reporte. En la región multilaterals sola conté ~8 oportunidades perdidas solo por esto.
+
+🔴 (2) El modo contextual NUNCA puede pasar elegibilidad
+eligibility.evaluate rechaza con MISSING_NORMALIZED_TITLE si falta normalized_title:
+
+
+eligibility.py
+Lines 48-53
+        if candidate.normalized_title is None:
+            return EligibilityResult(
+                candidate=candidate,
+                is_eligible=False,
+                reason=RejectionReason.MISSING_NORMALIZED_TITLE,
+            )
+Pero el prompt contextual search_agent.md no pide normalized_title en su schema de salida (solo raw_title, ver líneas 30-46). En cambio, el open_web_discovery_agent.md sí lo exige (línea 26).
+
+Esto explica perfectamente el resultado: contextual 8→0 elegibles, open_web 6→1. Las 8 candidatas contextuales se cayeron todas por no tener normalized_title, un campo que su propio prompt nunca les pidió generar.
+
+🟠 (3) enrichment es un no-op
+La etapa de enriquecimiento solo copia el objeto sin agregar nada:
+
+
+enrichment.py
+Lines 6-8
+class EnrichmentService:
+    def enrich(self, opportunities: list[OpportunityCandidate]) -> list[EnrichedOpportunity]:
+        return [EnrichedOpportunity(**opportunity.model_dump()) for opportunity in opportunities]
+Es el lugar natural para derivar normalized_title, verificar la URL/deadline, extraer evidencia y puntuar relevancia, pero hoy no hace nada.
+
+🟠 (4) La validación es puramente mecánica
+validation.py solo exige deadline futuro + presencia de evidencia. No hay juicio de IA sobre si la oportunidad es realmente potencial para el negocio. Existe un prompts/agents/basic_validation_agent.md que aparentemente no está conectado al código.
+
+🟡 (5) Filtros de elegibilidad por substring crudos
+
+eligibility.py
+Lines 57-60
+        if any(term in text for term in ["epc", "civil works", "construction", "obra", "construccion", "construcción"]):
+            return EligibilityResult(candidate=candidate, is_eligible=False, reason=RejectionReason.EPC_OR_WORKS)
+        if any(term in text for term in ["equipment supply", "supply of equipment", "suministro", "equipamiento"]):
+"supply" matchea "supply chain", "construction" aparece en "construction supervision advisory" (que podría ser consultoría válida). Genera falsos negativos.
+
+🟡 (6) Inconsistencia con deadlines
+validation.evaluate deja pasar ítems sin deadline, pero ValidatedOpportunity.sync_validation (schemas.py L492-496) los marca INVALID, y los criterios dicen "no aprobar sin deadline verificable". Hay descoordinación entre capas.
+
+4. Recomendaciones para aumentar validadas de calidad
+Te las separo en tres bloques según objetivo:
+
+A. Recuperar caudal hoy perdido (quick wins, alto ROI)
+Coerción de process_type: agregar un field_validator(mode="before") que mapee texto libre al enum (o caiga en OTHER) en vez de romper toda la candidata. Esto solo probablemente duplica o triplica las candidatas que llegan a elegibilidad.
+Pedir normalized_title en search_agent.md (o derivarlo automáticamente de raw_title en el modelo/enrichment). Esto destraba todo el modo contextual.
+Hacer la elegibilidad tolerante: si falta normalized_title pero hay raw_title, derivarlo en lugar de rechazar.
+B. Asegurar que sean "verdaderamente potenciales" (calidad)
+Conectar un validador con IA (LLM-as-judge) usando el basic_validation_agent.md existente: que puntúe relevancia al negocio (score 0-1), confirme que es consultoría (no obra/equipo) y verifique deadline/URL. Luego filtrás por umbral de score — esto sube la calidad sin inflar ruido.
+Implementar enrichment real: re-fetch de la URL oficial para confirmar que la oportunidad existe, el deadline y extraer evidencia. Sube la confianza de las que pasan.
+Reemplazar los filtros substring por reglas con contexto o delegarlos al LLM con criterios claros.
+Usar needs_review como estado intermedio en vez de descarte directo: las dudosas-pero-prometedoras van a revisión humana, no se pierden.
+C. Más candidatas de entrada (cobertura)
+Ampliar temas/queries de open_web, que fue el único modo que generó validadas.
+Investigar por qué 47 fuentes contextuales solo dieron 8 candidatas: ¿prompts muy restrictivos, search_domains vacíos, fuentes desactualizadas?
+Observabilidad: contar las pérdidas por enum/JSON como "descartadas" en el reporte para no tener fugas invisibles.
+Si tuviera que priorizar para la próxima corrida, haría (1), (2) y (3) primero: son cambios chicos y de bajo riesgo que muy probablemente lleven las validadas de 1 a un número de dos dígitos, y recién después agregaría el validador con IA del bloque B para no caer en el problema opuesto (mucho ruido de baja calidad).

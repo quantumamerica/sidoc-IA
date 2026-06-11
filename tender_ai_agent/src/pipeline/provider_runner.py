@@ -19,7 +19,9 @@ from models.schemas import (
     RawProviderResponse,
     SourceConfig,
 )
+from pipeline.ai_validation import AiBusinessValidationService
 from pipeline.audit import AuditLogger
+from pipeline.content_quality_validation import ContentQualityValidationService
 from pipeline.db_mapping import DbMappingService
 from pipeline.deduplication import DeduplicationService
 from pipeline.discovery import DiscoveryService
@@ -41,6 +43,8 @@ class ProviderPipelineRunner:
         self.eligibility = EligibilityService()
         self.enrichment = EnrichmentService()
         self.validation = ValidationService()
+        self.content_quality_validation = ContentQualityValidationService(settings)
+        self.ai_validation = AiBusinessValidationService(settings)
         self.deduplication = DeduplicationService()
         self.db_mapping = DbMappingService(settings)
 
@@ -111,6 +115,26 @@ class ProviderPipelineRunner:
         if validation_output:
             result.validated, rejected = validation_output
             result.discarded.extend(rejected)
+
+        content_quality_output = self._run_stage(
+            result,
+            PipelineStage.CONTENT_QUALITY_VALIDATION,
+            lambda: self.content_quality_validation.validate(result.validated),
+            input_payload=result.validated,
+        )
+        if content_quality_output:
+            result.validated, content_quality_rejected = content_quality_output
+            result.discarded.extend(content_quality_rejected)
+
+        ai_validation_output = self._run_stage(
+            result,
+            PipelineStage.AI_VALIDATION,
+            lambda: self.ai_validation.validate(result.validated),
+            input_payload=result.validated,
+        )
+        if ai_validation_output:
+            result.validated, ai_rejected = ai_validation_output
+            result.discarded.extend(ai_rejected)
 
         dedup_output = self._run_stage(
             result,

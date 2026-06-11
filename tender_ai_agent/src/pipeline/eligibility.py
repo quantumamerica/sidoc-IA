@@ -46,11 +46,15 @@ class EligibilityService:
             ]
         ).lower()
         if candidate.normalized_title is None:
-            return EligibilityResult(
-                candidate=candidate,
-                is_eligible=False,
-                reason=RejectionReason.MISSING_NORMALIZED_TITLE,
-            )
+            fallback_title = candidate.raw_title or candidate.titulo_estudio
+            if fallback_title and fallback_title.strip():
+                candidate.normalized_title = fallback_title.strip()
+            else:
+                return EligibilityResult(
+                    candidate=candidate,
+                    is_eligible=False,
+                    reason=RejectionReason.MISSING_NORMALIZED_TITLE,
+                )
         deadline = candidate.deadline_normalized or candidate.deadline
         if deadline and not is_future_date(deadline):
             return EligibilityResult(candidate=candidate, is_eligible=False, reason=RejectionReason.DEADLINE_EXPIRED)

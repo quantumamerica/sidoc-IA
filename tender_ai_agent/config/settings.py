@@ -22,6 +22,13 @@ class Settings(BaseModel):
     perplexity_api_key: str | None = None
     perplexity_model: str = "sonar-pro"
 
+    google_api_key: str | None = None
+    gemini_model: str = "gemini-2.5-flash-lite"
+    content_quality_validation_enabled: bool = True
+    ai_validation_enabled: bool = True
+    ai_validation_threshold: float = 0.6
+    ai_validation_delay_seconds: float = 0.0
+
     database_url: str | None = None
     db_table_name: str = "licitacion"
     default_db_estado: str = "Sin Analizar"
@@ -108,6 +115,12 @@ def load_settings(project_root: Path) -> Settings:
         openai_model=os.getenv("OPENAI_MODEL", "gpt-4.1"),
         perplexity_api_key=os.getenv("PERPLEXITY_API_KEY") or None,
         perplexity_model=os.getenv("PERPLEXITY_MODEL", "sonar-pro"),
+        google_api_key=os.getenv("GOOGLE_API_KEY") or None,
+        gemini_model=os.getenv("GEMINI_MODEL", "gemini-2.5-flash-lite"),
+        content_quality_validation_enabled=_parse_bool(os.getenv("CONTENT_QUALITY_VALIDATION_ENABLED"), default=True),
+        ai_validation_enabled=_parse_bool(os.getenv("AI_VALIDATION_ENABLED"), default=True),
+        ai_validation_threshold=float(os.getenv("AI_VALIDATION_THRESHOLD", "0.6")),
+        ai_validation_delay_seconds=float(os.getenv("AI_VALIDATION_DELAY_SECONDS", "0")),
         database_url=os.getenv("DATABASE_URL") or None,
         db_table_name=os.getenv("DB_TABLE_NAME") or os.getenv("DB_OPPORTUNITIES_TABLE", "licitacion"),
         default_db_estado=os.getenv("DEFAULT_DB_ESTADO", "Sin Analizar"),
