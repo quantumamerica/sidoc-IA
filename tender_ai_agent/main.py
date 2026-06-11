@@ -53,6 +53,16 @@ def build_parser() -> argparse.ArgumentParser:
     run_parser.add_argument("--dry-run", action="store_true", help="No inserta registros en base de datos.")
     run_parser.add_argument("--no-db", action="store_true", help="Ejecuta pipeline sin insertar en base de datos.")
     run_parser.add_argument("--max-sources", type=int, help="Limita cantidad de fuentes consultadas por region.")
+    run_parser.add_argument(
+        "--skip-ai-validation",
+        action="store_true",
+        help="Desactiva el juez IA (Gemini) para esta corrida.",
+    )
+    run_parser.add_argument(
+        "--ai-threshold",
+        type=float,
+        help="Sobrescribe el umbral de relevancia del juez IA (0-1) para esta corrida.",
+    )
 
     sources_parser = subparsers.add_parser("sources", help="Gestiona fuentes configuradas.")
     sources_parser.add_argument("--list", action="store_true", help="Lista las fuentes configuradas.")
@@ -82,6 +92,16 @@ def run_pipeline(args: argparse.Namespace, settings: Settings) -> int:
     max_sources = args.max_sources if args.max_sources is not None else None
     if max_sources is not None and max_sources <= 0:
         raise SystemExit("--max-sources debe ser mayor a 0.")
+
+    settings_overrides: dict[str, object] = {}
+    if getattr(args, "skip_ai_validation", False):
+        settings_overrides["ai_validation_enabled"] = False
+    if getattr(args, "ai_threshold", None) is not None:
+        if not 0.0 <= args.ai_threshold <= 1.0:
+            raise SystemExit("--ai-threshold debe estar entre 0 y 1.")
+        settings_overrides["ai_validation_threshold"] = args.ai_threshold
+    if settings_overrides:
+        settings = settings.model_copy(update=settings_overrides)
 
     orchestrator = PipelineOrchestrator(settings=settings)
     report = orchestrator.run(

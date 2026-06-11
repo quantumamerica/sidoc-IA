@@ -50,6 +50,7 @@ DB_COLUMNS = (
 class ProviderName(str, Enum):
     OPENAI = "openai"
     PERPLEXITY = "perplexity"
+    GEMINI = "gemini"
 
 
 class PipelineStage(str, Enum):
@@ -58,6 +59,8 @@ class PipelineStage(str, Enum):
     ELIGIBILITY = "eligibility"
     ENRICHMENT = "enrichment"
     VALIDATION = "validation"
+    CONTENT_QUALITY_VALIDATION = "content_quality_validation"
+    AI_VALIDATION = "ai_validation"
     DEDUPLICATION = "deduplication"
     DB_MAPPING = "db_mapping"
     PERSISTENCE = "persistence"
@@ -91,6 +94,11 @@ class RejectionReason(str, Enum):
     CONSTRUCTION_SUPERVISION = "construction_supervision"
     ENVIRONMENTAL_ONLY = "environmental_only"
     INSUFFICIENT_EVIDENCE = "insufficient_evidence"
+    INSUFFICIENT_INFORMATION = "insufficient_information"
+    INCOMPLETE_CONTENT = "incomplete_content"
+    LOW_BUSINESS_RELEVANCE = "low_business_relevance"
+    CONTENT_QUALITY_VALIDATION_ERROR = "content_quality_validation_error"
+    AI_VALIDATION_ERROR = "ai_validation_error"
     DUPLICATE = "duplicate"
     INVALID_URL = "invalid_url"
     OTHER = "other"
@@ -347,6 +355,37 @@ class OpportunityInternalFields(SerializableModel):
     def _normalize_internal_dates(cls, value: Any) -> date | None:
         return normalize_date(value)
 
+    @field_validator("process_type", mode="before")
+    @classmethod
+    def _coerce_process_type(cls, value: Any) -> Any:
+        if value is None or isinstance(value, ProcessType):
+            return value
+        if not isinstance(value, str):
+            return ProcessType.OTHER
+        text = value.strip()
+        if not text:
+            return None
+        lowered = text.lower()
+        for member in ProcessType:
+            if lowered == member.value.lower():
+                return member
+        if "expression of interest" in lowered or "eoi" in lowered:
+            return ProcessType.EOI
+        if "quotation" in lowered or "quote" in lowered or "rfq" in lowered:
+            return ProcessType.RFQ
+        if "proposal" in lowered or "rfp" in lowered:
+            return ProcessType.RFP
+        if "procurement notice" in lowered or "notice" in lowered:
+            return ProcessType.PROCUREMENT_NOTICE
+        if (
+            "tender" in lowered
+            or "framework" in lowered
+            or "bid" in lowered
+            or "licitaci" in lowered
+        ):
+            return ProcessType.TENDER
+        return ProcessType.OTHER
+
 
 class CandidateOpportunity(OpportunityDbFields, OpportunityInternalFields):
     model_config = ConfigDict(extra="ignore", validate_assignment=False)
@@ -383,6 +422,10 @@ class CandidateOpportunity(OpportunityDbFields, OpportunityInternalFields):
 
     @model_validator(mode="after")
     def sync_common_fields(self) -> CandidateOpportunity:
+        if self.normalized_title is None:
+            fallback_title = self.raw_title or self.titulo_estudio
+            if fallback_title and fallback_title.strip():
+                self.normalized_title = fallback_title.strip()
         if self.official_url and self.url is None:
             self.url = self.official_url
         if self.url and self.official_url is None:

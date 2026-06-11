@@ -20,6 +20,9 @@ Instrucciones:
 - No descartes todavia por dudas menores; marca la duda en audit_notes.
 - No incluyas oportunidades si la informacion esencial queda bloqueada por login, captcha o certificado.
 - Conserva URLs y fragmentos de evidencia publica.
+- `normalized_title` es obligatorio cuando exista un titulo verificable: debe ser un titulo limpio, sin sufijos de buscador ni texto generico como "Sin titulo".
+- Usa `raw_title` para conservar el titulo original cuando difiera del normalizado.
+- Si no puedes construir un `normalized_title` confiable, usa null y conserva al menos `raw_title`.
 - No inventes fechas, organismos, titulos ni referencias.
 
 Devuelve JSON estricto con este formato:
@@ -31,6 +34,7 @@ Devuelve JSON estricto con este formato:
       "source_name": null,
       "source_url": null,
       "raw_title": null,
+      "normalized_title": null,
       "official_url": null,
       "all_urls": [],
       "contracting_authority": null,
