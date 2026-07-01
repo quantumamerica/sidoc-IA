@@ -1,7 +1,7 @@
 @echo off
 setlocal enabledelayedexpansion
 
-set "WORKSPACE=C:\Users\adamonte\Desktop\AGUSTIN\Python\SGQ_Quantum\sidoc_ia\tender_ai_agent"
+set "WORKSPACE=C:\Quantum\Scripts\sidoc-IA-main\tender_ai_agent"
 set "VENV_PATH=%WORKSPACE%\.venv\Scripts"
 set "PYTHON_PATH=%VENV_PATH%\python.exe"
 set "LOG_FILE=%WORKSPACE%\script_log.txt"
