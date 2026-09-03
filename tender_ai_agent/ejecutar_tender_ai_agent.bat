@@ -1,7 +1,9 @@
 @echo off
 setlocal enabledelayedexpansion
 
-set "WORKSPACE=C:\Quantum\Scripts\sidoc-IA-main\tender_ai_agent"
+rem Usar la carpeta donde vive este .bat (evita rutas hardcodeadas incorrectas)
+set "WORKSPACE=%~dp0"
+if "%WORKSPACE:~-1%"=="\" set "WORKSPACE=%WORKSPACE:~0,-1%"
 set "VENV_PATH=%WORKSPACE%\.venv\Scripts"
 set "PYTHON_PATH=%VENV_PATH%\python.exe"
 set "LOG_FILE=%WORKSPACE%\script_log.txt"
