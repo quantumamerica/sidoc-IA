@@ -28,6 +28,7 @@ STAGE_FILE_NAMES = {
     PipelineStage.CONTENT_QUALITY_VALIDATION.value: "content_quality_validation_results.json",
     PipelineStage.AI_VALIDATION.value: "ai_validation.json",
     PipelineStage.DEDUPLICATION.value: "deduplication_results.json",
+    PipelineStage.NEGOCIO_ASSIGNMENT.value: "negocio_assignment.json",
     PipelineStage.DB_MAPPING.value: "db_mapped.json",
 }
 
@@ -186,6 +187,16 @@ class AuditLogger:
         duplicates_payload = self._read_optional_json(run_dir / "duplicates.json", {})
         db_duplicates = duplicates_payload.get("database", []) if isinstance(duplicates_payload, dict) else []
         inserted = self._read_optional_json(run_dir / "inserted_opportunities.json", [])
+        approved = self._read_optional_json(run_dir / "validated_opportunities.json", [])
+        negocio_by_slug = Counter(
+            item.get("negocio_slug") or "sin_asignar" for item in approved if isinstance(item, dict)
+        )
+        negocio_by_method = Counter(
+            item.get("negocio_assignment_method") or "sin_asignar" for item in approved if isinstance(item, dict)
+        )
+        negocio_sin_id = sum(
+            1 for item in approved if isinstance(item, dict) and item.get("negocio_id") is None
+        )
 
         lines = [
             "# Execution Report",
@@ -236,6 +247,16 @@ class AuditLogger:
                 )
         else:
             lines.extend(["- No hay resumen por modalidad disponible.", ""])
+        lines.extend(
+            [
+                "## Asignacion de negocio",
+                "",
+                f"- Oportunidades por negocio: {dict(negocio_by_slug)}",
+                f"- Metodo de asignacion: {dict(negocio_by_method)}",
+                f"- Sin negocio_id resuelto: {negocio_sin_id}",
+                "",
+            ]
+        )
         lines.extend(
             [
             "## Top oportunidades insertadas",
@@ -292,6 +313,7 @@ class AuditLogger:
                     f"- Candidatas: {provider_report.candidates}",
                     f"- Elegibles: {provider_report.eligible}",
                     f"- Validadas: {provider_report.valid}",
+                    f"- Con negocio asignado: {provider_report.negocio_assigned}",
                     f"- Mapeadas: {provider_report.mapped}",
                     f"- Duplicadas: {provider_report.duplicated}",
                     f"- Descartadas: {provider_report.rejected}",

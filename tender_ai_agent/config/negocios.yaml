@@ -1,0 +1,534 @@
+# Catalogo de unidades de negocio de QUANTUM usado por la etapa negocio_assignment.
+#
+# Como se resuelve el negocio_id que se escribe en la tabla licitacion:
+#   1. sidoc_id de este archivo, si esta completado;
+#   2. lookup contra la tabla negocio (NEGOCIO_TABLE_NAME) por nombre o nombres_alternativos;
+#   3. DEFAULT_NEGOCIO_ID del .env como ultimo recurso.
+#
+# Los sidoc_id de abajo se verificaron contra la tabla negocio de la base configurada en
+# DATABASE_URL. Estan fijos para que la asignacion no dependa de la conectividad. Si se
+# apunta a otra base (staging), verificar que coincidan con: python main.py negocios --list
+#
+# Listas de keywords, de mayor a menor fuerza:
+#   keywords_dominantes: su presencia decide el negocio sin consultar a Gemini.
+#     Ante varios dominantes gana el de prioridad mas baja.
+#   keywords_fuertes: peso alto en el score.
+#   keywords_debiles: peso bajo en el score.
+#   keywords_excluyentes: penalizan el score de este negocio.
+#
+# El match es por palabra completa sobre el texto normalizado (minusculas, sin tildes),
+# por lo que las keywords se escriben sin tildes. Se incluyen terminos en espanol,
+# ingles y portugues porque el pipeline conserva el idioma original de la fuente.
+
+negocios:
+  - slug: desarrollo_it
+    nombre: Desarrollo IT
+    nombres_alternativos:
+      - IT
+      - Desarrollo de IT
+      - Desarrollo informatico
+      - Tecnologia de la informacion
+    sidoc_id: 13
+    prioridad: 1
+    descripcion: >-
+      El entregable central es software, un sistema, una base de datos, GIS, una plataforma
+      de datos, automatizacion, integracion de sistemas, IA/ML o IoT aplicado a utilities
+      o energia.
+    keywords_dominantes:
+      - software
+      - sistema informatico
+      - sistemas informaticos
+      - sistema de informacion
+      - sistemas de informacion
+      - information system
+      - aplicativo
+      - gis
+      - sig
+      - scada
+      - erp
+      - crm
+      - data warehouse
+      - business intelligence
+      - data platform
+      - plataforma de datos
+      - plataforma digital
+      - machine learning
+      - aprendizaje automatico
+      - inteligencia artificial
+      - artificial intelligence
+      - internet of things
+      - iot
+      - ciberseguridad
+      - cybersecurity
+      - desarrollo de software
+      - software development
+      - desarrollo de sistema
+      - desarrollo de sistemas
+      - integracion de sistemas
+      - systems integration
+      - sistema de gestion comercial
+      - sistema comercial
+      - sistema de facturacion
+      - billing system
+      - gemelo digital
+      - digital twin
+      - aplicacion movil
+      - mobile app
+      - portal web
+      - geoportal
+      - desenvolvimento de software
+    keywords_fuertes:
+      - simulador
+      - simuladores
+      - automatizacion de procesos
+      - monitoreo remoto
+      - remote monitoring
+      - analitica de datos
+      - data analytics
+      - base de datos
+      - bases de datos
+      - database
+      - telemetria
+      - telemetry
+      - smart metering
+      - medicion inteligente
+      - ami
+      - sistema de medicion
+      - licenciamiento de software
+      - mesa de ayuda
+      - help desk
+    keywords_debiles:
+      - plataforma
+      - digitalizacion
+      - digital
+      - informatica
+      - tecnologia de la informacion
+      - ti
+    keywords_excluyentes: []
+
+  - slug: agua
+    nombre: Agua
+    nombres_alternativos:
+      - Agua y Saneamiento
+      - Agua y saneamiento
+      - Saneamiento
+    sidoc_id: 4
+    prioridad: 2
+    descripcion: >-
+      Agua y saneamiento: agua potable, aguas residuales, alcantarillado, tarifas de agua
+      y regulacion de prestadores de agua.
+    keywords_dominantes:
+      - agua potable
+      - agua y saneamiento
+      - saneamiento
+      - saneamento
+      - alcantarillado
+      - aguas residuales
+      - agua residual
+      - aguas servidas
+      - potable water
+      - drinking water
+      - water supply
+      - water utility
+      - water utilities
+      - wastewater
+      - waste water
+      - sewerage
+      - sanitation
+      - esgoto
+      - agua para consumo humano
+      - acueducto
+      - acueductos
+      - cloacas
+      - planta de tratamiento de agua
+      - tratamiento de aguas
+      - tratamiento de agua
+      - abastecimiento de agua
+    keywords_fuertes:
+      - tarifa de agua
+      - tarifas de agua
+      - water tariff
+      - water tariffs
+      - regulacion del agua
+      - water regulation
+      - servicio de agua
+      - servicios de agua
+      - recursos hidricos
+      - water resources
+      - hidrico
+      - hidrica
+      - hidricos
+      - riego
+      - irrigation
+      - prestador de agua
+      - operador de agua
+    keywords_debiles:
+      - agua
+      - water
+      - hidraulico
+      - hidraulica
+    keywords_excluyentes: []
+
+  - slug: gas
+    nombre: Gas
+    nombres_alternativos:
+      - Gas natural
+      - Gas Natural
+      - Gas natural y derivados
+      - Hidrogeno
+    sidoc_id: 3
+    prioridad: 3
+    descripcion: >-
+      Gas natural y derivados: GNL, biometano, hidrogeno en cualquier color, amoniaco,
+      gas-to-power, tarifas y mercado de gas. Todo lo relacionado a hidrogeno va aca.
+    keywords_dominantes:
+      - hidrogeno
+      - hidrogenio
+      - hydrogen
+      - green hydrogen
+      - blue hydrogen
+      - amoniaco
+      - amonia
+      - ammonia
+      - biometano
+      - biomethane
+      - biogas
+      - gas natural
+      - natural gas
+      - gas licuado
+      - gnl
+      - lng
+      - glp
+      - lpg
+      - gnc
+      - gasoducto
+      - gasoductos
+      - gas pipeline
+      - city gate
+      - gas domiciliario
+      - distribuidora de gas
+      - gas utility
+      - mercado de gas
+      - gas market
+      - gas to power
+      - shale gas
+      - gas no convencional
+      - gas natural comprimido
+      - gas natural licuado
+    keywords_fuertes:
+      - tarifa de gas
+      - tarifas de gas
+      - gas tariff
+      - regulacion del gas
+      - transporte de gas
+      - distribucion de gas
+      - almacenamiento de gas
+      - gas storage
+      - hidrogeno verde
+      - hidrogeno azul
+      - hidrogeno gris
+      - electrolizador
+      - electrolizadores
+      - electrolyzer
+      - electrolisis
+      - power to gas
+      - metano
+      - methane
+      - upstream
+      - midstream
+      - downstream
+    keywords_debiles:
+      - gasista
+      - gasifera
+      - combustible fosil
+      - fossil fuel
+      - petroleo
+      - oil
+    keywords_excluyentes: []
+
+  - slug: generacion
+    nombre: Generacion
+    nombres_alternativos:
+      - Generación
+      - Generacion Electrica
+      - Mercados mayoristas
+    sidoc_id: 11
+    prioridad: 4
+    descripcion: >-
+      Mercados mayoristas electricos (MEM), modelos de redes electricas, despacho,
+      subastas de energia y potencia, expansion y planificacion de la generacion.
+    keywords_dominantes:
+      - mercado mayorista
+      - mercado electrico mayorista
+      - mercados mayoristas
+      - mem
+      - wholesale electricity market
+      - wholesale power market
+      - mercado atacadista
+      - power pool
+      - despacho economico
+      - economic dispatch
+      - subasta de energia
+      - subastas de energia
+      - subasta de potencia
+      - subastas de potencia
+      - energy auction
+      - capacity auction
+      - capacity market
+      - mercado de capacidad
+      - mercado spot
+      - spot market
+      - unit commitment
+      - expansion de la generacion
+      - planificacion de la generacion
+      - generation expansion
+      - modelo de despacho
+      - costo marginal
+      - marginal cost
+      - precio nodal
+      - nodal pricing
+      - energia y potencia
+    keywords_fuertes:
+      - modelo de red
+      - modelos de red
+      - modelo de redes
+      - network model
+      - flujo de potencia
+      - power flow
+      - reserva operativa
+      - operating reserve
+      - curva de carga
+      - factor de planta
+      - ppa
+      - power purchase agreement
+      - mercado de energia
+      - diseno del mercado electrico
+      - electricity market design
+      - operador del sistema
+      - system operator
+      - coordinador electrico
+      - remuneracion de la generacion
+      - energia firme
+      - potencia firme
+    keywords_debiles:
+      - generacion
+      - generation
+      - geracao
+      - potencia
+      - subasta
+      - subastas
+      - auction
+      - despacho
+      - dispatch
+      - mayorista
+      - termica
+      - thermal
+      - hidroelectrica
+      - hydropower
+      - nuclear
+    keywords_excluyentes: []
+
+  - slug: nuevos_negocios
+    nombre: Nuevos Negocios
+    nombres_alternativos:
+      - Nuevos negocios
+      - Transicion Energetica
+      - Energias Renovables
+    sidoc_id: 7
+    prioridad: 5
+    descripcion: >-
+      Transicion energetica y energias renovables: solar, eolica, almacenamiento,
+      descarbonizacion, eficiencia energetica, movilidad electrica y generacion distribuida.
+    keywords_dominantes:
+      - transicion energetica
+      - transicao energetica
+      - energy transition
+      - energias renovables
+      - energia renovable
+      - renewable energy
+      - energias renovaveis
+      - solar fotovoltaica
+      - fotovoltaica
+      - fotovoltaico
+      - photovoltaic
+      - solar pv
+      - energia solar
+      - solar energy
+      - energia eolica
+      - eolica
+      - eolico
+      - wind energy
+      - wind power
+      - offshore wind
+      - almacenamiento de energia
+      - energy storage
+      - battery storage
+      - bess
+      - descarbonizacion
+      - descarbonizacao
+      - decarbonization
+      - neutralidad de carbono
+      - carbon neutrality
+      - net zero
+      - cero neto
+      - mercado de carbono
+      - carbon market
+      - bonos de carbono
+      - movilidad electrica
+      - electromovilidad
+      - electric mobility
+      - vehiculo electrico
+      - vehiculos electricos
+      - electric vehicle
+      - generacion distribuida
+      - geracao distribuida
+      - distributed generation
+      - autogeneracion
+      - cogeneracion
+      - eficiencia energetica
+      - energy efficiency
+    keywords_fuertes:
+      - solar
+      - renovables
+      - renovable
+      - renewables
+      - renewable
+      - biomasa
+      - biomass
+      - geotermia
+      - geothermal
+      - bateria
+      - baterias
+      - economia circular
+      - cambio climatico
+      - climate change
+      - financiamiento climatico
+      - climate finance
+      - prosumidor
+      - net metering
+      - medicion neta
+      - comunidades energeticas
+      - respuesta de la demanda
+      - demand response
+      - gestion de la demanda
+      - agregador de demanda
+    keywords_debiles:
+      - transicion
+      - sostenibilidad
+      - sustentabilidad
+      - verde
+      - green
+      - limpia
+      - clean energy
+      - emisiones
+      - carbono
+    keywords_excluyentes:
+      - hidrogeno
+      - hydrogen
+      - hidrogenio
+      - amoniaco
+      - ammonia
+      - biometano
+      - biomethane
+      - gas natural
+      - natural gas
+
+  - slug: electricidad
+    nombre: Electricidad
+    nombres_alternativos:
+      - Energia Electrica
+      - Electricidad y Regulacion
+      - Regulacion Electrica
+    sidoc_id: 2
+    prioridad: 6
+    descripcion: >-
+      Resto del sector electrico: regulacion, calculo tarifario, distribucion, transmision,
+      calidad de servicio, VNR, tasa de capital, perdidas y contabilidad regulatoria.
+    keywords_dominantes:
+      - calculo tarifario
+      - revision tarifaria
+      - revisao tarifaria
+      - estructura tarifaria
+      - tarifa electrica
+      - tarifas electricas
+      - electricity tariff
+      - electricity tariffs
+      - rate case
+      - rate design
+      - revenue requirement
+      - requisito de ingresos
+      - cost of service
+      - costo del servicio
+      - valor nuevo de reemplazo
+      - vnr
+      - tasa de capital
+      - cost of capital
+      - wacc
+      - base de capital regulatoria
+      - regulatory asset base
+      - contabilidad regulatoria
+      - regulatory accounting
+      - calidad del servicio electrico
+      - calidad de servicio electrico
+      - quality of supply
+      - perdidas electricas
+      - perdidas no tecnicas
+      - non-technical losses
+      - distribucion electrica
+      - distribuidora electrica
+      - distribuidoras electricas
+      - empresa distribuidora
+      - transmision electrica
+      - transmissao
+      - red de distribucion
+      - marco regulatorio electrico
+      - regulador electrico
+      - pliego tarifario
+      - cuadro tarifario
+      - unbundling
+    keywords_fuertes:
+      - tarifa
+      - tarifas
+      - tarifario
+      - tarifaria
+      - subestacion
+      - alimentador
+      - media tension
+      - baja tension
+      - alta tension
+      - usuario regulado
+      - consumidor regulado
+      - medidor
+      - facturacion electrica
+      - subsidio electrico
+      - electrificacion rural
+      - acceso a la electricidad
+      - planificacion de la red
+      - network planning
+      - estudio de perdidas
+      - perdidas tecnicas
+      - proyeccion de demanda
+      - caracterizacion de cargas
+    keywords_debiles:
+      - electricidad
+      - electrico
+      - electrica
+      - electricity
+      - eletrica
+      - sector electrico
+      - power sector
+      - energia electrica
+      - utility
+      - utilities
+      - regulacion
+      - regulatorio
+      - regulatoria
+      - regulatory
+      - distribucion
+      - transmision
+    keywords_excluyentes:
+      - agua potable
+      - saneamiento
+      - gas natural
+      - hidrogeno
+      - hydrogen

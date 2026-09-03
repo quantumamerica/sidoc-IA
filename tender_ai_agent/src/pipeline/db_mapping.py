@@ -50,7 +50,7 @@ class DbMappingService:
             tema=normalize_catalog_value(opportunity.tema, DB_TEMAS),
             seleccion=self._setting_catalog("default_db_seleccion", DB_SELECCIONES),
             estado=self._setting_catalog("default_db_estado", DB_ESTADOS, default="Sin Analizar"),
-            negocio_id=self.settings.default_negocio_id if self.settings else None,
+            negocio_id=opportunity.negocio_id or (self.settings.default_negocio_id if self.settings else None),
             referencia=opportunity.referencia,
             controlcomercial=self.settings.default_controlcomercial if self.settings else False,
             cant_palabras_match=opportunity.cant_palabras_match,
