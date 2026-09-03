@@ -11,6 +11,8 @@ if str(SRC_ROOT) not in sys.path:
     sys.path.insert(0, str(SRC_ROOT))
 
 from config.settings import Settings, load_settings
+from pipeline.negocio_assignment import NegocioAssignmentService
+from pipeline.negocio_catalog import NegocioCatalog
 from pipeline.orchestrator import PipelineOrchestrator
 from storage.database import get_engine, test_connection
 from storage.repositories import OpportunityRepository
@@ -63,6 +65,11 @@ def build_parser() -> argparse.ArgumentParser:
         type=float,
         help="Sobrescribe el umbral de relevancia del juez IA (0-1) para esta corrida.",
     )
+    run_parser.add_argument(
+        "--skip-negocio-assignment",
+        action="store_true",
+        help="Desactiva la asignacion de unidad de negocio para esta corrida.",
+    )
 
     sources_parser = subparsers.add_parser("sources", help="Gestiona fuentes configuradas.")
     sources_parser.add_argument("--list", action="store_true", help="Lista las fuentes configuradas.")
@@ -82,6 +89,24 @@ def build_parser() -> argparse.ArgumentParser:
     prompts_parser = subparsers.add_parser("prompts", help="Gestiona prompts editables.")
     prompts_parser.add_argument("--list", action="store_true", required=True, help="Lista prompts Markdown disponibles.")
 
+    negocios_parser = subparsers.add_parser("negocios", help="Gestiona el catalogo de unidades de negocio.")
+    negocios_group = negocios_parser.add_mutually_exclusive_group(required=True)
+    negocios_group.add_argument(
+        "--list",
+        action="store_true",
+        help="Lista el catalogo y el estado de resolucion de cada negocio_id.",
+    )
+    negocios_group.add_argument(
+        "--classify",
+        metavar="TEXTO",
+        help="Clasifica un texto suelto y muestra el score por negocio.",
+    )
+    negocios_parser.add_argument(
+        "--use-gemini",
+        action="store_true",
+        help="Con --classify, consulta a Gemini si las reglas no son concluyentes.",
+    )
+
     return parser
 
 
@@ -100,6 +125,8 @@ def run_pipeline(args: argparse.Namespace, settings: Settings) -> int:
         if not 0.0 <= args.ai_threshold <= 1.0:
             raise SystemExit("--ai-threshold debe estar entre 0 y 1.")
         settings_overrides["ai_validation_threshold"] = args.ai_threshold
+    if getattr(args, "skip_negocio_assignment", False):
+        settings_overrides["negocio_assignment_enabled"] = False
     if settings_overrides:
         settings = settings.model_copy(update=settings_overrides)
 
@@ -264,6 +291,132 @@ def list_prompts(settings: Settings) -> int:
     return 0
 
 
+def run_negocios_command(args: argparse.Namespace, settings: Settings) -> int:
+    try:
+        catalog = NegocioCatalog(settings)
+        catalog.definitions
+    except Exception as exc:
+        print(f"No se pudo cargar el catalogo de negocios: {exc}")
+        return 1
+
+    if args.classify:
+        return _classify_negocio(args, settings, catalog)
+    return _list_negocios(settings, catalog)
+
+
+def _list_negocios(settings: Settings, catalog: NegocioCatalog) -> int:
+    db_rows = catalog.db_rows()
+    resolved = catalog.resolved_ids()
+
+    print("Catalogo (config/negocios.yaml)\n")
+    rows = [
+        {
+            "slug": definition.slug,
+            "nombre": definition.nombre,
+            "prioridad": definition.prioridad,
+            "sidoc_id_yaml": definition.sidoc_id if definition.sidoc_id is not None else "",
+            "negocio_id": resolved.get(definition.slug) if resolved.get(definition.slug) is not None else "NO RESUELTO",
+            "origen": _negocio_id_origin(definition.sidoc_id, resolved.get(definition.slug)),
+        }
+        for definition in sorted(catalog.definitions, key=lambda item: item.prioridad)
+    ]
+    _print_table(rows, ["slug", "nombre", "prioridad", "sidoc_id_yaml", "negocio_id", "origen"])
+
+    print(f"\nTabla '{settings.negocio_table_name}' en la base\n")
+    if not db_rows:
+        if not settings.database_url:
+            print("DATABASE_URL no configurada: no se pueden resolver ids desde la base.")
+        else:
+            print(f"No se pudieron leer filas de la tabla '{settings.negocio_table_name}'. Ver logs.")
+    else:
+        columns = list(db_rows[0].keys())
+        _print_table([{column: row.get(column) for column in columns} for row in db_rows], columns)
+        print(f"\nTotal: {len(db_rows)} fila(s)")
+
+    unresolved = [definition for definition in catalog.definitions if resolved.get(definition.slug) is None]
+    if unresolved:
+        print("\nNegocios sin id resuelto:")
+        for definition in unresolved:
+            sugerencia = _suggest_db_match(definition.nombre, db_rows)
+            print(f"  - {definition.slug} ({definition.nombre}): {sugerencia}")
+        print(
+            "\nCompletar 'sidoc_id' en config/negocios.yaml, o ajustar 'nombre'/'nombres_alternativos'"
+            f" para que coincidan con la tabla '{settings.negocio_table_name}'."
+        )
+    else:
+        print("\nTodos los negocios tienen negocio_id resuelto.")
+
+    return 0
+
+
+def _negocio_id_origin(sidoc_id: int | None, resolved_id: int | None) -> str:
+    if sidoc_id is not None:
+        return "yaml"
+    if resolved_id is not None:
+        return "lookup por nombre"
+    return "sin resolver"
+
+
+def _suggest_db_match(nombre: str, db_rows: list[dict[str, object]]) -> str:
+    if not db_rows:
+        return "sin filas de la base para comparar"
+
+    from difflib import SequenceMatcher
+
+    columns = list(db_rows[0].keys())
+    name_column = next(
+        (column for column in columns if column.lower() in {"nombre", "nombre_negocio", "descripcion", "detalle"}),
+        None,
+    )
+    if name_column is None:
+        return f"no se identifico columna de nombre; columnas: {', '.join(columns)}"
+
+    id_column = next((column for column in columns if column.lower() in {"id", "negocio_id", "id_negocio"}), None)
+    best_row: dict[str, object] | None = None
+    best_ratio = 0.0
+    for row in db_rows:
+        candidate = str(row.get(name_column) or "")
+        ratio = SequenceMatcher(None, nombre.casefold(), candidate.casefold()).ratio()
+        if ratio > best_ratio:
+            best_ratio = ratio
+            best_row = row
+
+    if best_row is None:
+        return "sin coincidencias"
+    candidate_id = best_row.get(id_column) if id_column else "?"
+    return f"candidato mas parecido: id={candidate_id} nombre={best_row.get(name_column)!r} (similitud {best_ratio:.2f})"
+
+
+def _classify_negocio(args: argparse.Namespace, settings: Settings, catalog: NegocioCatalog) -> int:
+    service = NegocioAssignmentService(settings, catalog=catalog)
+    scores, decision = service.classify_text(args.classify, use_gemini=args.use_gemini)
+
+    print(f"Texto: {args.classify}\n")
+    rows = [
+        {
+            "slug": item.slug,
+            "score": item.score,
+            "raw": item.raw_score,
+            "prioridad": item.prioridad,
+            "dominantes": ", ".join(item.dominant_hits[:4]),
+            "fuertes": ", ".join(item.strong_hits[:4]),
+            "debiles": ", ".join(item.weak_hits[:4]),
+            "excluyentes": ", ".join(item.excluding_hits[:4]),
+        }
+        for item in scores
+    ]
+    _print_table(rows, ["slug", "score", "raw", "prioridad", "dominantes", "fuertes", "debiles", "excluyentes"])
+
+    print(
+        f"\nDecision: {decision.slug or 'sin_asignar'}"
+        f" | negocio_id: {decision.negocio_id if decision.negocio_id is not None else 'NO RESUELTO'}"
+        f" | metodo: {decision.method} ({decision.detail})"
+        f" | confianza: {decision.confidence if decision.confidence is not None else 'n/d'}"
+    )
+    print(f"Motivo: {decision.reason}")
+    return 0
+
+
 def main() -> int:
     settings = load_settings(PROJECT_ROOT)
     configure_logging(settings)
@@ -281,6 +434,8 @@ def main() -> int:
         return run_db_command(args, settings)
     if args.command == "prompts":
         return list_prompts(settings)
+    if args.command == "negocios":
+        return run_negocios_command(args, settings)
 
     parser.print_help()
     return 1

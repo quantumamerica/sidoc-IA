@@ -29,6 +29,12 @@ class Settings(BaseModel):
     ai_validation_threshold: float = 0.6
     ai_validation_delay_seconds: float = 0.0
 
+    negocio_assignment_enabled: bool = True
+    negocio_table_name: str = "negocio"
+    negocio_rules_strong_threshold: float = 0.45
+    negocio_rules_margin: float = 0.12
+    negocio_assignment_delay_seconds: float = 0.0
+
     database_url: str | None = None
     db_table_name: str = "licitacion"
     default_db_estado: str = "Sin Analizar"
@@ -59,6 +65,10 @@ class Settings(BaseModel):
     @property
     def prompts_dir(self) -> Path:
         return self.project_root / "prompts"
+
+    @property
+    def negocios_config_path(self) -> Path:
+        return self.config_dir / "negocios.yaml"
 
     @property
     def db_opportunities_table(self) -> str:
@@ -121,6 +131,11 @@ def load_settings(project_root: Path) -> Settings:
         ai_validation_enabled=_parse_bool(os.getenv("AI_VALIDATION_ENABLED"), default=True),
         ai_validation_threshold=float(os.getenv("AI_VALIDATION_THRESHOLD", "0.6")),
         ai_validation_delay_seconds=float(os.getenv("AI_VALIDATION_DELAY_SECONDS", "0")),
+        negocio_assignment_enabled=_parse_bool(os.getenv("NEGOCIO_ASSIGNMENT_ENABLED"), default=True),
+        negocio_table_name=os.getenv("NEGOCIO_TABLE_NAME", "negocio") or "negocio",
+        negocio_rules_strong_threshold=float(os.getenv("NEGOCIO_RULES_STRONG_THRESHOLD", "0.45")),
+        negocio_rules_margin=float(os.getenv("NEGOCIO_RULES_MARGIN", "0.12")),
+        negocio_assignment_delay_seconds=float(os.getenv("NEGOCIO_ASSIGNMENT_DELAY_SECONDS", "0")),
         database_url=os.getenv("DATABASE_URL") or None,
         db_table_name=os.getenv("DB_TABLE_NAME") or os.getenv("DB_OPPORTUNITIES_TABLE", "licitacion"),
         default_db_estado=os.getenv("DEFAULT_DB_ESTADO", "Sin Analizar"),

@@ -28,6 +28,7 @@ from pipeline.discovery import DiscoveryService
 from pipeline.eligibility import EligibilityService
 from pipeline.enrichment import EnrichmentService
 from pipeline.identification import IdentificationService
+from pipeline.negocio_assignment import NegocioAssignmentService
 from pipeline.validation import ValidationService
 from utils.cost_tracker import CostTracker
 
@@ -46,6 +47,7 @@ class ProviderPipelineRunner:
         self.content_quality_validation = ContentQualityValidationService(settings)
         self.ai_validation = AiBusinessValidationService(settings)
         self.deduplication = DeduplicationService()
+        self.negocio_assignment = NegocioAssignmentService(settings)
         self.db_mapping = DbMappingService(settings)
 
     def run(
@@ -148,6 +150,15 @@ class ProviderPipelineRunner:
             result.duplicates = dedup_output.rejected_duplicates
             result.discarded.extend(dedup_output.rejected_duplicates)
 
+        assigned = self._run_stage(
+            result,
+            PipelineStage.NEGOCIO_ASSIGNMENT,
+            lambda: self.negocio_assignment.assign(unique_validated),
+            input_payload=unique_validated,
+        )
+        if assigned is not None:
+            unique_validated = assigned
+
         mapped = self._run_stage(
             result,
             PipelineStage.DB_MAPPING,
@@ -163,6 +174,7 @@ class ProviderPipelineRunner:
         report.eligible = len(result.eligible)
         report.enriched = len(result.enriched)
         report.valid = len(result.validated)
+        report.negocio_assigned = sum(1 for item in unique_validated if item.negocio_slug)
         report.duplicated = len(result.duplicates)
         report.mapped = len(result.mapped)
         report.rejected = len(result.discarded)

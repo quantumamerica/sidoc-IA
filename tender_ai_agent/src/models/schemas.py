@@ -62,6 +62,7 @@ class PipelineStage(str, Enum):
     CONTENT_QUALITY_VALIDATION = "content_quality_validation"
     AI_VALIDATION = "ai_validation"
     DEDUPLICATION = "deduplication"
+    NEGOCIO_ASSIGNMENT = "negocio_assignment"
     DB_MAPPING = "db_mapping"
     PERSISTENCE = "persistence"
     COMPARISON = "comparison"
@@ -222,6 +223,23 @@ class OpenWebDiscoveryConfig(SerializableModel):
     regions: dict[str, OpenWebRegionConfig] = Field(default_factory=dict)
 
 
+class NegocioDefinition(SerializableModel):
+    slug: str
+    nombre: str
+    nombres_alternativos: list[str] = Field(default_factory=list)
+    sidoc_id: int | None = None
+    prioridad: int
+    descripcion: str | None = None
+    keywords_dominantes: list[str] = Field(default_factory=list)
+    keywords_fuertes: list[str] = Field(default_factory=list)
+    keywords_debiles: list[str] = Field(default_factory=list)
+    keywords_excluyentes: list[str] = Field(default_factory=list)
+
+
+class NegocioCatalogConfig(SerializableModel):
+    negocios: list[NegocioDefinition] = Field(default_factory=list)
+
+
 class RawProviderResult(SerializableModel):
     provider: ProviderName
     region: str
@@ -338,6 +356,11 @@ class OpportunityInternalFields(SerializableModel):
     source_confidence: float | None = None
     ai_confidence: float | None = None
     provider_confidence: float | None = None
+    negocio_slug: str | None = None
+    negocio_nombre: str | None = None
+    negocio_confidence: float | None = None
+    negocio_assignment_method: str | None = None
+    negocio_scores: dict[str, float] = Field(default_factory=dict)
     openai_payload: dict[str, Any] | None = None
     perplexity_payload: dict[str, Any] | None = None
     raw_response_path: str | None = None
@@ -625,6 +648,7 @@ class ProviderRunReport(SerializableModel):
     eligible: int = 0
     enriched: int = 0
     valid: int = 0
+    negocio_assigned: int = 0
     mapped: int = 0
     inserted: int = 0
     rejected: int = 0
