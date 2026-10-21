@@ -102,6 +102,7 @@ class RejectionReason(str, Enum):
     AI_VALIDATION_ERROR = "ai_validation_error"
     DUPLICATE = "duplicate"
     INVALID_URL = "invalid_url"
+    NOT_A_TENDER = "not_a_tender"
     OTHER = "other"
 
 

@@ -13,8 +13,10 @@ Instrucciones:
 - Rechaza oportunidades sin deadline explicito.
 - Rechaza procesos cerrados, adjudicados o cancelados.
 - Rechaza EPC, obras, construccion, suministro de equipos, supervision/fiscalizacion de obras y Owner's Engineer predominantemente constructivo.
+- Rechaza con not_a_tender las paginas que no son una licitacion abierta: noticias, notas de prensa, planes de compras o adquisiciones y listados de agregadores.
+- Rechaza con not_consulting los programas de eficiencia energetica, clima o carbono, y la asistencia generica sin objeto sectorial, segun los criterios de exclusion.
 - Usa needs_review solo cuando la oportunidad parece relevante pero falta una aclaracion no esencial.
-- Incluye motivo de rechazo usando una de estas claves cuando aplique: no_deadline, deadline_expired, login_required, captcha_required, not_consulting, individual_consultant, epc_or_works, equipment_supply, construction_supervision, environmental_only, insufficient_evidence, duplicate, invalid_url, other.
+- Incluye motivo de rechazo usando una de estas claves cuando aplique: no_deadline, deadline_expired, login_required, captcha_required, not_consulting, individual_consultant, epc_or_works, equipment_supply, construction_supervision, environmental_only, insufficient_evidence, duplicate, invalid_url, not_a_tender, other.
 
 Formato de salida obligatorio, JSON estricto:
 

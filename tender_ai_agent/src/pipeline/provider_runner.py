@@ -41,9 +41,9 @@ class ProviderPipelineRunner:
         self.audit_logger = audit_logger
         self.discovery = DiscoveryService(settings)
         self.identification = IdentificationService()
-        self.eligibility = EligibilityService()
+        self.eligibility = EligibilityService(deadline_grace_days=settings.deadline_grace_days)
         self.enrichment = EnrichmentService()
-        self.validation = ValidationService()
+        self.validation = ValidationService(deadline_grace_days=settings.deadline_grace_days)
         self.content_quality_validation = ContentQualityValidationService(settings)
         self.ai_validation = AiBusinessValidationService(settings)
         self.deduplication = DeduplicationService()

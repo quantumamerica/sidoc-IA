@@ -8,10 +8,28 @@ from models.schemas import (
     RejectedOpportunity,
     RejectionReason,
 )
-from utils.dates import is_future_date
+from utils.dates import deadline_still_open, possible_dates
+
+# Paginas que no son una licitacion: notas de prensa, planes de compras, listados de agregadores.
+NOT_A_TENDER_TERMS = (
+    "plan de passation des marches",
+    "plan de passation des marchés",
+    "procurement plan",
+    "plan anual de adquisiciones",
+    "plan anual de compras",
+    "plano anual de contratacoes",
+    "plano anual de contratações",
+    "energy news",
+    "tender volume",
+    "press release",
+    "nota de prensa",
+)
 
 
 class EligibilityService:
+    def __init__(self, deadline_grace_days: int = 0) -> None:
+        self.deadline_grace_days = deadline_grace_days
+
     def filter(self, candidates: list[OpportunityCandidate]) -> tuple[list[OpportunityCandidate], list[RejectedOpportunity]]:
         approved: list[OpportunityCandidate] = []
         rejected: list[RejectedOpportunity] = []
@@ -55,8 +73,18 @@ class EligibilityService:
                     is_eligible=False,
                     reason=RejectionReason.MISSING_NORMALIZED_TITLE,
                 )
-        deadline = candidate.deadline_normalized or candidate.deadline
-        if deadline and not is_future_date(deadline):
+        title = " ".join(
+            value or "" for value in [candidate.raw_title, candidate.normalized_title, candidate.titulo_estudio]
+        ).lower()
+        if any(term in title for term in NOT_A_TENDER_TERMS):
+            return EligibilityResult(candidate=candidate, is_eligible=False, reason=RejectionReason.NOT_A_TENDER)
+        # El texto original permite probar la lectura dd/mm y mm/dd; la fecha normalizada ya eligio una.
+        deadlines = [
+            value
+            for value in (candidate.deadline_raw, candidate.deadline_normalized, candidate.deadline)
+            if value and possible_dates(value)
+        ]
+        if deadlines and not any(deadline_still_open(value, grace_days=self.deadline_grace_days) for value in deadlines):
             return EligibilityResult(candidate=candidate, is_eligible=False, reason=RejectionReason.DEADLINE_EXPIRED)
         if any(term in text for term in ["epc", "civil works", "construction", "obra", "construccion", "construcción"]):
             return EligibilityResult(candidate=candidate, is_eligible=False, reason=RejectionReason.EPC_OR_WORKS)

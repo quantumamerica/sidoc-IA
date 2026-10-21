@@ -8,10 +8,13 @@ from models.schemas import (
     ValidatedOpportunity,
     ValidationResult,
 )
-from utils.dates import is_future_date
+from utils.dates import deadline_still_open, possible_dates
 
 
 class ValidationService:
+    def __init__(self, deadline_grace_days: int = 0) -> None:
+        self.deadline_grace_days = deadline_grace_days
+
     def validate(self, opportunities: list[EnrichedOpportunity]) -> tuple[list[ValidatedOpportunity], list[RejectedOpportunity]]:
         valid: list[ValidatedOpportunity] = []
         rejected: list[RejectedOpportunity] = []
@@ -33,8 +36,13 @@ class ValidationService:
         return valid, rejected
 
     def evaluate(self, opportunity: EnrichedOpportunity) -> ValidationResult:
-        deadline = opportunity.deadline_normalized or opportunity.deadline
-        if deadline and not is_future_date(deadline):
+        # El texto original permite probar la lectura dd/mm y mm/dd; la fecha normalizada ya eligio una.
+        deadlines = [
+            value
+            for value in (opportunity.deadline_raw, opportunity.deadline_normalized, opportunity.deadline)
+            if value and possible_dates(value)
+        ]
+        if deadlines and not any(deadline_still_open(value, grace_days=self.deadline_grace_days) for value in deadlines):
             return ValidationResult(opportunity=opportunity, is_valid=False, reason=RejectionReason.DEADLINE_EXPIRED)
         if not opportunity.evidence_text and not opportunity.evidence_urls:
             return ValidationResult(opportunity=opportunity, is_valid=False, reason=RejectionReason.INSUFFICIENT_EVIDENCE)

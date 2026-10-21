@@ -127,9 +127,12 @@ class AiBusinessValidationService:
         score = self._coerce_score(payload.get("relevance_score"))
         is_consulting = self._coerce_bool(payload.get("is_consulting"), default=True)
         is_works = self._coerce_bool(payload.get("is_works_or_equipment"), default=False)
+        is_tender_notice = self._coerce_bool(payload.get("is_tender_notice"), default=True)
         decision = str(payload.get("decision") or "").strip().upper()
         reason_text = str(payload.get("reason") or "").strip() or "Sin justificacion provista por el juez IA."
 
+        if not is_tender_notice:
+            return JudgeVerdict(False, score, reason_text, RejectionReason.NOT_A_TENDER)
         if is_works:
             return JudgeVerdict(False, score, reason_text, RejectionReason.EPC_OR_WORKS)
         if not is_consulting:
