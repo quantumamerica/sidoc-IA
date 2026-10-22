@@ -57,6 +57,7 @@ class Settings(BaseModel):
     log_dir: Path
     request_timeout_seconds: int = 60
     max_results_per_source: int = 20
+    deadline_grace_days: int = 1
 
     @property
     def config_dir(self) -> Path:
@@ -156,4 +157,5 @@ def load_settings(project_root: Path) -> Settings:
         log_dir=log_dir,
         request_timeout_seconds=int(os.getenv("REQUEST_TIMEOUT_SECONDS", "60")),
         max_results_per_source=int(os.getenv("MAX_RESULTS_PER_SOURCE", "20")),
+        deadline_grace_days=int(os.getenv("DEADLINE_GRACE_DAYS", "1")),
     )

@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 import re
-from datetime import date, datetime, timezone
+from datetime import date, datetime, timedelta, timezone
 
 
 DATE_FORMATS = (
@@ -91,3 +91,40 @@ def is_future_date(value: date | datetime | str | None, reference_date: date | N
     if normalized is None:
         return False
     return normalized > (reference_date or today_utc_date())
+
+
+AMBIGUOUS_NUMERIC_DATE = re.compile(r"^\s*(\d{1,2})[/-](\d{1,2})[/-](\d{4})\s*$")
+
+
+def possible_dates(value: date | datetime | str | None) -> list[date]:
+    """Fechas posibles para un valor. "10/03/2026" puede ser 10-mar (dd/mm) o 3-oct (mm/dd, EE. UU.)."""
+    normalized = normalize_date(value)
+    if normalized is None:
+        return []
+    candidates = [normalized]
+    if isinstance(value, str):
+        match = AMBIGUOUS_NUMERIC_DATE.match(value)
+        if match:
+            first, second, year = (int(part) for part in match.groups())
+            try:
+                swapped = date(year, first, second)
+            except ValueError:
+                swapped = None
+            if swapped and swapped != normalized:
+                candidates.append(swapped)
+    return candidates
+
+
+def deadline_still_open(
+    value: date | datetime | str | None,
+    *,
+    grace_days: int = 0,
+    reference_date: date | None = None,
+) -> bool:
+    """True si el deadline no vencio, con margen de grace_days y aceptando la lectura dd/mm o mm/dd.
+
+    Evita descartar como vencidas oportunidades con fecha en formato de EE. UU. o publicadas en otra
+    zona horaria. Un valor que no se puede leer como fecha devuelve False.
+    """
+    reference = (reference_date or today_utc_date()) - timedelta(days=max(grace_days, 0))
+    return any(candidate >= reference for candidate in possible_dates(value))
