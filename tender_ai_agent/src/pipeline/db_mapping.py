@@ -35,6 +35,7 @@ class DbMappingService:
             evidence_text=opportunity.evidence_text,
             evidence_urls=opportunity.evidence_urls,
             audit_notes=opportunity.audit_notes,
+            metadata=opportunity.metadata,
             id_fuente=opportunity.id_fuente,
             url=opportunity.official_url or opportunity.url,
             fuente=opportunity.fuente,
@@ -62,9 +63,6 @@ class DbMappingService:
             tipo_propuesta=normalize_process_type(opportunity.process_type),
             filial_id=self.settings.default_filial_id if self.settings else None,
             filtro_gemini=self._filtro_gemini(opportunity),
-            comentario=(
-                self._comment(opportunity.run_id)
-            ),
             comentarios_personales=self.settings.default_comentarios_personales if self.settings else None,
             estado_seguimiento=self._setting_catalog("default_estado_seguimiento", DB_ESTADOS_SEGUIMIENTO, default="Pendiente"),
         )
@@ -74,10 +72,6 @@ class DbMappingService:
         if verdict is not None:
             return verdict
         return self._setting_catalog("default_filtro_gemini", DB_FILTROS_GEMINI, default="No analizada")
-
-    def _comment(self, run_id: str | None) -> str:
-        prefix = self.settings.default_comentario_prefix if self.settings else "Cargado automaticamente por tender_ai_agent"
-        return f"{prefix} run_id={run_id}" if run_id else prefix
 
     def _setting_catalog(self, field_name: str, allowed_values: tuple[str, ...], *, default: str | None = None) -> str | None:
         value: Any = getattr(self.settings, field_name, None) if self.settings else None

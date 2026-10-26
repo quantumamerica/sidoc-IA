@@ -13,7 +13,7 @@ for path in (PROJECT_ROOT, SRC_ROOT):
 
 from models.schemas import CandidateOpportunity, ProviderName, RejectionReason
 from pipeline.ai_validation import AiBusinessValidationService
-from pipeline.eligibility import EligibilityService
+from pipeline.eligibility import EligibilityService, is_listing_url
 from utils.dates import deadline_still_open, possible_dates, today_utc_date
 
 
@@ -63,10 +63,84 @@ def test_judge() -> None:
     assert not verdict.approved and verdict.rejection_reason == RejectionReason.NOT_A_TENDER
 
 
+def test_listing_urls() -> None:
+    assert is_listing_url("https://www.adb.org/status/active?page=74")
+    assert is_listing_url("https://www.olacde.org/en/current-procurement/")
+    assert not is_listing_url("https://nowgrenada.com/2026/10/reoi-regulatory-development-consulting-services-for-cegeb/")
+    assert not is_listing_url(
+        "https://procontract.due-north.com/Advert?advertId=dca9f82c-6bcc-f111-8141-6045bdf14b1f&p=527b4bbd-5c58-e511-80ef-000c29c9ba21"
+    )
+    service = EligibilityService()
+    listing = candidate("ADB active projects", (today_utc_date() + timedelta(days=20)).isoformat())
+    listing.official_url = "https://www.adb.org/status/active?page=74"
+    assert service.evaluate(listing).reason == RejectionReason.NOT_A_TENDER
+
+
+def test_judge_client_selection() -> None:
+    from clients.judge import build_judge_client
+    from config.settings import load_settings
+
+    settings = load_settings(PROJECT_ROOT)
+    with_key = settings.model_copy(update={"ai_judge_provider": "anthropic", "anthropic_api_key": "test"})
+    assert build_judge_client(with_key).provider == ProviderName.ANTHROPIC
+    without_key = settings.model_copy(update={"ai_judge_provider": "anthropic", "anthropic_api_key": None})
+    assert build_judge_client(without_key).provider == ProviderName.GEMINI
+    forced = settings.model_copy(update={"ai_judge_provider": "gemini", "anthropic_api_key": "test"})
+    assert build_judge_client(forced).provider == ProviderName.GEMINI
+
+
+def test_anthropic_client() -> None:
+    import json
+    from types import SimpleNamespace
+
+    import anthropic
+
+    from clients.anthropic_client import AnthropicClient
+    from config.settings import load_settings
+
+    calls = []
+    verdict = {"relevance_score": 0.8, "is_consulting": True, "is_works_or_equipment": False,
+               "is_tender_notice": True, "decision": "SI", "reason": "ok"}
+
+    class FakeMessages:
+        def create(self, **kwargs):
+            calls.append(kwargs)
+            return SimpleNamespace(
+                stop_reason="end_turn",
+                stop_details=None,
+                model=kwargs["model"],
+                content=[SimpleNamespace(type="thinking", thinking=""), SimpleNamespace(type="text", text=json.dumps(verdict))],
+                usage=SimpleNamespace(input_tokens=1000, output_tokens=100),
+                to_dict=lambda: {},
+            )
+
+    class FakeClient:
+        def __init__(self, **kwargs):
+            self.beta = SimpleNamespace(messages=FakeMessages())
+
+    original = anthropic.Anthropic
+    anthropic.Anthropic = FakeClient
+    try:
+        settings = load_settings(PROJECT_ROOT).model_copy(update={"anthropic_api_key": "test", "anthropic_model": "claude-opus-5-5"})
+        schema = {"type": "object", "properties": {}, "additionalProperties": False}
+        response = AnthropicClient(settings).run_agent("prompt", stage="ai_validation", json_schema=schema)
+    finally:
+        anthropic.Anthropic = original
+
+    assert response.ok and response.parsed_json == verdict, response.error
+    request = calls[0]
+    assert request["output_config"]["format"] == {"type": "json_schema", "schema": schema}
+    assert request["fallbacks"] == "default" and "temperature" not in request
+    assert abs(response.estimated_cost - (1000 * 4 + 100 * 20) / 1_000_000) < 1e-12
+
+
 def main() -> None:
     test_dates()
     test_eligibility()
     test_judge()
+    test_listing_urls()
+    test_judge_client_selection()
+    test_anthropic_client()
     print("OK")
 
 

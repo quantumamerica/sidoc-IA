@@ -80,6 +80,22 @@ python main.py negocios --classify "Green hydrogen feasibility study"
 - `prompts/discovery`: instrucciones por region.
 - `prompts/agents`: instrucciones por etapa del pipeline.
 
+## Juez IA
+
+Dos etapas filtran las oportunidades antes de cargarlas: la calidad de contenido (se entiende
+que se contrata) y la validacion de negocio (es una convocatoria concreta y encaja con
+QUANTUM). Las dos usan el mismo cliente, elegido con `AI_JUDGE_PROVIDER`:
+
+- `anthropic` (por defecto): Claude, modelo `ANTHROPIC_MODEL` (por defecto `claude-opus-5-5`)
+  con esfuerzo `ANTHROPIC_EFFORT` (por defecto `low`) y salida JSON validada por esquema.
+  Requiere `ANTHROPIC_API_KEY`; si falta, el juez usa Gemini para no frenar la corrida.
+- `gemini`: Gemini con `GOOGLE_API_KEY` y `GEMINI_MODEL`.
+
+La columna `filtro_gemini` conserva los valores "Seleccionada por Gemini" y "Descartada por
+Gemini" porque SGQ filtra por ellos; el modelo que decidio queda en las notas de auditoria.
+Antes del juez, la elegibilidad descarta URLs de listados (paginacion `?page=N`,
+`/status/active`, `/current-procurement`, etc.) porque no identifican una oportunidad.
+
 ## Asignacion de unidad de negocio
 
 La etapa `negocio_assignment` corre entre la deduplicacion y el mapeo a la base, y solo

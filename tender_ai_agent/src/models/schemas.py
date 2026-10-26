@@ -40,8 +40,6 @@ DB_COLUMNS = (
     "tipo_propuesta",
     "filial_id",
     "filtro_gemini",
-    "seguimiento",
-    "comentario",
     "comentarios_personales",
     "estado_seguimiento",
 )
@@ -51,6 +49,7 @@ class ProviderName(str, Enum):
     OPENAI = "openai"
     PERPLEXITY = "perplexity"
     GEMINI = "gemini"
+    ANTHROPIC = "anthropic"
 
 
 class PipelineStage(str, Enum):
@@ -294,8 +293,6 @@ class OpportunityDbFields(SerializableModel):
     tipo_propuesta: str | None = None
     filial_id: int | None = None
     filtro_gemini: str | None = None
-    seguimiento: str | None = None
-    comentario: str | None = None
     comentarios_personales: str | None = None
     estado_seguimiento: str | None = None
 

@@ -4,7 +4,8 @@ import logging
 import time
 from dataclasses import dataclass
 
-from clients.gemini_client import GeminiClient
+from clients.base import BaseAIClient
+from clients.judge import build_judge_client, judge_label
 from config.settings import Settings
 from models.schemas import (
     PipelineStage,
@@ -12,15 +13,31 @@ from models.schemas import (
     RejectionReason,
     ValidatedOpportunity,
 )
+from utils.dates import today_utc_date
 from utils.prompt_loader import PromptLoader
 
 logger = logging.getLogger(__name__)
 
 PROMPT_PATH = "agents/ai_business_validation_agent.md"
+# Valores del catalogo `filtro_gemini` que espera SGQ: se mantienen aunque el juez sea Claude.
 FILTRO_SELECCIONADA = "Seleccionada por Gemini"
 FILTRO_DESCARTADA = "Descartada por Gemini"
 MAX_DESCRIPTION_CHARS = 6000
 MAX_SUMMARY_CHARS = 2000
+MAX_EVIDENCE_CHARS = 2000
+JUDGE_SCHEMA = {
+    "type": "object",
+    "additionalProperties": False,
+    "properties": {
+        "relevance_score": {"type": "number"},
+        "is_consulting": {"type": "boolean"},
+        "is_works_or_equipment": {"type": "boolean"},
+        "is_tender_notice": {"type": "boolean"},
+        "decision": {"type": "string", "enum": ["SI", "NO"]},
+        "reason": {"type": "string"},
+    },
+    "required": ["relevance_score", "is_consulting", "is_works_or_equipment", "is_tender_notice", "decision", "reason"],
+}
 
 
 @dataclass
@@ -32,16 +49,16 @@ class JudgeVerdict:
 
 
 class AiBusinessValidationService:
-    """Juez de negocio (LLM-as-judge) con Gemini. Salida binaria: aprueba o descarta."""
+    """Juez de negocio (LLM-as-judge) con Claude o Gemini. Salida binaria: aprueba o descarta."""
 
     def __init__(
         self,
         settings: Settings,
-        client: GeminiClient | None = None,
+        client: BaseAIClient | None = None,
         prompt_loader: PromptLoader | None = None,
     ) -> None:
         self.settings = settings
-        self.client = client or GeminiClient(settings)
+        self.client = client or build_judge_client(settings)
         self.prompt_loader = prompt_loader or PromptLoader(settings.prompts_dir)
         self.threshold = settings.ai_validation_threshold
         self.delay_seconds = settings.ai_validation_delay_seconds
@@ -53,11 +70,11 @@ class AiBusinessValidationService:
             return [], []
 
         if not self.settings.ai_validation_enabled:
-            logger.info("Validacion IA desactivada (AI_VALIDATION_ENABLED=false); se omite el juez Gemini.")
+            logger.info("Validacion IA desactivada (AI_VALIDATION_ENABLED=false); se omite el juez IA.")
             return opportunities, []
 
         if not self.client.is_configured():
-            logger.warning("Validacion IA omitida: GOOGLE_API_KEY no configurada. Las oportunidades pasan sin juzgar.")
+            logger.warning("Validacion IA omitida: el juez no tiene API key configurada. Las oportunidades pasan sin juzgar.")
             return opportunities, []
 
         approved: list[ValidatedOpportunity] = []
@@ -70,7 +87,8 @@ class AiBusinessValidationService:
                 time.sleep(self.delay_seconds)
 
         logger.info(
-            "Juez IA Gemini completado entrada=%s validadas=%s descartadas=%s",
+            "Juez IA %s completado entrada=%s validadas=%s descartadas=%s",
+            judge_label(self.client),
             len(opportunities),
             len(approved),
             len(rejected),
@@ -80,7 +98,7 @@ class AiBusinessValidationService:
     def _judge(self, opportunity: ValidatedOpportunity) -> JudgeVerdict:
         prompt = self.prompt_loader.render_file(PROMPT_PATH, self._build_context(opportunity))
 
-        response = self.client.run_agent(prompt, response_format="json", stage="ai_validation")
+        response = self.client.run_agent(prompt, response_format="json", stage="ai_validation", json_schema=JUDGE_SCHEMA)
         if response.error or response.parsed_json is None:
             logger.warning(
                 "Juez IA sin veredicto utilizable titulo=%r error=%s; se descarta por precaucion.",
@@ -105,7 +123,12 @@ class AiBusinessValidationService:
         )
         resumen = opportunity.description_summary or opportunity.resumen_descrip or ""
         deadline = opportunity.deadline_normalized or opportunity.deadline
+        publicacion = opportunity.publication_date_normalized or opportunity.fecha_publicacion
         return {
+            "fecha_actual": today_utc_date().isoformat(),
+            "fuente": opportunity.source_name or opportunity.fuente or "",
+            "fecha_publicacion": publicacion.isoformat() if publicacion else "",
+            "evidencia": (opportunity.evidence_text or "")[:MAX_EVIDENCE_CHARS],
             "titulo": self._title(opportunity),
             "resumen": resumen[:MAX_SUMMARY_CHARS],
             "descripcion": descripcion[:MAX_DESCRIPTION_CHARS],
@@ -168,11 +191,10 @@ class AiBusinessValidationService:
             )
         )
 
-    @staticmethod
-    def _build_note(verdict: JudgeVerdict) -> str:
+    def _build_note(self, verdict: JudgeVerdict) -> str:
         score_text = f"{verdict.score:.2f}" if verdict.score is not None else "n/d"
         decision = "validada" if verdict.approved else "descartada"
-        return f"[Gemini] decision={decision} score={score_text}: {verdict.reason_text}"
+        return f"[{judge_label(self.client)}] decision={decision} score={score_text}: {verdict.reason_text}"
 
     @staticmethod
     def _coerce_score(value: object) -> float | None:

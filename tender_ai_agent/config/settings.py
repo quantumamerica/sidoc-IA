@@ -24,6 +24,10 @@ class Settings(BaseModel):
 
     google_api_key: str | None = None
     gemini_model: str = "gemini-2.5-flash-lite"
+    anthropic_api_key: str | None = None
+    anthropic_model: str = "claude-opus-5-5"
+    anthropic_effort: str = "low"
+    ai_judge_provider: str = "anthropic"
     content_quality_validation_enabled: bool = True
     ai_validation_enabled: bool = True
     ai_validation_threshold: float = 0.6
@@ -48,7 +52,6 @@ class Settings(BaseModel):
     default_estado_seguimiento: str | None = "Pendiente"
     default_situacion: str | None = "Abierto"
     default_controlcomercial: bool = False
-    default_comentario_prefix: str = "Cargado automaticamente por tender_ai_agent"
 
     default_providers: list[str] = Field(default_factory=lambda: ["openai", "perplexity"])
     default_regions: list[str] = Field(default_factory=lambda: ["all"])
@@ -128,6 +131,10 @@ def load_settings(project_root: Path) -> Settings:
         perplexity_model=os.getenv("PERPLEXITY_MODEL", "sonar-pro"),
         google_api_key=os.getenv("GOOGLE_API_KEY") or None,
         gemini_model=os.getenv("GEMINI_MODEL", "gemini-2.5-flash-lite"),
+        anthropic_api_key=os.getenv("ANTHROPIC_API_KEY") or None,
+        anthropic_model=os.getenv("ANTHROPIC_MODEL", "claude-opus-5-5") or "claude-opus-5-5",
+        anthropic_effort=os.getenv("ANTHROPIC_EFFORT", "low") or "low",
+        ai_judge_provider=(os.getenv("AI_JUDGE_PROVIDER", "anthropic") or "anthropic").strip().lower(),
         content_quality_validation_enabled=_parse_bool(os.getenv("CONTENT_QUALITY_VALIDATION_ENABLED"), default=True),
         ai_validation_enabled=_parse_bool(os.getenv("AI_VALIDATION_ENABLED"), default=True),
         ai_validation_threshold=float(os.getenv("AI_VALIDATION_THRESHOLD", "0.6")),
@@ -150,7 +157,6 @@ def load_settings(project_root: Path) -> Settings:
         default_estado_seguimiento=os.getenv("DEFAULT_ESTADO_SEGUIMIENTO", "Pendiente") or None,
         default_situacion=os.getenv("DEFAULT_SITUACION", "Abierto") or None,
         default_controlcomercial=_parse_bool(os.getenv("DEFAULT_CONTROLCOMERCIAL"), default=False),
-        default_comentario_prefix=os.getenv("DEFAULT_COMENTARIO_PREFIX", "Cargado automaticamente por tender_ai_agent"),
         default_providers=_parse_providers(os.getenv("DEFAULT_PROVIDERS")),
         default_regions=_parse_csv(os.getenv("DEFAULT_REGIONS"), ["all"]),
         output_dir=output_dir,
