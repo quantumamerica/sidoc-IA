@@ -134,6 +134,44 @@ def test_anthropic_client() -> None:
     assert abs(response.estimated_cost - (1000 * 4 + 100 * 20) / 1_000_000) < 1e-12
 
 
+def test_ia_trace_mapping() -> None:
+    from models.schemas import IA_TRACE_COLUMNS, ValidatedOpportunity
+    from pipeline.db_mapping import DbMappingService
+    from storage.repositories import OpportunityRepository
+
+    opportunity = ValidatedOpportunity(
+        provider=ProviderName.PERPLEXITY,
+        region="latam",
+        source_id="x",
+        source_name="Now Grenada",
+        official_url="https://nowgrenada.com/2026/10/reoi-cegeb/",
+        raw_title="REOI regulatory development consulting",
+        description_raw="Consulting services for regulatory development.",
+        ai_confidence=0.85,
+        metadata={
+            "raw_response_metadata": {"discovery_mode": "open_web", "theme_name": "Electricity tariffs"},
+            "ai_judge": {"model": "claude-opus-5-5", "score": 0.85, "reason": "REOI concreta de regulacion."},
+        },
+    )
+    mapped = DbMappingService().map_one(opportunity)
+    row = mapped.to_db_dict()
+    assert row["ia_modalidad"] == "open_web" and row["ia_busqueda"] == "Electricity tariffs"
+    assert row["ia_modelo_juez"] == "claude-opus-5-5" and row["ia_puntaje"] == 0.85
+    assert row["ia_evidencia_url"] == "https://nowgrenada.com/2026/10/reoi-cegeb/"
+
+    # Tabla sin las columnas ia_*: se omiten sin error.
+    from sqlalchemy import Column, Integer, MetaData, String, Table, create_engine
+
+    engine = create_engine("sqlite://")
+    table = Table("licitacion", MetaData(), Column("id", Integer, primary_key=True), Column("url", String), Column("titulo_estudio", String))
+    table.metadata.create_all(engine)
+    repository = OpportunityRepository(engine, "licitacion")
+    result = repository.insert_opportunity(mapped)
+    assert result.inserted, result.error
+    missing = repository.validate_expected_columns()
+    assert set(IA_TRACE_COLUMNS) <= set(missing)
+
+
 def main() -> None:
     test_dates()
     test_eligibility()
@@ -141,6 +179,7 @@ def main() -> None:
     test_listing_urls()
     test_judge_client_selection()
     test_anthropic_client()
+    test_ia_trace_mapping()
     print("OK")
 
 

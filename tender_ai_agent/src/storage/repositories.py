@@ -4,7 +4,7 @@ import logging
 from datetime import date, datetime, timedelta, timezone
 from typing import Any
 
-from models.schemas import DB_COLUMNS, InsertResult, MappedOpportunity
+from models.schemas import DB_COLUMNS, IA_TRACE_COLUMNS, InsertResult, MappedOpportunity
 
 logger = logging.getLogger(__name__)
 
@@ -16,6 +16,7 @@ class OpportunityRepository:
         self.engine = engine
         self.table_name = table_name
         self._table = None
+        self._columns_checked = False
 
     @property
     def table(self) -> Any:
@@ -136,8 +137,19 @@ class OpportunityRepository:
     def validate_expected_columns(self) -> list[str]:
         table_columns = set(self.table.c.keys())
         missing = [column for column in DB_COLUMNS if column not in table_columns]
+        if self._columns_checked:
+            return missing
+        self._columns_checked = True
         for column in missing:
-            logger.warning("Columna esperada no existe en %s: %s", self.table_name, column)
+            if column not in IA_TRACE_COLUMNS:
+                logger.warning("Columna esperada no existe en %s: %s", self.table_name, column)
+        missing_trace = [column for column in missing if column in IA_TRACE_COLUMNS]
+        if missing_trace:
+            logger.info(
+                "Trazabilidad IA sin guardar: faltan en %s las columnas %s (las agrega la migracion de SGQ).",
+                self.table_name,
+                ", ".join(missing_trace),
+            )
         return missing
 
     def _duplicate_reason(self, opportunity: MappedOpportunity) -> str | None:

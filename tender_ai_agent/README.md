@@ -96,6 +96,19 @@ Gemini" porque SGQ filtra por ellos; el modelo que decidio queda en las notas de
 Antes del juez, la elegibilidad descarta URLs de listados (paginacion `?page=N`,
 `/status/active`, `/current-procurement`, etc.) porque no identifican una oportunidad.
 
+Cada alta guarda su origen en columnas `ia_*` de `licitacion` (las crea la migracion de SGQ;
+mientras no existan se omiten y el log lo avisa una vez por corrida):
+
+| columna | contenido |
+| --- | --- |
+| `ia_run_id` | corrida (`outputs/<run_id>`) |
+| `ia_modalidad` | `contextual` (fuente con dominio) u `open_web` (busqueda por tema) |
+| `ia_busqueda` | fuente o tema que la encontro |
+| `ia_modelo_juez` | modelo que la aprobo |
+| `ia_puntaje` | puntaje del juez (0 a 1) |
+| `ia_motivo_juez` | justificacion del juez |
+| `ia_evidencia_url` | URL oficial o de evidencia |
+
 ## Asignacion de unidad de negocio
 
 La etapa `negocio_assignment` corre entre la deduplicacion y el mapeo a la base, y solo

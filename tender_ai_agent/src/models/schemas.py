@@ -42,6 +42,23 @@ DB_COLUMNS = (
     "filtro_gemini",
     "comentarios_personales",
     "estado_seguimiento",
+    "ia_run_id",
+    "ia_modalidad",
+    "ia_busqueda",
+    "ia_modelo_juez",
+    "ia_puntaje",
+    "ia_motivo_juez",
+    "ia_evidencia_url",
+)
+# Trazabilidad del agente IA: columnas que agrega SGQ. Mientras no existan en la tabla se omiten sin error.
+IA_TRACE_COLUMNS = (
+    "ia_run_id",
+    "ia_modalidad",
+    "ia_busqueda",
+    "ia_modelo_juez",
+    "ia_puntaje",
+    "ia_motivo_juez",
+    "ia_evidencia_url",
 )
 
 
@@ -295,6 +312,13 @@ class OpportunityDbFields(SerializableModel):
     filtro_gemini: str | None = None
     comentarios_personales: str | None = None
     estado_seguimiento: str | None = None
+    ia_run_id: str | None = None
+    ia_modalidad: str | None = None
+    ia_busqueda: str | None = None
+    ia_modelo_juez: str | None = None
+    ia_puntaje: float | None = None
+    ia_motivo_juez: str | None = None
+    ia_evidencia_url: str | None = None
 
     @field_validator("deadline", "fecha_publicacion", "fecha_modificacion", mode="before")
     @classmethod

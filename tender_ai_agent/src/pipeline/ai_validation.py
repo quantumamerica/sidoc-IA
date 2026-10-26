@@ -46,6 +46,7 @@ class JudgeVerdict:
     score: float | None
     reason_text: str
     rejection_reason: RejectionReason | None = None
+    model: str | None = None
 
 
 class AiBusinessValidationService:
@@ -112,7 +113,9 @@ class AiBusinessValidationService:
                 rejection_reason=RejectionReason.AI_VALIDATION_ERROR,
             )
 
-        return self._interpret(response.parsed_json)
+        verdict = self._interpret(response.parsed_json)
+        verdict.model = response.metadata.get("served_model") or response.model
+        return verdict
 
     def _build_context(self, opportunity: ValidatedOpportunity) -> dict[str, str]:
         descripcion = (
@@ -174,6 +177,10 @@ class AiBusinessValidationService:
         rejected: list[RejectedOpportunity],
     ) -> None:
         opportunity.ai_confidence = verdict.score
+        opportunity.metadata = {
+            **opportunity.metadata,
+            "ai_judge": {"model": verdict.model, "score": verdict.score, "reason": verdict.reason_text},
+        }
         opportunity.audit_notes = [*opportunity.audit_notes, self._build_note(verdict)]
 
         if verdict.approved:

@@ -65,7 +65,28 @@ class DbMappingService:
             filtro_gemini=self._filtro_gemini(opportunity),
             comentarios_personales=self.settings.default_comentarios_personales if self.settings else None,
             estado_seguimiento=self._setting_catalog("default_estado_seguimiento", DB_ESTADOS_SEGUIMIENTO, default="Pendiente"),
+            **self._ia_trace(opportunity),
         )
+
+    @staticmethod
+    def _ia_trace(opportunity: ValidatedOpportunity) -> dict[str, Any]:
+        """Origen de la oportunidad y veredicto del juez, para las columnas ia_* de la licitacion."""
+        metadata = opportunity.metadata or {}
+        raw = metadata.get("raw_response_metadata") or {}
+        judge = metadata.get("ai_judge") or {}
+        modalidad = metadata.get("discovery_mode") or raw.get("discovery_mode")
+        busqueda = raw.get("theme_name") if modalidad == "open_web" else raw.get("source_name")
+        evidencia = opportunity.official_url or opportunity.url or next(iter(opportunity.evidence_urls or []), None)
+        motivo = judge.get("reason")
+        return {
+            "ia_run_id": opportunity.run_id,
+            "ia_modalidad": modalidad,
+            "ia_busqueda": (busqueda or opportunity.source_name or "")[:200] or None,
+            "ia_modelo_juez": judge.get("model"),
+            "ia_puntaje": judge.get("score", opportunity.ai_confidence),
+            "ia_motivo_juez": motivo[:2000] if motivo else None,
+            "ia_evidencia_url": evidencia[:500] if evidencia else None,
+        }
 
     def _filtro_gemini(self, opportunity: ValidatedOpportunity) -> str | None:
         verdict = normalize_catalog_value(opportunity.filtro_gemini, DB_FILTROS_GEMINI)
