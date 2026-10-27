@@ -2,6 +2,8 @@ from __future__ import annotations
 
 import json
 import logging
+import re
+import time
 import unicodedata
 from dataclasses import dataclass, field
 from datetime import date, timedelta
@@ -39,6 +41,8 @@ class ConnectorResult:
     fetched: int = 0
     items: list[dict[str, Any]] = field(default_factory=list)
     error: str | None = None
+    # Titulos que no pasaron el filtro, para ajustar los terminos con `conectores --probar --ver-descartados`.
+    unmatched_titles: list[str] = field(default_factory=list)
 
 
 def normalize(text: str | None) -> str:
@@ -48,12 +52,29 @@ def normalize(text: str | None) -> str:
     return "".join(char for char in decomposed if not unicodedata.combining(char))
 
 
+def _starts_word(term: str, normalized_text: str) -> bool:
+    """El termino tiene que empezar una palabra: 'power' no matchea 'empowerment', 'energi' si matchea 'energia'."""
+    return re.search(r"(?<![a-z0-9])" + re.escape(normalize(term)), normalized_text) is not None
+
+
+def _retry_after(value: str | None, *, default: float) -> float:
+    try:
+        return min(max(float(value), 1.0), 60.0) if value else default
+    except ValueError:
+        return default
+
+
 class BaseConnector:
     """Trae avisos de un portal y los devuelve con la forma de los items de discovery."""
+
+    MAX_RETRIES = 3
+    UNMATCHED_SAMPLE = 30
 
     def __init__(self, config: ConnectorConfig, settings: Settings) -> None:
         self.config = config
         self.settings = settings
+        self._sleep = time.sleep
+        self._requests_made = 0
 
     def fetch(self, today: date) -> ConnectorResult:
         result = ConnectorResult(connector_id=self.config.id)
@@ -69,6 +90,8 @@ class BaseConnector:
                     item["matched_keywords"] = matched
                     item["matched_keywords_count"] = len(matched)
                     result.items.append(item)
+                elif len(result.unmatched_titles) < self.UNMATCHED_SAMPLE:
+                    result.unmatched_titles.append(item["raw_title"])
         except Exception as exc:
             logger.warning("Conector %s fallo: %s", self.config.id, exc)
             result.error = str(exc)
@@ -83,8 +106,8 @@ class BaseConnector:
 
     def matched_terms(self, text: str) -> list[str]:
         normalized = normalize(text)
-        sectors = [term for term in self.config.sector_terms if normalize(term) in normalized]
-        services = [term for term in self.config.service_terms if normalize(term) in normalized]
+        sectors = [term for term in self.config.sector_terms if _starts_word(term, normalized)]
+        services = [term for term in self.config.service_terms if _starts_word(term, normalized)]
         return [*sectors, *services] if sectors and services else []
 
     def _records(self, since: date, until: date):
@@ -96,9 +119,19 @@ class BaseConnector:
     def _get(self, url: str, params: dict[str, Any]) -> Any:
         import requests
 
-        response = requests.get(url, params=params, timeout=self.settings.request_timeout_seconds)
-        response.raise_for_status()
-        return response.json()
+        pause = float(self.config.extra("request_pause_seconds", 0) or 0)
+        if pause and self._requests_made:
+            self._sleep(pause)
+        self._requests_made += 1
+        for attempt in range(self.MAX_RETRIES + 1):
+            response = requests.get(url, params=params, timeout=self.settings.request_timeout_seconds)
+            if response.status_code in (429, 503) and attempt < self.MAX_RETRIES:
+                wait = _retry_after(response.headers.get("Retry-After"), default=5 * 2**attempt)
+                logger.info("Conector %s: el portal pide esperar (%s), reintento en %ss", self.config.id, response.status_code, wait)
+                self._sleep(wait)
+                continue
+            response.raise_for_status()
+            return response.json()
 
     def _item(
         self,
