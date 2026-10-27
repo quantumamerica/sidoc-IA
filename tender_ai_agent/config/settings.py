@@ -34,6 +34,7 @@ class Settings(BaseModel):
     ai_validation_delay_seconds: float = 0.0
 
     negocio_assignment_enabled: bool = True
+    connectors_enabled: bool = True
     negocio_table_name: str = "negocio"
     negocio_rules_strong_threshold: float = 0.45
     negocio_rules_margin: float = 0.12
@@ -140,6 +141,7 @@ def load_settings(project_root: Path) -> Settings:
         ai_validation_threshold=float(os.getenv("AI_VALIDATION_THRESHOLD", "0.6")),
         ai_validation_delay_seconds=float(os.getenv("AI_VALIDATION_DELAY_SECONDS", "0")),
         negocio_assignment_enabled=_parse_bool(os.getenv("NEGOCIO_ASSIGNMENT_ENABLED"), default=True),
+        connectors_enabled=_parse_bool(os.getenv("CONNECTORS_ENABLED"), default=True),
         negocio_table_name=os.getenv("NEGOCIO_TABLE_NAME", "negocio") or "negocio",
         negocio_rules_strong_threshold=float(os.getenv("NEGOCIO_RULES_STRONG_THRESHOLD", "0.45")),
         negocio_rules_margin=float(os.getenv("NEGOCIO_RULES_MARGIN", "0.12")),

@@ -109,6 +109,27 @@ mientras no existan se omiten y el log lo avisa una vez por corrida):
 | `ia_motivo_juez` | justificacion del juez |
 | `ia_evidencia_url` | URL oficial o de evidencia |
 
+## Conectores a APIs de portales
+
+Muchos portales de compras no aparecen en las busquedas IA con filtro de dominio porque sus avisos se cargan dinamicamente. Para esos portales hay conectores que leen sus APIs de datos abiertas, sin clave y sin costo de IA, definidos en `config/connectors.yaml`:
+
+| id | Portal | Region |
+| --- | --- | --- |
+| `secop` | SECOP II, Colombia (datos.gov.co) | latam |
+| `pncp` | PNCP, Brasil (Compras.gov.br) | latam |
+| `worldbank` | Avisos de compras del Banco Mundial | multilaterals |
+
+Cada conector trae los avisos publicados en los ultimos `lookback_days` y deja pasar solo los que tienen un termino de `sector_terms` y uno de `service_terms` en el titulo o la descripcion. Lo que pasa entra al pipeline como cualquier otra candidata (elegibilidad, juez IA, deduplicacion, negocio, DB), con modalidad `api` y `source_id` `api_<id>`. Si un portal falla, se registra el error y la corrida sigue.
+
+Arrancan apagados (`enabled: false`). Para probarlos sin tocar la base:
+
+```bash
+python main.py conectores --probar            # todos
+python main.py conectores --probar --id pncp --dias 7
+```
+
+Cuando los resultados se vean bien, poner `enabled: true` en el conector. `--skip-connectors` en `run` o `CONNECTORS_ENABLED=false` en `.env` los apagan a todos.
+
 ## Asignacion de unidad de negocio
 
 La etapa `negocio_assignment` corre entre la deduplicacion y el mapeo a la base, y solo
