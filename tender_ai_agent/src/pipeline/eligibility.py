@@ -1,5 +1,8 @@
 from __future__ import annotations
 
+import re
+from urllib.parse import urlparse
+
 from models.schemas import (
     EligibilityResult,
     EligibilityStatus,
@@ -24,6 +27,29 @@ NOT_A_TENDER_TERMS = (
     "press release",
     "nota de prensa",
 )
+
+# URLs de listados o indices (varias convocatorias en una pagina): la URL no identifica una oportunidad.
+LISTING_QUERY_PATTERN = re.compile(r"(?:^|&)(?:page|pagina)=\d+(?:&|$)", re.IGNORECASE)
+LISTING_PATH_ENDINGS = (
+    "/status/active",
+    "/current-procurement",
+    "/tenders",
+    "/procurement",
+    "/procurement-notices",
+    "/licitaciones",
+    "/convocatorias",
+    "/appels-d-offres",
+)
+
+
+def is_listing_url(url: str | None) -> bool:
+    if not url:
+        return False
+    parsed = urlparse(url.strip())
+    path = parsed.path.rstrip("/").lower()
+    if parsed.query and LISTING_QUERY_PATTERN.search(parsed.query):
+        return True
+    return any(path.endswith(ending) for ending in LISTING_PATH_ENDINGS)
 
 
 class EligibilityService:
@@ -77,6 +103,8 @@ class EligibilityService:
             value or "" for value in [candidate.raw_title, candidate.normalized_title, candidate.titulo_estudio]
         ).lower()
         if any(term in title for term in NOT_A_TENDER_TERMS):
+            return EligibilityResult(candidate=candidate, is_eligible=False, reason=RejectionReason.NOT_A_TENDER)
+        if is_listing_url(candidate.official_url or candidate.url):
             return EligibilityResult(candidate=candidate, is_eligible=False, reason=RejectionReason.NOT_A_TENDER)
         # El texto original permite probar la lectura dd/mm y mm/dd; la fecha normalizada ya eligio una.
         deadlines = [

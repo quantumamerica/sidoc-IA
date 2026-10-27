@@ -80,6 +80,56 @@ python main.py negocios --classify "Green hydrogen feasibility study"
 - `prompts/discovery`: instrucciones por region.
 - `prompts/agents`: instrucciones por etapa del pipeline.
 
+## Juez IA
+
+Dos etapas filtran las oportunidades antes de cargarlas: la calidad de contenido (se entiende
+que se contrata) y la validacion de negocio (es una convocatoria concreta y encaja con
+QUANTUM). Las dos usan el mismo cliente, elegido con `AI_JUDGE_PROVIDER`:
+
+- `anthropic` (por defecto): Claude, modelo `ANTHROPIC_MODEL` (por defecto `claude-opus-5-5`)
+  con esfuerzo `ANTHROPIC_EFFORT` (por defecto `low`) y salida JSON validada por esquema.
+  Requiere `ANTHROPIC_API_KEY`; si falta, el juez usa Gemini para no frenar la corrida.
+- `gemini`: Gemini con `GOOGLE_API_KEY` y `GEMINI_MODEL`.
+
+La columna `filtro_gemini` conserva los valores "Seleccionada por Gemini" y "Descartada por
+Gemini" porque SGQ filtra por ellos; el modelo que decidio queda en las notas de auditoria.
+Antes del juez, la elegibilidad descarta URLs de listados (paginacion `?page=N`,
+`/status/active`, `/current-procurement`, etc.) porque no identifican una oportunidad.
+
+Cada alta guarda su origen en columnas `ia_*` de `licitacion` (las crea la migracion de SGQ;
+mientras no existan se omiten y el log lo avisa una vez por corrida):
+
+| columna | contenido |
+| --- | --- |
+| `ia_run_id` | corrida (`outputs/<run_id>`) |
+| `ia_modalidad` | `contextual` (fuente con dominio) u `open_web` (busqueda por tema) |
+| `ia_busqueda` | fuente o tema que la encontro |
+| `ia_modelo_juez` | modelo que la aprobo |
+| `ia_puntaje` | puntaje del juez (0 a 1) |
+| `ia_motivo_juez` | justificacion del juez |
+| `ia_evidencia_url` | URL oficial o de evidencia |
+
+## Conectores a APIs de portales
+
+Muchos portales de compras no aparecen en las busquedas IA con filtro de dominio porque sus avisos se cargan dinamicamente. Para esos portales hay conectores que leen sus APIs de datos abiertas, sin clave y sin costo de IA, definidos en `config/connectors.yaml`:
+
+| id | Portal | Region |
+| --- | --- | --- |
+| `secop` | SECOP II, Colombia (datos.gov.co) | latam |
+| `pncp` | PNCP, Brasil (Compras.gov.br) | latam |
+| `worldbank` | Avisos de compras del Banco Mundial | multilaterals |
+
+Cada conector trae los avisos publicados en los ultimos `lookback_days` y deja pasar solo los que tienen un termino de `sector_terms` y uno de `service_terms` en el titulo o la descripcion. Lo que pasa entra al pipeline como cualquier otra candidata (elegibilidad, juez IA, deduplicacion, negocio, DB), con modalidad `api` y `source_id` `api_<id>`. Si un portal falla, se registra el error y la corrida sigue.
+
+Arrancan apagados (`enabled: false`). Para probarlos sin tocar la base:
+
+```bash
+python main.py conectores --probar            # todos
+python main.py conectores --probar --id pncp --dias 7
+```
+
+Cuando los resultados se vean bien, poner `enabled: true` en el conector. `--skip-connectors` en `run` o `CONNECTORS_ENABLED=false` en `.env` los apagan a todos.
+
 ## Asignacion de unidad de negocio
 
 La etapa `negocio_assignment` corre entre la deduplicacion y el mapeo a la base, y solo

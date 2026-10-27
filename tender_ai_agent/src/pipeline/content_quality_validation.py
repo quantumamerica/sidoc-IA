@@ -4,7 +4,8 @@ import logging
 import time
 from dataclasses import dataclass
 
-from clients.gemini_client import GeminiClient
+from clients.base import BaseAIClient
+from clients.judge import build_judge_client, judge_label
 from config.settings import Settings
 from models.schemas import (
     PipelineStage,
@@ -19,6 +20,19 @@ logger = logging.getLogger(__name__)
 PROMPT_PATH = "agents/content_quality_validation_agent.md"
 MAX_DESCRIPTION_CHARS = 6000
 MAX_SUMMARY_CHARS = 2000
+CONTENT_QUALITY_SCHEMA = {
+    "type": "object",
+    "additionalProperties": False,
+    "properties": {
+        "is_complete": {"type": "boolean"},
+        "has_clear_object": {"type": "boolean"},
+        "has_specific_scope": {"type": "boolean"},
+        "is_too_generic": {"type": "boolean"},
+        "decision": {"type": "string", "enum": ["SI", "NO"]},
+        "reason": {"type": "string"},
+    },
+    "required": ["is_complete", "has_clear_object", "has_specific_scope", "is_too_generic", "decision", "reason"],
+}
 
 
 @dataclass
@@ -34,11 +48,11 @@ class ContentQualityValidationService:
     def __init__(
         self,
         settings: Settings,
-        client: GeminiClient | None = None,
+        client: BaseAIClient | None = None,
         prompt_loader: PromptLoader | None = None,
     ) -> None:
         self.settings = settings
-        self.client = client or GeminiClient(settings)
+        self.client = client or build_judge_client(settings)
         self.prompt_loader = prompt_loader or PromptLoader(settings.prompts_dir)
         self.delay_seconds = settings.ai_validation_delay_seconds
 
@@ -57,12 +71,12 @@ class ContentQualityValidationService:
 
         if not self.client.is_configured():
             logger.error(
-                "Validacion de calidad de contenido activa pero GOOGLE_API_KEY no esta configurada; "
+                "Validacion de calidad de contenido activa pero el juez no tiene API key configurada; "
                 "se descartan las oportunidades por precaucion."
             )
             return self._reject_all(
                 opportunities,
-                "Validacion de calidad de contenido no ejecutada: GOOGLE_API_KEY no esta configurada.",
+                "Validacion de calidad de contenido no ejecutada: el juez no tiene API key configurada.",
                 RejectionReason.CONTENT_QUALITY_VALIDATION_ERROR,
             )
 
@@ -86,7 +100,9 @@ class ContentQualityValidationService:
     def _judge(self, opportunity: ValidatedOpportunity) -> ContentQualityVerdict:
         prompt = self.prompt_loader.render_file(PROMPT_PATH, self._build_context(opportunity))
 
-        response = self.client.run_agent(prompt, response_format="json", stage="content_quality_validation")
+        response = self.client.run_agent(
+            prompt, response_format="json", stage="content_quality_validation", json_schema=CONTENT_QUALITY_SCHEMA
+        )
         if response.error or response.parsed_json is None:
             logger.warning(
                 "Validacion de calidad sin veredicto utilizable titulo=%r error=%s; se descarta.",
@@ -173,10 +189,9 @@ class ContentQualityValidationService:
             self._apply_verdict(opportunity, verdict, [], rejected)
         return [], rejected
 
-    @staticmethod
-    def _build_note(verdict: ContentQualityVerdict) -> str:
+    def _build_note(self, verdict: ContentQualityVerdict) -> str:
         decision = "validada" if verdict.approved else "descartada"
-        return f"[Gemini calidad contenido] decision={decision}: {verdict.reason_text}"
+        return f"[{judge_label(self.client)} calidad contenido] decision={decision}: {verdict.reason_text}"
 
     @staticmethod
     def _coerce_bool(value: object, *, default: bool) -> bool:

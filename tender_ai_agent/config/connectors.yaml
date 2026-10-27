@@ -1,0 +1,53 @@
+# Conectores a APIs de datos abiertos de portales de compras.
+# Traen los avisos publicados en los ultimos `lookback_days`, los filtran por palabras clave
+# y los pasan al mismo pipeline que las busquedas IA (elegibilidad, juez, negocio, DB).
+#
+# Una oportunidad entra solo si su titulo o descripcion tiene al menos un termino de
+# `sector_terms` Y al menos uno de `service_terms` (minusculas, sin tildes; se compara por subcadena).
+#
+# Estan apagados hasta probarlos en la VM con:
+#   python main.py conectores --probar
+# Cuando los resultados se vean bien, cambiar `enabled` a true.
+
+connectors:
+  - id: secop
+    name: SECOP II (Colombia Compra Eficiente)
+    enabled: false
+    region: latam
+    country: Colombia
+    language: es
+    lookback_days: 3
+    max_items: 2000
+    # Dataset "SECOP II - Procesos de Contratacion" en datos.gov.co (API Socrata).
+    endpoint: https://www.datos.gov.co/resource/p6dx-8zbt.json
+    date_field: fecha_de_publicacion_del
+    sector_terms: [energi, electric, tarif, regulaci, gas natural, hidrogeno, renovable, acueducto, alcantarillado, saneamiento, servicios publicos, transmision, distribucion de energia]
+    service_terms: [consultori, estudio, asesori, asistencia tecnica, diagnostico, interventoria tecnica, analisis, diseno de, modelo]
+
+  - id: pncp
+    name: PNCP (Portal Nacional de Contratacoes Publicas, Brasil)
+    enabled: false
+    region: latam
+    country: Brasil
+    language: pt
+    lookback_days: 3
+    max_pages: 20
+    endpoint: https://pncp.gov.br/api/consulta/v1/contratacoes/publicacao
+    # 4 = Concorrencia eletronica, 5 = Concorrencia presencial, 6 = Pregao eletronico.
+    modalidades: [4, 5, 6]
+    sector_terms: [energia eletrica, eletric, tarif, regulac, gas natural, hidrogenio, renovav, saneamento, agua e esgoto, concessao, distribuicao de energia, transmissao]
+    service_terms: [consultoria, estudo, assessoria, assistencia tecnica, diagnostico, modelagem, analise]
+
+  - id: worldbank
+    name: World Bank procurement notices
+    enabled: false
+    region: multilaterals
+    country:
+    language: en
+    lookback_days: 3
+    rows: 500
+    endpoint: https://search.worldbank.org/api/v2/procnotices
+    # Solo servicios de consultoria y expresiones de interes.
+    notice_types: [request for expression of interest, request for proposals]
+    sector_terms: [energy, electric, power, tariff, regulat, utility, utilities, gas, hydrogen, renewable, water, sanitation, transmission, distribution]
+    service_terms: [consult, study, advisory, technical assistance, assessment, feasibility, design, framework, strategy]

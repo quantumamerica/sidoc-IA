@@ -31,8 +31,6 @@ Columnas destino:
 - tipo_propuesta
 - filial_id
 - filtro_gemini
-- seguimiento
-- comentario
 - comentarios_personales
 - estado_seguimiento
 
@@ -85,8 +83,6 @@ Formato de salida obligatorio, JSON estricto:
       "tipo_propuesta": null,
       "filial_id": null,
       "filtro_gemini": null,
-      "seguimiento": null,
-      "comentario": null,
       "comentarios_personales": null,
       "estado_seguimiento": null
     }

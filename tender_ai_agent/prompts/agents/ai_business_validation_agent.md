@@ -23,7 +23,14 @@ Criterios de evaluacion:
 - Encaje con QUANTUM: evalua si el tema y el tipo de trabajo estan alineados con la especializacion y los servicios listados arriba. La calidad textual basica ya fue validada en una etapa anterior.
 - Nucleo que QUANTUM gana: el objeto central es tarifas o revision tarifaria, costo de servicio, requisitos de ingresos, reforma regulatoria o de mercado del sector, planificacion de la expansion, factibilidad economico-financiera de proyectos de energia, gas o agua, o sistemas de informacion para reguladores y utilities. Si el tema solo aparece de forma lateral, el score debe ser bajo.
 - Exclusiones (decision "NO" aunque mencionen energia): programas de eficiencia energetica o contratos de desempeno energetico (ESPC) sin componente tarifario o regulatorio; clima, carbono o adaptacion, salvo diseno regulatorio o de mercado del sector; preparacion de planes o propuestas para conseguir financiamiento (por ejemplo LIFE o CINEA); asistencia tecnica generica a un ministerio sin objeto sectorial concreto.
-- Aviso de licitacion: marca is_tender_notice=false si la pagina no es una convocatoria abierta a la que se pueda presentar oferta o expresion de interes: noticias, notas de prensa, planes anuales de compras o de adquisiciones (procurement plan, plan de passation des marches), listados de portales agregadores o avisos de adjudicacion.
+- Aviso de licitacion: marca is_tender_notice=false si la pagina no es UNA convocatoria concreta y abierta a la que una consultora pueda presentar oferta o expresion de interes. Cuentan como convocatoria: RFP, RFQ, REOI/EOI, solicitud de propuestas, licitacion o concurso de consultoria, con un objeto unico y un organismo contratante identificable. NO cuentan como convocatoria:
+  - Noticias, notas de prensa o anuncios de que "se lanzara" o "se lanzo" un proceso, si la propia pagina no trae instrucciones de presentacion o plazo.
+  - Paginas de listado o indice con varias convocatorias o proyectos ("current procurement", "active projects", "tenders", resultados de busqueda, URLs con paginacion como ?page=N o /status/active). Aunque el listado contenga algo relevante, la URL no es la oportunidad.
+  - Consultas publicas o pedidos de comentarios ("consultation", "call for evidence", "consulta publica"): se presentan opiniones, no ofertas.
+  - Planes anuales de compras o de adquisiciones (procurement plan, plan de passation des marches), avisos de adjudicacion o resultados (award, contract award notice, "Result").
+  - Convocatorias para desarrolladores, inversores, generadores independientes (IPP), socios estrategicos o de capital, o subastas de energia: aunque sean del sector, no contratan servicios de consultoria; marca ademas is_consulting=false.
+- Plazo: si el deadline es anterior a la fecha actual ({{ fecha_actual }}), decision "NO".
+- Ante la duda entre "es una convocatoria concreta" y "es una pagina informativa", decidi "NO" y explicalo en reason: los consultores prefieren no ver ruido.
 
 Ejemplos de oportunidades que los consultores de QUANTUM aceptaron (decision "SI"):
 - "Consultancy for retail tariff reform" de la comision reguladora de Gujarat (GERC): reforma tarifaria para un regulador.
@@ -38,6 +45,15 @@ Ejemplos de oportunidades que los consultores rechazaron (decision "NO"):
 - Preparacion de planes SIPs/SNAPs para convocatorias LIFE de CINEA: preparacion de propuestas de financiamiento.
 - "Energy News" publicado en el sitio de Osinergmin: noticia, is_tender_notice=false.
 - "Plan de Passation des Marches" del proyecto DREAM en Mauritania: plan de compras, is_tender_notice=false.
+
+Ejemplos de paginas que no son convocatorias (decision "NO", vistos en corridas de octubre 2026):
+- "adb.org/status/active?page=74": listado paginado de proyectos activos del ADB, no una convocatoria puntual.
+- "olacde.org/en/current-procurement/": indice de procesos vigentes, no una convocatoria puntual.
+- Nota de Eskom anunciando la seleccion de socios estrategicos para hasta 6 GW de renovables: anuncio para desarrolladores e inversores, no consultoria.
+- Consulta de UREGNI sobre la estructura tarifaria: consulta publica de un regulador; el tema es afin, pero no se puede ofertar.
+
+Ejemplo de convocatoria que si cumple el criterio de aviso:
+- REOI de servicios de consultoria en desarrollo regulatorio para CEGEB (Granada): expresion de interes concreta, organismo identificado, objeto regulatorio.
 
 Instruccion de salida:
 Analiza el contexto provisto y devuelve EXCLUSIVAMENTE un objeto JSON valido, sin Markdown ni texto adicional, con esta forma exacta:
@@ -55,17 +71,21 @@ Reglas para los campos:
 - "relevance_score": numero entre 0 y 1 segun la alineacion con los servicios de QUANTUM (1 = alineacion directa y fuerte; 0 = sin relacion).
 - "is_consulting": true solo si es un servicio profesional de consultoria/estudios/asistencia tecnica para firmas o consorcios.
 - "is_works_or_equipment": true si es predominantemente obra, construccion, EPC o suministro de equipos.
-- "is_tender_notice": false si no es una convocatoria abierta (noticia, plan de compras, listado de agregador, adjudicacion).
+- "is_tender_notice": false si no es una convocatoria concreta y abierta (noticia, anuncio, listado o indice, consulta publica, plan de compras, adjudicacion).
 - "decision": "SI" solo si recomendas avanzar; "NO" en caso contrario.
 - "reason": justificacion concisa basada solo en el contexto provisto. No inventes datos.
 
 Oportunidad a evaluar:
 
+Fecha actual: {{ fecha_actual }}
 Titulo: {{ titulo }}
 Organismo: {{ organismo }}
 Pais / ambito: {{ pais }}
+Fuente: {{ fuente }}
 Tipo de proceso: {{ process_type }}
+Fecha de publicacion: {{ fecha_publicacion }}
 Deadline: {{ deadline }}
 URL: {{ url }}
 Resumen: {{ resumen }}
 Descripcion: {{ descripcion }}
+Evidencia textual de la pagina: {{ evidencia }}

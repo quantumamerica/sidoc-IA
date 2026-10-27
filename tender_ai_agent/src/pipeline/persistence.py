@@ -37,6 +37,9 @@ class PersistenceService:
             logger.warning("DATABASE_URL no configurada: no se insertan oportunidades.")
             return 0
 
+        if run_id:
+            for opportunity in opportunities:
+                opportunity.ia_run_id = opportunity.ia_run_id or run_id
         repository = OpportunityRepository(engine, self.settings.db_table_name)
         results = repository.insert_many(opportunities)
         self.last_insert_results = results

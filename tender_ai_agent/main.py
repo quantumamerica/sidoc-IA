@@ -71,6 +71,23 @@ def build_parser() -> argparse.ArgumentParser:
         help="Desactiva la asignacion de unidad de negocio para esta corrida.",
     )
 
+    run_parser.add_argument(
+        "--skip-connectors",
+        action="store_true",
+        help="No consulta las APIs de portales (config/connectors.yaml) en esta corrida.",
+    )
+
+    connectors_parser = subparsers.add_parser("conectores", help="Prueba los conectores a APIs de portales.")
+    connectors_parser.add_argument(
+        "--probar",
+        action="store_true",
+        required=True,
+        help="Consulta cada conector (aunque este apagado) y muestra cuantos avisos trae, sin tocar la base.",
+    )
+    connectors_parser.add_argument("--id", help="Prueba solo este conector (secop, pncp, worldbank).")
+    connectors_parser.add_argument("--dias", type=int, help="Sobrescribe lookback_days para la prueba.")
+    connectors_parser.add_argument("--muestras", type=int, default=5, help="Cantidad de avisos de ejemplo a mostrar.")
+
     sources_parser = subparsers.add_parser("sources", help="Gestiona fuentes configuradas.")
     sources_parser.add_argument("--list", action="store_true", help="Lista las fuentes configuradas.")
     sources_parser.add_argument("--region", help="Filtra fuentes por region.")
@@ -127,6 +144,8 @@ def run_pipeline(args: argparse.Namespace, settings: Settings) -> int:
         settings_overrides["ai_validation_threshold"] = args.ai_threshold
     if getattr(args, "skip_negocio_assignment", False):
         settings_overrides["negocio_assignment_enabled"] = False
+    if getattr(args, "skip_connectors", False):
+        settings_overrides["connectors_enabled"] = False
     if settings_overrides:
         settings = settings.model_copy(update=settings_overrides)
 
@@ -417,6 +436,33 @@ def _classify_negocio(args: argparse.Namespace, settings: Settings, catalog: Neg
     return 0
 
 
+def probe_connectors(args: argparse.Namespace, settings: Settings) -> int:
+    from datetime import date
+
+    from connectors.registry import build_connectors
+
+    connectors = build_connectors(settings, only_enabled=False, connector_id=args.id)
+    if not connectors:
+        print("No hay conectores configurados" + (f" con id={args.id}" if args.id else "") + ".")
+        return 1
+    failures = 0
+    for connector in connectors:
+        if args.dias is not None:
+            connector.config.lookback_days = args.dias
+        result = connector.fetch(date.today())
+        state = "encendido" if connector.config.enabled else "apagado"
+        print(f"\n== {connector.config.name} [{connector.config.id}, {state}] ==")
+        print(f"Avisos leidos (ultimos {connector.config.lookback_days} dias): {result.fetched}")
+        print(f"Pasan el filtro de palabras clave: {len(result.items)}")
+        if result.error:
+            failures += 1
+            print(f"ERROR: {result.error}")
+        for item in result.items[: args.muestras]:
+            print(f"- {item['raw_title'][:120]}")
+            print(f"  {item['official_url']} | cierre: {item.get('deadline_raw') or '-'} | {', '.join(item.get('matched_keywords') or [])}")
+    return 1 if failures else 0
+
+
 def main() -> int:
     settings = load_settings(PROJECT_ROOT)
     configure_logging(settings)
@@ -436,6 +482,8 @@ def main() -> int:
         return list_prompts(settings)
     if args.command == "negocios":
         return run_negocios_command(args, settings)
+    if args.command == "conectores":
+        return probe_connectors(args, settings)
 
     parser.print_help()
     return 1

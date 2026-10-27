@@ -35,6 +35,7 @@ class DbMappingService:
             evidence_text=opportunity.evidence_text,
             evidence_urls=opportunity.evidence_urls,
             audit_notes=opportunity.audit_notes,
+            metadata=opportunity.metadata,
             id_fuente=opportunity.id_fuente,
             url=opportunity.official_url or opportunity.url,
             fuente=opportunity.fuente,
@@ -62,22 +63,36 @@ class DbMappingService:
             tipo_propuesta=normalize_process_type(opportunity.process_type),
             filial_id=self.settings.default_filial_id if self.settings else None,
             filtro_gemini=self._filtro_gemini(opportunity),
-            comentario=(
-                self._comment(opportunity.run_id)
-            ),
             comentarios_personales=self.settings.default_comentarios_personales if self.settings else None,
             estado_seguimiento=self._setting_catalog("default_estado_seguimiento", DB_ESTADOS_SEGUIMIENTO, default="Pendiente"),
+            **self._ia_trace(opportunity),
         )
+
+    @staticmethod
+    def _ia_trace(opportunity: ValidatedOpportunity) -> dict[str, Any]:
+        """Origen de la oportunidad y veredicto del juez, para las columnas ia_* de la licitacion."""
+        metadata = opportunity.metadata or {}
+        raw = metadata.get("raw_response_metadata") or {}
+        judge = metadata.get("ai_judge") or {}
+        modalidad = metadata.get("discovery_mode") or raw.get("discovery_mode")
+        busqueda = raw.get("theme_name") if modalidad == "open_web" else raw.get("source_name")
+        evidencia = opportunity.official_url or opportunity.url or next(iter(opportunity.evidence_urls or []), None)
+        motivo = judge.get("reason")
+        return {
+            "ia_run_id": opportunity.run_id,
+            "ia_modalidad": modalidad,
+            "ia_busqueda": (busqueda or opportunity.source_name or "")[:200] or None,
+            "ia_modelo_juez": judge.get("model"),
+            "ia_puntaje": judge.get("score", opportunity.ai_confidence),
+            "ia_motivo_juez": motivo[:2000] if motivo else None,
+            "ia_evidencia_url": evidencia[:500] if evidencia else None,
+        }
 
     def _filtro_gemini(self, opportunity: ValidatedOpportunity) -> str | None:
         verdict = normalize_catalog_value(opportunity.filtro_gemini, DB_FILTROS_GEMINI)
         if verdict is not None:
             return verdict
         return self._setting_catalog("default_filtro_gemini", DB_FILTROS_GEMINI, default="No analizada")
-
-    def _comment(self, run_id: str | None) -> str:
-        prefix = self.settings.default_comentario_prefix if self.settings else "Cargado automaticamente por tender_ai_agent"
-        return f"{prefix} run_id={run_id}" if run_id else prefix
 
     def _setting_catalog(self, field_name: str, allowed_values: tuple[str, ...], *, default: str | None = None) -> str | None:
         value: Any = getattr(self.settings, field_name, None) if self.settings else None

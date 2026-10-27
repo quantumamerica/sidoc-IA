@@ -30,7 +30,9 @@ class GeminiClient(BaseAIClient):
         prompt: str,
         response_format: str = "json",
         stage: str | None = None,
+        json_schema: dict[str, Any] | None = None,
     ) -> ProviderResponse:
+        # json_schema se acepta por compatibilidad con el juez; Gemini usa solo response_mime_type.
         if not self.settings.google_api_key:
             return self._error_response("GOOGLE_API_KEY no esta configurada.")
 

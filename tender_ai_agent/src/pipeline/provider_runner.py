@@ -10,6 +10,8 @@ from clients.base import ProviderResponse
 from clients.openai_client import OpenAIClient
 from clients.perplexity_client import PerplexityClient
 from config.settings import Settings
+from connectors.base import to_raw_response
+from connectors.registry import build_connectors
 from models.schemas import (
     PipelineStage,
     PipelineStageLog,
@@ -49,6 +51,7 @@ class ProviderPipelineRunner:
         self.deduplication = DeduplicationService()
         self.negocio_assignment = NegocioAssignmentService(settings)
         self.db_mapping = DbMappingService(settings)
+        self._connector_cache: dict[tuple[str, str], RawProviderResponse] = {}
 
     def run(
         self,
@@ -301,6 +304,31 @@ class ProviderPipelineRunner:
             self.audit_logger.save_raw_response(run_id, response)
 
         responses.extend(self._discover_open_web(provider, region, run_id, dry_run, client))
+        responses.extend(self._discover_connectors(provider, region, run_id, dry_run))
+        return responses
+
+    def _discover_connectors(
+        self,
+        provider: ProviderName,
+        region: str,
+        run_id: str,
+        dry_run: bool,
+    ) -> list[RawProviderResponse]:
+        """Conectores a APIs de portales: sin costo de IA y nunca cortan la corrida."""
+        if dry_run or not self.settings.connectors_enabled:
+            return []
+        responses: list[RawProviderResponse] = []
+        today = datetime.now(timezone.utc).date()
+        for connector in build_connectors(self.settings, region=region):
+            key = (run_id, connector.config.id)
+            if key in self._connector_cache:
+                # Con varios proveedores en la misma corrida, el portal se consulta una sola vez.
+                continue
+            result = connector.fetch(today)
+            response = to_raw_response(provider, region, run_id, result, connector.config)
+            self._connector_cache[key] = response
+            self.audit_logger.save_raw_response(run_id, response)
+            responses.append(response)
         return responses
 
     def _discover_open_web(
