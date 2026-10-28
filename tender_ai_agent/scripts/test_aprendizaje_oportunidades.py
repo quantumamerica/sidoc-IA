@@ -74,6 +74,16 @@ def test_listing_urls() -> None:
     listing = candidate("ADB active projects", (today_utc_date() + timedelta(days=20)).isoformat())
     listing.official_url = "https://www.adb.org/status/active?page=74"
     assert service.evaluate(listing).reason == RejectionReason.NOT_A_TENDER
+    # Aviso puntual que el buscador devuelve con la URL del listado (ADB, corrida del 27-oct-2026): pasa al juez.
+    concrete = candidate(
+        "SOL: Power System Expansion and Enhancement Project Feasibility Study",
+        (today_utc_date() + timedelta(days=20)).isoformat(),
+    )
+    concrete.official_url = "https://www.adb.org/status/active?page=25"
+    result = service.evaluate(concrete)
+    assert result.is_eligible, result.reason
+    assert concrete.requires_human_review
+    assert any("listado" in note for note in concrete.audit_notes)
 
 
 def test_judge_client_selection() -> None:

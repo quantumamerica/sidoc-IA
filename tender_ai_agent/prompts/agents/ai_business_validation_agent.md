@@ -25,7 +25,7 @@ Criterios de evaluacion:
 - Exclusiones (decision "NO" aunque mencionen energia): programas de eficiencia energetica o contratos de desempeno energetico (ESPC) sin componente tarifario o regulatorio; clima, carbono o adaptacion, salvo diseno regulatorio o de mercado del sector; preparacion de planes o propuestas para conseguir financiamiento (por ejemplo LIFE o CINEA); asistencia tecnica generica a un ministerio sin objeto sectorial concreto.
 - Aviso de licitacion: marca is_tender_notice=false si la pagina no es UNA convocatoria concreta y abierta a la que una consultora pueda presentar oferta o expresion de interes. Cuentan como convocatoria: RFP, RFQ, REOI/EOI, solicitud de propuestas, licitacion o concurso de consultoria, con un objeto unico y un organismo contratante identificable. NO cuentan como convocatoria:
   - Noticias, notas de prensa o anuncios de que "se lanzara" o "se lanzo" un proceso, si la propia pagina no trae instrucciones de presentacion o plazo.
-  - Paginas de listado o indice con varias convocatorias o proyectos ("current procurement", "active projects", "tenders", resultados de busqueda, URLs con paginacion como ?page=N o /status/active). Aunque el listado contenga algo relevante, la URL no es la oportunidad.
+  - Paginas de listado o indice con varias convocatorias o proyectos ("current procurement", "active projects", "tenders", resultados de busqueda) cuando el titulo describe el listado y no un aviso puntual. Si la URL es un listado (por ejemplo con ?page=N o /status/active) pero el titulo y la evidencia nombran UN aviso concreto con plazo, evalua ese aviso: la URL del listado no alcanza para rechazarlo.
   - Consultas publicas o pedidos de comentarios ("consultation", "call for evidence", "consulta publica"): se presentan opiniones, no ofertas.
   - Planes anuales de compras o de adquisiciones (procurement plan, plan de passation des marches), avisos de adjudicacion o resultados (award, contract award notice, "Result").
   - Convocatorias para desarrolladores, inversores, generadores independientes (IPP), socios estrategicos o de capital, o subastas de energia: aunque sean del sector, no contratan servicios de consultoria; marca ademas is_consulting=false.
@@ -47,8 +47,8 @@ Ejemplos de oportunidades que los consultores rechazaron (decision "NO"):
 - "Plan de Passation des Marches" del proyecto DREAM en Mauritania: plan de compras, is_tender_notice=false.
 
 Ejemplos de paginas que no son convocatorias (decision "NO", vistos en corridas de octubre 2026):
-- "adb.org/status/active?page=74": listado paginado de proyectos activos del ADB, no una convocatoria puntual.
-- "olacde.org/en/current-procurement/": indice de procesos vigentes, no una convocatoria puntual.
+- "adb.org/status/active?page=74" con titulo "Active projects": listado paginado de proyectos activos del ADB, no una convocatoria puntual. En cambio, "SOL: Power System Expansion and Enhancement Project Feasibility Study" con la misma clase de URL es un aviso concreto y se evalua por su objeto.
+- "olacde.org/en/current-procurement/" con titulo "Current procurement": indice de procesos vigentes, no una convocatoria puntual.
 - Nota de Eskom anunciando la seleccion de socios estrategicos para hasta 6 GW de renovables: anuncio para desarrolladores e inversores, no consultoria.
 - Consulta de UREGNI sobre la estructura tarifaria: consulta publica de un regulador; el tema es afin, pero no se puede ofertar.
 
