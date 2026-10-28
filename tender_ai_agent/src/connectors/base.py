@@ -85,7 +85,7 @@ class BaseConnector:
                 item = self._to_item(record)
                 if item is None:
                     continue
-                matched = self.matched_terms(f"{item.get('raw_title') or ''} {item.get('description_raw') or ''}")
+                matched = self.matched_terms(item.get("raw_title") or "", item.get("description_raw") or "")
                 if matched:
                     item["matched_keywords"] = matched
                     item["matched_keywords_count"] = len(matched)
@@ -104,10 +104,20 @@ class BaseConnector:
         )
         return result
 
-    def matched_terms(self, text: str) -> list[str]:
-        normalized = normalize(text)
-        sectors = [term for term in self.config.sector_terms if _starts_word(term, normalized)]
-        services = [term for term in self.config.service_terms if _starts_word(term, normalized)]
+    def matched_terms(self, title: str, description: str = "") -> list[str]:
+        """Terminos de sector y de servicio encontrados; vacio si falta alguno o si el titulo tiene un termino excluido.
+
+        `exclude_terms` descarta por titulo (por ejemplo, puestos de consultor individual).
+        Con `service_terms_in_title: true` el servicio tiene que estar en el titulo: en el Banco Mundial
+        la descripcion trae el nombre del proyecto y hace pasar cualquier puesto de un proyecto de energia.
+        """
+        title_norm = normalize(title)
+        full_norm = normalize(f"{title} {description}")
+        if any(_starts_word(term, title_norm) for term in self.config.extra("exclude_terms", []) or []):
+            return []
+        service_text = title_norm if self.config.extra("service_terms_in_title", False) else full_norm
+        sectors = [term for term in self.config.sector_terms if _starts_word(term, full_norm)]
+        services = [term for term in self.config.service_terms if _starts_word(term, service_text)]
         return [*sectors, *services] if sectors and services else []
 
     def _records(self, since: date, until: date):

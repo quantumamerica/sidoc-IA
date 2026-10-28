@@ -37,7 +37,7 @@ def connector(connector_id: str, pages: list):
 def test_config() -> None:
     configs = {config.id: config for config in load_connector_configs(SETTINGS)}
     assert set(configs) == {"secop", "pncp", "worldbank"}
-    assert not any(config.enabled for config in configs.values()), "el piloto arranca apagado"
+    assert [c.id for c in configs.values() if c.enabled] == ["worldbank"], "solo el Banco Mundial esta encendido"
     assert build_connectors(SETTINGS, region="latam") == []
     assert {c.config.id for c in build_connectors(SETTINGS, region="latam", only_enabled=False)} == {"secop", "pncp"}
 
@@ -199,6 +199,19 @@ def test_get_retries_on_429() -> None:
         requests.get = original
 
 
+def test_worldbank_title_rules() -> None:
+    [instance] = build_connectors(SETTINGS, only_enabled=False, connector_id="worldbank")
+    project = "Renewable Energy Access Project - consultancy services"
+    # Puestos individuales de un proyecto de energia (prueba en la VM del 28-oct-2026): afuera.
+    assert instance.matched_terms("Hiring of an Individual Consultant to serve as the Project Coordinator.", project) == []
+    assert instance.matched_terms("Hiring of an Individual Consultant to serve as a Gender-Based Violence (GBV) Specialist", project) == []
+    assert instance.matched_terms("Recruitment of Financial Management Specialist.", project) == []
+    # El servicio tiene que estar en el titulo, no solo en la descripcion del proyecto.
+    assert instance.matched_terms("Supply of laptops", project) == []
+    assert instance.matched_terms("Tariff study for the national utility", "Energy Sector Project") != []
+    assert instance.matched_terms("Consultancy for technical assistance to the electricity regulator") != []
+
+
 def test_unmatched_sample() -> None:
     instance, _ = connector("secop", [[{"nombre_del_procedimiento": "Compra de papelería", "urlproceso": {"url": "https://x/2"}}]])
     result = instance.fetch(TODAY)
@@ -215,6 +228,7 @@ def main() -> None:
     test_word_start_matching()
     test_get_retries_on_429()
     test_unmatched_sample()
+    test_worldbank_title_rules()
     print("OK conectores")
 
 

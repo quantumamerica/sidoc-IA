@@ -6,7 +6,7 @@
 # `sector_terms` Y al menos uno de `service_terms` (minusculas, sin tildes). Cada termino tiene que
 # empezar una palabra: `energi` matchea `energia` y `energias`, `power` no matchea `empowerment`.
 #
-# Estan apagados hasta probarlos en la VM con:
+# Se encienden despues de probarlos en la VM con:
 #   python main.py conectores --probar
 # Cuando los resultados se vean bien, cambiar `enabled` a true.
 
@@ -43,7 +43,8 @@ connectors:
 
   - id: worldbank
     name: World Bank procurement notices
-    enabled: false
+    # Encendido el 28-oct-2026 tras probarlo en la VM.
+    enabled: true
     region: multilaterals
     country:
     language: en
@@ -53,4 +54,8 @@ connectors:
     # Solo servicios de consultoria y expresiones de interes.
     notice_types: [request for expression of interest, request for proposals]
     sector_terms: [energy, electric, power, tariff, regulat, utility, utilities, gas, hydrogen, renewable, water, sanitation, transmission, distribution]
-    service_terms: [consult, study, advisory, technical assistance, assessment, feasibility, strategy]
+    service_terms: [consult, study, studies, advisory, technical assistance, assessment, feasibility, strategy]
+    # La descripcion trae el nombre del proyecto: el servicio tiene que estar en el titulo.
+    service_terms_in_title: true
+    # QUANTUM se presenta como firma: se descartan puestos individuales.
+    exclude_terms: [individual consultant, hiring of an individual, consultant individuel, consultor individual, consultora individual, specialist, especialista, specialiste, project coordinator, coordinador, coordonnateur, assistant, gender-based violence]
