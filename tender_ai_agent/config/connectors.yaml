@@ -3,7 +3,8 @@
 # y los pasan al mismo pipeline que las busquedas IA (elegibilidad, juez, negocio, DB).
 #
 # Una oportunidad entra solo si su titulo o descripcion tiene al menos un termino de
-# `sector_terms` Y al menos uno de `service_terms` (minusculas, sin tildes; se compara por subcadena).
+# `sector_terms` Y al menos uno de `service_terms` (minusculas, sin tildes). Cada termino tiene que
+# empezar una palabra: `energi` matchea `energia` y `energias`, `power` no matchea `empowerment`.
 #
 # Estan apagados hasta probarlos en la VM con:
 #   python main.py conectores --probar
@@ -32,6 +33,8 @@ connectors:
     language: pt
     lookback_days: 3
     max_pages: 20
+    # La API corta con 429 si se le pide rapido; pausa entre paginas.
+    request_pause_seconds: 1.5
     endpoint: https://pncp.gov.br/api/consulta/v1/contratacoes/publicacao
     # 4 = Concorrencia eletronica, 5 = Concorrencia presencial, 6 = Pregao eletronico.
     modalidades: [4, 5, 6]
@@ -50,4 +53,4 @@ connectors:
     # Solo servicios de consultoria y expresiones de interes.
     notice_types: [request for expression of interest, request for proposals]
     sector_terms: [energy, electric, power, tariff, regulat, utility, utilities, gas, hydrogen, renewable, water, sanitation, transmission, distribution]
-    service_terms: [consult, study, advisory, technical assistance, assessment, feasibility, design, framework, strategy]
+    service_terms: [consult, study, advisory, technical assistance, assessment, feasibility, strategy]

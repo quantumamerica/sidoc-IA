@@ -126,7 +126,10 @@ Arrancan apagados (`enabled: false`). Para probarlos sin tocar la base:
 ```bash
 python main.py conectores --probar            # todos
 python main.py conectores --probar --id pncp --dias 7
+python main.py conectores --probar --id secop --ver-descartados   # muestra titulos que no pasaron, para ajustar terminos
 ```
+
+Cada termino tiene que empezar una palabra (`power` no matchea `empowerment`). Si el portal responde 429 o 503, el conector espera y reintenta hasta 3 veces; `request_pause_seconds` agrega una pausa entre paginas (PNCP la necesita).
 
 Cuando los resultados se vean bien, poner `enabled: true` en el conector. `--skip-connectors` en `run` o `CONNECTORS_ENABLED=false` en `.env` los apagan a todos.
 

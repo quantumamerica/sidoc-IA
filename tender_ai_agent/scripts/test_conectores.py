@@ -159,6 +159,52 @@ def test_identification_reads_connector_items() -> None:
     assert json.loads(raw.content)["items"][0]["contracting_authority"] == "CREG"
 
 
+def test_word_start_matching() -> None:
+    [instance] = build_connectors(SETTINGS, only_enabled=False, connector_id="worldbank")
+    assert instance.matched_terms("Women empowerment consultancy") == []
+    assert instance.matched_terms("Power sector consultancy") == ["power", "consult"]
+    [secop] = build_connectors(SETTINGS, only_enabled=False, connector_id="secop")
+    assert secop.matched_terms("Estudio de la ENERGÍA eléctrica") != []
+
+
+def test_get_retries_on_429() -> None:
+    import requests
+
+    [instance] = build_connectors(SETTINGS, only_enabled=False, connector_id="pncp")
+    waits: list[float] = []
+    instance._sleep = waits.append
+
+    class FakeResponse:
+        def __init__(self, status, headers=None):
+            self.status_code = status
+            self.headers = headers or {}
+
+        def raise_for_status(self):
+            if self.status_code >= 400:
+                raise requests.HTTPError(f"{self.status_code} Client Error")
+
+        def json(self):
+            return {"data": [], "totalPaginas": 0}
+
+    responses = [FakeResponse(429, {"Retry-After": "7"}), FakeResponse(429), FakeResponse(200)]
+    original = requests.get
+    requests.get = lambda *a, **k: responses.pop(0)
+    try:
+        assert instance._get("https://x", {}) == {"data": [], "totalPaginas": 0}
+        assert waits == [7.0, 10], waits
+        responses.append(FakeResponse(200))
+        instance._get("https://x", {})
+        assert waits[-1] == 1.5, "pausa entre pedidos configurada en connectors.yaml"
+    finally:
+        requests.get = original
+
+
+def test_unmatched_sample() -> None:
+    instance, _ = connector("secop", [[{"nombre_del_procedimiento": "Compra de papelería", "urlproceso": {"url": "https://x/2"}}]])
+    result = instance.fetch(TODAY)
+    assert result.unmatched_titles == ["Compra de papelería"]
+
+
 def main() -> None:
     test_config()
     test_secop()
@@ -166,6 +212,9 @@ def main() -> None:
     test_worldbank()
     test_error_does_not_raise()
     test_identification_reads_connector_items()
+    test_word_start_matching()
+    test_get_retries_on_429()
+    test_unmatched_sample()
     print("OK conectores")
 
 

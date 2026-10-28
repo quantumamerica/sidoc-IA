@@ -87,6 +87,11 @@ def build_parser() -> argparse.ArgumentParser:
     connectors_parser.add_argument("--id", help="Prueba solo este conector (secop, pncp, worldbank).")
     connectors_parser.add_argument("--dias", type=int, help="Sobrescribe lookback_days para la prueba.")
     connectors_parser.add_argument("--muestras", type=int, default=5, help="Cantidad de avisos de ejemplo a mostrar.")
+    connectors_parser.add_argument(
+        "--ver-descartados",
+        action="store_true",
+        help="Muestra tambien titulos que no pasaron el filtro de palabras clave, para ajustar los terminos.",
+    )
 
     sources_parser = subparsers.add_parser("sources", help="Gestiona fuentes configuradas.")
     sources_parser.add_argument("--list", action="store_true", help="Lista las fuentes configuradas.")
@@ -460,6 +465,10 @@ def probe_connectors(args: argparse.Namespace, settings: Settings) -> int:
         for item in result.items[: args.muestras]:
             print(f"- {item['raw_title'][:120]}")
             print(f"  {item['official_url']} | cierre: {item.get('deadline_raw') or '-'} | {', '.join(item.get('matched_keywords') or [])}")
+        if args.ver_descartados and result.unmatched_titles:
+            print("No pasan el filtro (muestra):")
+            for title in result.unmatched_titles[: max(args.muestras, 15)]:
+                print(f"  x {title[:120]}")
     return 1 if failures else 0
 
 
