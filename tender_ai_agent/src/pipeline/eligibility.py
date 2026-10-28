@@ -42,6 +42,21 @@ LISTING_PATH_ENDINGS = (
 )
 
 
+# Titulos que describen el listado en si, no un aviso puntual.
+GENERIC_LISTING_TITLE_TERMS = (
+    "active projects",
+    "current procurement",
+    "procurement notices",
+    "procurement opportunities",
+    "tender notices",
+    "open tenders",
+    "licitaciones vigentes",
+    "convocatorias vigentes",
+    "procesos vigentes",
+    "appels d'offres en cours",
+)
+
+
 def is_listing_url(url: str | None) -> bool:
     if not url:
         return False
@@ -105,7 +120,14 @@ class EligibilityService:
         if any(term in title for term in NOT_A_TENDER_TERMS):
             return EligibilityResult(candidate=candidate, is_eligible=False, reason=RejectionReason.NOT_A_TENDER)
         if is_listing_url(candidate.official_url or candidate.url):
-            return EligibilityResult(candidate=candidate, is_eligible=False, reason=RejectionReason.NOT_A_TENDER)
+            # Si el titulo es el del listado, no hay aviso. Si nombra un aviso puntual (pasa con ADB y OLACDE,
+            # que el buscador devuelve con la URL del listado), sigue al juez y queda para revision humana.
+            if not title.strip() or any(term in title for term in GENERIC_LISTING_TITLE_TERMS):
+                return EligibilityResult(candidate=candidate, is_eligible=False, reason=RejectionReason.NOT_A_TENDER)
+            candidate.requires_human_review = True
+            note = "La URL es un listado del portal: buscar el aviso puntual por su titulo."
+            if note not in candidate.audit_notes:
+                candidate.audit_notes.append(note)
         # El texto original permite probar la lectura dd/mm y mm/dd; la fecha normalizada ya eligio una.
         deadlines = [
             value
