@@ -121,7 +121,7 @@ Muchos portales de compras no aparecen en las busquedas IA con filtro de dominio
 
 Cada conector trae los avisos publicados en los ultimos `lookback_days` y deja pasar solo los que tienen un termino de `sector_terms` y uno de `service_terms` en el titulo o la descripcion. Lo que pasa entra al pipeline como cualquier otra candidata (elegibilidad, juez IA, deduplicacion, negocio, DB), con modalidad `api` y `source_id` `api_<id>`. Si un portal falla, se registra el error y la corrida sigue.
 
-Arrancan apagados (`enabled: false`). Para probarlos sin tocar la base:
+El Banco Mundial esta encendido desde el 28-oct-2026; SECOP y PNCP siguen apagados (`enabled: false`). Para probarlos sin tocar la base:
 
 ```bash
 python main.py conectores --probar            # todos
@@ -129,7 +129,7 @@ python main.py conectores --probar --id pncp --dias 7
 python main.py conectores --probar --id secop --ver-descartados   # muestra titulos que no pasaron, para ajustar terminos
 ```
 
-Cada termino tiene que empezar una palabra (`power` no matchea `empowerment`). Si el portal responde 429 o 503, el conector espera y reintenta hasta 3 veces; `request_pause_seconds` agrega una pausa entre paginas (PNCP la necesita).
+Cada termino tiene que empezar una palabra (`power` no matchea `empowerment`). `exclude_terms` descarta por titulo (por ejemplo, puestos de consultor individual) y `service_terms_in_title: true` exige el termino de servicio en el titulo. Si el portal responde 429 o 503, el conector espera y reintenta hasta 3 veces; `request_pause_seconds` agrega una pausa entre paginas (PNCP la necesita).
 
 Cuando los resultados se vean bien, poner `enabled: true` en el conector. `--skip-connectors` en `run` o `CONNECTORS_ENABLED=false` en `.env` los apagan a todos.
 
