@@ -188,11 +188,14 @@ class AuditLogger:
         db_duplicates = duplicates_payload.get("database", []) if isinstance(duplicates_payload, dict) else []
         inserted = self._read_optional_json(run_dir / "inserted_opportunities.json", [])
         approved = self._read_optional_json(run_dir / "validated_opportunities.json", [])
+        # validated_opportunities.json tiene la forma de la tabla licitacion: trae negocio_id, no el slug.
         negocio_by_slug = Counter(
-            item.get("negocio_slug") or "sin_asignar" for item in approved if isinstance(item, dict)
+            item.get("negocio_slug") or (f"negocio_id={item['negocio_id']}" if item.get("negocio_id") else "sin_asignar")
+            for item in approved
+            if isinstance(item, dict)
         )
         negocio_by_method = Counter(
-            item.get("negocio_assignment_method") or "sin_asignar" for item in approved if isinstance(item, dict)
+            item.get("negocio_assignment_method") or "ver negocio_assignment.json" for item in approved if isinstance(item, dict)
         )
         negocio_sin_id = sum(
             1 for item in approved if isinstance(item, dict) and item.get("negocio_id") is None

@@ -181,6 +181,16 @@ def test_ia_trace_mapping() -> None:
     missing = repository.validate_expected_columns()
     assert set(IA_TRACE_COLUMNS) <= set(missing)
 
+    # Dos avisos distintos con la misma URL de listado (ADB, corrida del 29-oct-2026): no son duplicados.
+    listing_url = "https://www.adb.org/status/active?page=25"
+    first = mapped.model_copy(update={"url": listing_url, "titulo_estudio": "Active projects"})
+    second = mapped.model_copy(update={"url": listing_url, "titulo_estudio": "SOL: Power System Expansion Feasibility Study"})
+    assert repository.insert_opportunity(first).inserted
+    assert repository.insert_opportunity(second).inserted, "la URL de listado no marca duplicado"
+    # Una URL de aviso puntual si.
+    again = mapped.model_copy(update={"titulo_estudio": "Otro titulo"})
+    assert repository.insert_opportunity(again).reason == "duplicate_url"
+
 
 def main() -> None:
     test_dates()
