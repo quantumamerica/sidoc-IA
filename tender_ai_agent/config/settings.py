@@ -28,6 +28,8 @@ class Settings(BaseModel):
     anthropic_model: str = "claude-opus-5-5"
     anthropic_effort: str = "low"
     ai_judge_provider: str = "anthropic"
+    second_reader_enabled: bool = True
+    second_reader_model: str = "claude-sonnet-5-5"
     content_quality_validation_enabled: bool = True
     ai_validation_enabled: bool = True
     ai_validation_threshold: float = 0.6
@@ -136,6 +138,8 @@ def load_settings(project_root: Path) -> Settings:
         anthropic_model=os.getenv("ANTHROPIC_MODEL", "claude-opus-5-5") or "claude-opus-5-5",
         anthropic_effort=os.getenv("ANTHROPIC_EFFORT", "low") or "low",
         ai_judge_provider=(os.getenv("AI_JUDGE_PROVIDER", "anthropic") or "anthropic").strip().lower(),
+        second_reader_enabled=_parse_bool(os.getenv("SECOND_READER_ENABLED"), default=True),
+        second_reader_model=os.getenv("SECOND_READER_MODEL", "claude-sonnet-5-5") or "claude-sonnet-5-5",
         content_quality_validation_enabled=_parse_bool(os.getenv("CONTENT_QUALITY_VALIDATION_ENABLED"), default=True),
         ai_validation_enabled=_parse_bool(os.getenv("AI_VALIDATION_ENABLED"), default=True),
         ai_validation_threshold=float(os.getenv("AI_VALIDATION_THRESHOLD", "0.6")),

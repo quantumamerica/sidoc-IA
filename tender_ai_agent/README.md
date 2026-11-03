@@ -109,6 +109,10 @@ mientras no existan se omiten y el log lo avisa una vez por corrida):
 | `ia_motivo_juez` | justificacion del juez |
 | `ia_evidencia_url` | URL oficial o de evidencia |
 
+## Segunda lectura de resultados web
+
+Perplexity muchas veces trae resultados web pero devuelve una lista vacia: en las corridas del 29 y 30-oct-2026 paso en 99 de 112 busquedas. Cuando eso pasa, `SearchResultsReader` le pasa a Claude (`SECOND_READER_MODEL`, por defecto `claude-sonnet-5-5`) los primeros resultados con titulo, fragmento y fecha. Claude marca cuales son convocatorias concretas, y las URLs salen siempre del resultado, nunca del modelo. Lo extraido sigue el pipeline normal (elegibilidad, calidad, juez) y queda marcado para revision humana. Se apaga con `SECOND_READER_ENABLED=false`. En los raw de cada busqueda queda `metadata.second_reader` (resultados leidos, convocatorias, modelo, costo) y la respuesta original de Perplexity en `metadata.perplexity_content`.
+
 ## Conectores a APIs de portales
 
 Muchos portales de compras no aparecen en las busquedas IA con filtro de dominio porque sus avisos se cargan dinamicamente. Para esos portales hay conectores que leen sus APIs de datos abiertas, sin clave y sin costo de IA, definidos en `config/connectors.yaml`:

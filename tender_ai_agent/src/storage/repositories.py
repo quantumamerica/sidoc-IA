@@ -153,7 +153,11 @@ class OpportunityRepository:
         return missing
 
     def _duplicate_reason(self, opportunity: MappedOpportunity) -> str | None:
-        if opportunity.url and self.exists_by_url(opportunity.url):
+        from pipeline.eligibility import is_listing_url
+
+        # Una URL de listado (ADB status/active, OLACDE current-procurement) la comparten muchos avisos:
+        # no sirve para decir que es la misma oportunidad. Se compara por referencia y por titulo.
+        if opportunity.url and not is_listing_url(opportunity.url) and self.exists_by_url(opportunity.url):
             return "duplicate_url"
         if opportunity.referencia and self.exists_by_reference(opportunity.referencia):
             return "duplicate_reference"

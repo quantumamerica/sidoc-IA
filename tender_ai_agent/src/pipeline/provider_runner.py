@@ -31,6 +31,7 @@ from pipeline.eligibility import EligibilityService
 from pipeline.enrichment import EnrichmentService
 from pipeline.identification import IdentificationService
 from pipeline.negocio_assignment import NegocioAssignmentService
+from pipeline.search_results_reader import SearchResultsReader
 from pipeline.validation import ValidationService
 from utils.cost_tracker import CostTracker
 
@@ -52,6 +53,7 @@ class ProviderPipelineRunner:
         self.negocio_assignment = NegocioAssignmentService(settings)
         self.db_mapping = DbMappingService(settings)
         self._connector_cache: dict[tuple[str, str], RawProviderResponse] = {}
+        self.search_reader = SearchResultsReader(settings)
 
     def run(
         self,
@@ -299,6 +301,7 @@ class ProviderPipelineRunner:
                         "prompt_base": "provider_neutral",
                     },
                 )
+                response = self.search_reader.maybe_read(response, busqueda=f"Fuente: {source.name} ({source.url})")
 
             responses.append(response)
             self.audit_logger.save_raw_response(run_id, response)
@@ -406,6 +409,7 @@ class ProviderPipelineRunner:
                         "prompt_base": "open_web_discovery",
                     },
                 )
+                response = self.search_reader.maybe_read(response, busqueda=f"Tema: {theme.name}")
 
             responses.append(response)
             self.audit_logger.save_raw_response(run_id, response)
