@@ -241,27 +241,36 @@ class PerplexityClient(BaseAIClient):
 
     @staticmethod
     def _agent_search_results(data: dict[str, Any]) -> list[dict[str, Any]]:
+        """Resultados web de la Agent API, con formato Sonar.
+
+        Primero van las paginas que el agente abrio (`fetch_url_results`), que son las que eligio
+        como mas prometedoras; despues los resultados de busqueda. Sin URLs repetidas.
+        """
+        fetched: list[dict[str, Any]] = []
+        searched: list[dict[str, Any]] = []
+        for item in data.get("output") or []:
+            if not isinstance(item, dict):
+                continue
+            if item.get("type") == "fetch_url_results":
+                fetched.extend(r for r in item.get("contents") or [] if isinstance(r, dict))
+            elif item.get("type") == "search_results":
+                searched.extend(r for r in item.get("results") or [] if isinstance(r, dict))
         results: list[dict[str, Any]] = []
         seen: set[str] = set()
-        for item in data.get("output") or []:
-            if not isinstance(item, dict) or item.get("type") != "search_results":
+        for result in fetched + searched:
+            url = result.get("url")
+            if not url or url in seen:
                 continue
-            for result in item.get("results") or []:
-                if not isinstance(result, dict):
-                    continue
-                url = result.get("url")
-                if not url or url in seen:
-                    continue
-                seen.add(url)
-                results.append(
-                    {
-                        "title": result.get("title"),
-                        "url": url,
-                        "snippet": result.get("snippet") or result.get("content"),
-                        "date": result.get("date"),
-                        "last_updated": result.get("last_updated"),
-                    }
-                )
+            seen.add(url)
+            results.append(
+                {
+                    "title": result.get("title"),
+                    "url": url,
+                    "snippet": result.get("snippet") or result.get("content"),
+                    "date": result.get("date"),
+                    "last_updated": result.get("last_updated"),
+                }
+            )
         return results
 
     @staticmethod

@@ -37,6 +37,8 @@ class Settings(BaseModel):
     ai_judge_provider: str = "anthropic"
     second_reader_enabled: bool = True
     second_reader_model: str = "claude-sonnet-5-5"
+    # Cuantos resultados web lee Claude por busqueda. La Agent API de Perplexity trae 13 a 65.
+    second_reader_max_results: int = 30
     content_quality_validation_enabled: bool = True
     ai_validation_enabled: bool = True
     ai_validation_threshold: float = 0.6
@@ -151,6 +153,7 @@ def load_settings(project_root: Path) -> Settings:
         ai_judge_provider=(os.getenv("AI_JUDGE_PROVIDER", "anthropic") or "anthropic").strip().lower(),
         second_reader_enabled=_parse_bool(os.getenv("SECOND_READER_ENABLED"), default=True),
         second_reader_model=os.getenv("SECOND_READER_MODEL", "claude-sonnet-5-5") or "claude-sonnet-5-5",
+        second_reader_max_results=int(os.getenv("SECOND_READER_MAX_RESULTS", "30")),
         content_quality_validation_enabled=_parse_bool(os.getenv("CONTENT_QUALITY_VALIDATION_ENABLED"), default=True),
         ai_validation_enabled=_parse_bool(os.getenv("AI_VALIDATION_ENABLED"), default=True),
         ai_validation_threshold=float(os.getenv("AI_VALIDATION_THRESHOLD", "0.6")),
