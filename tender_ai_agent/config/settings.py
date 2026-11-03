@@ -21,6 +21,13 @@ class Settings(BaseModel):
     openai_model: str = "gpt-4.1"
     perplexity_api_key: str | None = None
     perplexity_model: str = "sonar-pro"
+    # Desde el 27-sep-2026 Perplexity atiende Sonar como su Agent API con esfuerzo "fast" (una sola
+    # busqueda): se perdio la Pro Search. "agent" llama directo a /v1/agent con el esfuerzo de abajo;
+    # "sonar" vuelve al endpoint viejo.
+    perplexity_discovery_api: str = "agent"
+    perplexity_agent_effort: str = "low"
+    perplexity_agent_max_results: int = 20
+    perplexity_agent_timeout_seconds: int = 240
 
     google_api_key: str | None = None
     gemini_model: str = "gemini-2.5-flash-lite"
@@ -132,6 +139,10 @@ def load_settings(project_root: Path) -> Settings:
         openai_model=os.getenv("OPENAI_MODEL", "gpt-4.1"),
         perplexity_api_key=os.getenv("PERPLEXITY_API_KEY") or None,
         perplexity_model=os.getenv("PERPLEXITY_MODEL", "sonar-pro"),
+        perplexity_discovery_api=(os.getenv("PERPLEXITY_DISCOVERY_API", "agent") or "agent").strip().lower(),
+        perplexity_agent_effort=(os.getenv("PERPLEXITY_AGENT_EFFORT", "low") or "low").strip().lower(),
+        perplexity_agent_max_results=int(os.getenv("PERPLEXITY_AGENT_MAX_RESULTS", "20")),
+        perplexity_agent_timeout_seconds=int(os.getenv("PERPLEXITY_AGENT_TIMEOUT_SECONDS", "240")),
         google_api_key=os.getenv("GOOGLE_API_KEY") or None,
         gemini_model=os.getenv("GEMINI_MODEL", "gemini-2.5-flash-lite"),
         anthropic_api_key=os.getenv("ANTHROPIC_API_KEY") or None,
