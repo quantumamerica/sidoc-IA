@@ -112,11 +112,21 @@ def test_disabled_by_setting() -> None:
     assert SearchResultsReader(settings, client=client).maybe_read(raw(), busqueda="b").content == '{"items":[]}'
 
 
+def test_reads_up_to_configured_limit() -> None:
+    many = [{"title": f"r{i}", "url": f"https://ex.org/{i}", "snippet": "s"} for i in range(50)]
+    client = FakeClient('{"items":[]}')
+    reader = SearchResultsReader(SETTINGS.model_copy(update={"second_reader_max_results": 30}), client=client)
+    response = reader.maybe_read(raw(results=many), busqueda="b")
+    assert response.metadata["second_reader"]["results"] == 30
+    assert "[30] r29" in client.prompts[0] and "[31]" not in client.prompts[0]
+
+
 def main() -> None:
     test_extracts_items_with_result_urls()
     test_skips_when_perplexity_returned_items_or_no_results()
     test_error_keeps_response()
     test_disabled_by_setting()
+    test_reads_up_to_configured_limit()
     print("OK segunda lectura")
 
 

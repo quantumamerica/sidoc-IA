@@ -24,6 +24,9 @@ AGENT_OK = {
             {"id": 1, "title": "RFP Tariff Study", "url": "https://ex.org/rfp", "snippet": "Consultancy", "date": "2026-10-30"},
             {"id": 2, "title": "dup", "url": "https://ex.org/rfp"},
         ]},
+        {"type": "fetch_url_results", "contents": [
+            {"title": "PN-T1376-P001", "url": "https://ex.org/aviso", "snippet": "Diseno de licitacion"},
+        ]},
         {"type": "message", "content": [{"type": "output_text", "text": '{"items":[{"raw_title":"RFP Tariff Study"}]}'}]},
     ],
     "usage": {"input_tokens": 100, "output_tokens": 20, "cost": {"total_cost": 0.02}},
@@ -72,7 +75,8 @@ def test_agent_parses_text_and_results() -> None:
     assert body["response_format"]["type"] == "json_schema"
     assert r.parsed_json["items"][0]["raw_title"] == "RFP Tariff Study"
     assert r.raw_response["search_results"] == [
-        {"title": "RFP Tariff Study", "url": "https://ex.org/rfp", "snippet": "Consultancy", "date": "2026-10-30", "last_updated": None}
+        {"title": "PN-T1376-P001", "url": "https://ex.org/aviso", "snippet": "Diseno de licitacion", "date": None, "last_updated": None},
+        {"title": "RFP Tariff Study", "url": "https://ex.org/rfp", "snippet": "Consultancy", "date": "2026-10-30", "last_updated": None},
     ]
     assert r.metadata["api"] == "agent"
 

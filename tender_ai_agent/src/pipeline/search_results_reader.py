@@ -13,7 +13,6 @@ from utils.prompt_loader import PromptLoader
 logger = logging.getLogger(__name__)
 
 PROMPT_PATH = "agents/search_results_reader_agent.md"
-MAX_RESULTS = 12
 SNIPPET_CHARS = 500
 
 READER_SCHEMA: dict[str, Any] = {
@@ -81,7 +80,7 @@ class SearchResultsReader:
         """Devuelve la misma respuesta, con los items extraidos si correspondia una segunda lectura."""
         if not self.enabled() or _response_items(response.content):
             return response
-        results = self._search_results(response.raw_payload)
+        results = self._search_results(response.raw_payload, self.settings.second_reader_max_results)
         if not results:
             return response
         try:
@@ -104,9 +103,9 @@ class SearchResultsReader:
         return response
 
     @staticmethod
-    def _search_results(raw_payload: dict[str, Any] | None) -> list[dict[str, Any]]:
+    def _search_results(raw_payload: dict[str, Any] | None, limit: int) -> list[dict[str, Any]]:
         results = (raw_payload or {}).get("search_results") or []
-        return [r for r in results if isinstance(r, dict) and r.get("url")][:MAX_RESULTS]
+        return [r for r in results if isinstance(r, dict) and r.get("url")][: max(1, limit)]
 
     def _read(
         self, response: RawProviderResponse, results: list[dict[str, Any]], *, busqueda: str
