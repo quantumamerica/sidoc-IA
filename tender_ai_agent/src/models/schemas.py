@@ -119,6 +119,7 @@ class RejectionReason(str, Enum):
     DUPLICATE = "duplicate"
     INVALID_URL = "invalid_url"
     NOT_A_TENDER = "not_a_tender"
+    LANGUAGE_NOT_ALLOWED = "language_not_allowed"
     OTHER = "other"
 
 

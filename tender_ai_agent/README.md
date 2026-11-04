@@ -96,6 +96,14 @@ Gemini" porque SGQ filtra por ellos; el modelo que decidio queda en las notas de
 Antes del juez, la elegibilidad descarta URLs de listados (paginacion `?page=N`,
 `/status/active`, `/current-procurement`, etc.) porque no identifican una oportunidad.
 
+La elegibilidad tambien descarta los avisos que no estan en espanol, ingles, portugues o
+frances (`ALLOWED_LANGUAGES=es,en,pt,fr`). Manda el idioma que declara el buscador o la
+segunda lectura; si no declara, se estima por palabras frecuentes del titulo y la
+descripcion, y si el texto es corto o ambiguo, pasa. Un titulo escrito mayormente en otro
+alfabeto (arabe, cirilico, griego, chino) se descarta siempre. El motivo queda como
+`language_not_allowed`. Con las candidatas del 4-nov-2026 habria descartado 4 de 227
+(tres avisos en sueco de Trollhattan y una nota en griego sobre gas en Chipre).
+
 Cada alta guarda su origen en columnas `ia_*` de `licitacion` (las crea la migracion de SGQ;
 mientras no existan se omiten y el log lo avisa una vez por corrida):
 
@@ -152,20 +160,17 @@ de la tabla destino con una de las seis unidades de negocio de QUANTUM:
 | `nuevos_negocios` | Nuevos Negocios | 5 | Transicion energetica, renovables, almacenamiento, eficiencia y movilidad electrica |
 | `electricidad` | Electricidad | 6 | Regulacion electrica, calculo tarifario, distribucion, transmision, VNR, tasa de capital y perdidas |
 
-La clasificacion es hibrida y se resuelve en este orden:
+La asigna el **Juez 3**: Claude (`NEGOCIO_JUDGE_MODEL`, por defecto `claude-opus-5-5`, con
+la misma `ANTHROPIC_API_KEY` de los otros jueces) lee cada oportunidad que paso todos los
+filtros y elige la unidad con `prompts/agents/negocio_assignment_agent.md`. Recibe titulo,
+organismo, pais, fuente, resumen, descripcion y el motivo del juez de negocio, y decide por
+el objeto central del contrato. Las palabras clave ya no deciden ni se le pasan como pista.
+La respuesta se valida con un esquema que solo admite slugs del catalogo.
 
-1. **Reglas dominantes.** Si el texto contiene palabras clave dominantes de un negocio, se
-   asigna sin consultar a Gemini. Si dominan varios, gana el de prioridad mas baja. Esto
-   hace deterministas las reglas duras: todo lo de hidrogeno va a `gas`, y si el entregable
-   central es un sistema informatico va a `desarrollo_it`.
-2. **Score por palabras clave.** Si el negocio con mejor score supera
-   `NEGOCIO_RULES_STRONG_THRESHOLD`, se asigna por reglas. Ante un empate dentro de
-   `NEGOCIO_RULES_MARGIN`, desempata la prioridad del catalogo.
-3. **Gemini.** Si el score no alcanza, se consulta al modelo con
-   `prompts/agents/negocio_assignment_agent.md`. El prompt le prohibe devolver null: ante
-   duda elige el mejor encaje y baja `confidence`.
-4. **Fallback.** Si Gemini falla o no hay `GOOGLE_API_KEY`, se toma el mayor score de
-   reglas; si no hay ninguna senal, se usa `DEFAULT_NEGOCIO_ID`.
+Si Claude no responde (sin `ANTHROPIC_API_KEY`, error de la API o slug invalido), se usa
+como respaldo el mayor score de las palabras clave de `config/negocios.yaml` (o
+`DEFAULT_NEGOCIO_ID` si no hay senales) y la oportunidad queda marcada para revision humana.
+El veredicto queda en `metadata.negocio_judge` y en las notas `[Negocio]`.
 
 El `negocio_id` que se escribe se resuelve asi: primero `sidoc_id` de `config/negocios.yaml`,
 y si esta en null, buscando el `nombre` o los `nombres_alternativos` en la tabla `negocio`
@@ -184,16 +189,16 @@ Para ver el estado de resolucion de los ids y las filas reales de la tabla:
 python main.py negocios --list
 ```
 
-Para calibrar las palabras clave sin correr el pipeline, con el detalle de coincidencias y
-score por negocio:
+Para probar un texto suelto (con `--use-judge` consulta al Juez 3 como en la corrida; sin
+el, muestra solo el score de palabras clave del respaldo):
 
 ```bash
 python main.py negocios --classify "Revision tarifaria de distribucion electrica"
-python main.py negocios --classify "Fortalecimiento institucional" --use-gemini
+python main.py negocios --classify "Fortalecimiento institucional" --use-judge
 ```
 
-`scripts/test_negocio_assignment.py` fija el comportamiento esperado de la capa
-determinista. Si se editan las palabras clave, ese script debe seguir pasando.
+`scripts/test_negocio_assignment.py` fija que decida el Juez 3 y el comportamiento del
+respaldo por palabras clave. Si se editan las palabras clave, ese script debe seguir pasando.
 
 Para desactivar la etapa: `NEGOCIO_ASSIGNMENT_ENABLED=false` o
 `python main.py run --skip-negocio-assignment`. En ese caso `negocio_id` vuelve a tomar

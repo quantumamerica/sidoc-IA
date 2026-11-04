@@ -68,7 +68,7 @@ class NegocioCatalog:
         return self._db_rows
 
     def catalog_summary(self) -> str:
-        """Resumen textual del catalogo para inyectar en el prompt de Gemini."""
+        """Resumen textual del catalogo para inyectar en el prompt del Juez 3."""
         lines: list[str] = []
         for definition in sorted(self.definitions, key=lambda item: item.prioridad):
             descripcion = " ".join((definition.descripcion or "").split())

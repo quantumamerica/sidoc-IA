@@ -9,7 +9,8 @@ Contexto de ejecucion:
 
 Instrucciones:
 
-- Busca oportunidades en cualquier idioma.
+- Busca oportunidades publicadas en espanol, ingles, portugues o frances. No incluyas avisos escritos en otros idiomas.
+- En `language` pone el codigo ISO 639-1 del idioma del aviso (es, en, pt, fr).
 - Prioriza fuentes oficiales, portales publicos, reguladores, utilities, municipios y organismos multilaterales.
 - Usa `search_queries` de la fuente configurada como consultas primarias. Interpreta esas consultas como obligatorias cuando existan.
 - Restringe la busqueda a `search_domains` cuando existan. No uses resultados de dominios externos salvo que no haya resultados oficiales y la fuente tenga `fallback_queries`.

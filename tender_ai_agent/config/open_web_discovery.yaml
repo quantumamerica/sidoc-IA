@@ -149,7 +149,6 @@ regions:
     languages:
       - en
       - fr
-      - ar
     region_scope: "Africa; prioritize national procurement portals, energy regulators, public utilities and regional power pools."
     query_terms:
       - "Africa"
@@ -160,9 +159,6 @@ regions:
   eastern_europe:
     languages:
       - en
-      - pl
-      - uk
-      - ro
     region_scope: "Eastern Europe, Balkans, Caucasus and neighboring transition economies."
     query_terms:
       - "Eastern Europe"

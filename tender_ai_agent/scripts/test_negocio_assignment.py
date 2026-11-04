@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import json
 import sys
 from pathlib import Path
 
@@ -9,6 +10,7 @@ for path in (PROJECT_ROOT, SRC_ROOT):
     if str(path) not in sys.path:
         sys.path.insert(0, str(path))
 
+from clients.base import ProviderResponse
 from config.settings import Settings
 from models.schemas import DB_COLUMNS, DbMappedOpportunity, ProviderName, ValidatedOpportunity
 from pipeline.db_mapping import DbMappingService
@@ -23,7 +25,7 @@ INTERNAL_NEGOCIO_FIELDS = (
     "negocio_scores",
 )
 
-# Casos que la capa determinista debe resolver sin consultar a Gemini.
+# Casos que el fallback por palabras clave resuelve si el Juez 3 (Claude) no responde.
 CASES: list[tuple[str, str]] = [
     ("Estudio tarifario de agua potable y saneamiento", "agua"),
     ("Green hydrogen feasibility study and regulatory framework", "gas"),
@@ -100,45 +102,90 @@ def build_opportunity(title: str) -> ValidatedOpportunity:
     )
 
 
+class FakeJudge:
+    """Cliente de Claude simulado: devuelve el slug que se le indique y guarda el prompt."""
+
+    provider = ProviderName.ANTHROPIC
+    model = "claude-opus-5-5"
+
+    def __init__(self, reply: dict | None = None, error: str | None = None, configured: bool = True) -> None:
+        self.reply = reply
+        self.error = error
+        self.configured = configured
+        self.prompts: list[str] = []
+        self.schemas: list[dict] = []
+
+    def is_configured(self) -> bool:
+        return self.configured
+
+    def run_agent(self, prompt, response_format="json", stage=None, json_schema=None):
+        self.prompts.append(prompt)
+        self.schemas.append(json_schema or {})
+        if self.error:
+            return ProviderResponse(provider=self.provider, model=self.model, error=self.error)
+        return ProviderResponse(
+            provider=self.provider,
+            model=self.model,
+            content=json.dumps(self.reply),
+            parsed_json=self.reply,
+            metadata={"served_model": self.model},
+        )
+
+
 def check_stage_flow(settings: Settings, catalog: NegocioCatalog) -> list[str]:
-    """Flujo completo de la etapa sin Gemini (GOOGLE_API_KEY ausente) y su mapeo a la base."""
+    """Juez 3: Claude decide siempre, aunque haya palabras dominantes de otro negocio."""
     errors: list[str] = []
 
-    # settings sin google_api_key: la etapa debe resolver por reglas y no romper.
-    service = NegocioAssignmentService(settings, catalog=catalog)
-    if service.client.is_configured():
-        errors.append("El settings de prueba no deberia tener GOOGLE_API_KEY configurada.")
+    # El caso de Islas Marshall del 4-nov: "hydrogen" (de otro aviso) mandaba la oportunidad a Gas.
+    opportunity = build_opportunity("Energy Act Implementation and Regulatory support - Marshall Islands")
+    opportunity.description_raw = "Legal advice in the green hydrogen sector (GIZ Mauritania)."
+    opportunity.metadata = {"ai_judge": {"reason": "Apoyo regulatorio para implementar la Ley de Energia."}}
+    judge = FakeJudge({"negocio_slug": "electricidad", "confidence": 0.85, "alternativa_slug": None, "reason": "Regulacion."})
+    service = NegocioAssignmentService(settings, client=judge, catalog=catalog)
+    [assigned] = service.assign([opportunity])
 
-    opportunities = [build_opportunity(text) for text, _ in CASES[:8]]
-    assigned = service.assign(opportunities)
+    if assigned.negocio_slug != "electricidad":
+        errors.append(f"El Juez 3 no mando: quedo {assigned.negocio_slug!r} en vez de 'electricidad'.")
+    if assigned.negocio_assignment_method != "claude":
+        errors.append(f"Metodo {assigned.negocio_assignment_method!r} en vez de 'claude'.")
+    if assigned.negocio_id != catalog.negocio_id("electricidad"):
+        errors.append(f"negocio_id {assigned.negocio_id!r} no corresponde a electricidad.")
+    if len(judge.prompts) != 1:
+        errors.append(f"Se esperaba 1 consulta al Juez 3 y hubo {len(judge.prompts)}.")
+    else:
+        prompt = judge.prompts[0]
+        if "Apoyo regulatorio para implementar" not in prompt:
+            errors.append("El prompt del Juez 3 no incluye el motivo del juez de negocio.")
+        if "Candidatos sugeridos" in prompt or "{{" in prompt:
+            errors.append("El prompt del Juez 3 trae pistas de palabras clave o variables sin completar.")
+        enum = judge.schemas[0].get("properties", {}).get("negocio_slug", {}).get("enum")
+        if sorted(enum or []) != sorted(definition.slug for definition in catalog.definitions):
+            errors.append(f"El esquema del Juez 3 no limita el slug al catalogo: {enum!r}")
+    if assigned.requires_human_review:
+        errors.append("Una asignacion del Juez 3 no deberia quedar marcada para revision.")
+    if not any(note.startswith("[Negocio]") and "Juez 3" in note for note in assigned.audit_notes):
+        errors.append("No quedo nota de auditoria del Juez 3.")
 
-    if len(assigned) != len(opportunities):
-        errors.append(f"assign() cambio la cantidad de oportunidades: {len(assigned)} != {len(opportunities)}")
+    # Slug fuera del catalogo o error de la API: fallback por palabras clave, marcado para revision.
+    for label, fake in (
+        ("error", FakeJudge(error="timeout")),
+        ("slug_invalido", FakeJudge({"negocio_slug": "mineria", "confidence": 0.9, "alternativa_slug": None, "reason": "x"})),
+        ("sin_api_key", FakeJudge(configured=False)),
+    ):
+        opportunity = build_opportunity("Estudio tarifario de agua potable y saneamiento")
+        [assigned] = NegocioAssignmentService(settings, client=fake, catalog=catalog).assign([opportunity])
+        if assigned.negocio_assignment_method != "fallback":
+            errors.append(f"{label}: metodo {assigned.negocio_assignment_method!r} en vez de 'fallback'.")
+        if assigned.negocio_slug != "agua":
+            errors.append(f"{label}: el fallback asigno {assigned.negocio_slug!r} en vez de 'agua'.")
+        if not assigned.requires_human_review:
+            errors.append(f"{label}: el fallback no marco la oportunidad para revision humana.")
+        if label == "sin_api_key" and fake.prompts:
+            errors.append("sin_api_key: no deberia consultar al Juez 3.")
 
-    for opportunity, (text, expected) in zip(assigned, CASES[:8]):
-        if opportunity.negocio_slug != expected:
-            errors.append(f"assign() asigno {opportunity.negocio_slug!r} en vez de {expected!r} para: {text}")
-        # Sin DATABASE_URL el catalogo no puede resolver ids: se espera el mismo valor que el catalogo.
-        expected_id = catalog.negocio_id(expected)
-        if opportunity.negocio_id != expected_id:
-            errors.append(
-                f"assign() escribio negocio_id={opportunity.negocio_id!r} en vez de {expected_id!r} para: {text}"
-            )
-        if opportunity.negocio_assignment_method != "rules":
-            errors.append(
-                f"assign() uso metodo {opportunity.negocio_assignment_method!r} sin Gemini para: {text}"
-            )
-        if not any(note.startswith("[Negocio]") for note in opportunity.audit_notes):
-            errors.append(f"assign() no dejo nota de auditoria para: {text}")
-        if not opportunity.negocio_scores:
-            errors.append(f"assign() no guardo scores para: {text}")
-
-    mapped = DbMappingService(settings).map(assigned)
-    for item, opportunity in zip(mapped, assigned):
-        if item.negocio_id != opportunity.negocio_id:
-            errors.append(
-                f"db_mapping no propago negocio_id: {item.negocio_id!r} != {opportunity.negocio_id!r}"
-            )
+    mapped = DbMappingService(settings).map([assigned])
+    if mapped[0].negocio_id != assigned.negocio_id:
+        errors.append(f"db_mapping no propago negocio_id: {mapped[0].negocio_id!r} != {assigned.negocio_id!r}")
 
     return errors
 
@@ -164,7 +211,7 @@ def main() -> int:
             margin=settings.negocio_rules_margin,
         )
         actual = outcome.slug if outcome else None
-        detail = outcome.detail if outcome else "no concluyente (iria a Gemini)"
+        detail = outcome.detail if outcome else "no concluyente"
         status = "OK  " if actual == expected else "FALLA"
         top = scores[0]
         print(f"{status} {text}")
@@ -185,11 +232,11 @@ def main() -> int:
 
     stage_errors = check_stage_flow(settings, catalog)
     if stage_errors:
-        print("Flujo de la etapa sin Gemini: FALLA")
+        print("Flujo de la etapa (Juez 3 y fallback): FALLA")
         for error in stage_errors:
             print(f"  - {error}")
     else:
-        print("Flujo de la etapa sin Gemini: OK (asigna por reglas y propaga a db_mapping)")
+        print("Flujo de la etapa: OK (decide el Juez 3; el fallback marca para revision y propaga a db_mapping)")
 
     print()
     if failures or payload_errors or stage_errors:

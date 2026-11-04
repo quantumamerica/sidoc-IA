@@ -6,4 +6,4 @@ Prioriza consultorias institucionales, regulatorias, tarifarias, energeticas, de
 
 Evita contratos de construccion, equipamiento, EPC o supervision de obra.
 
-Busca en cualquier idioma europeo o global relevante. Conserva el idioma original de cada oportunidad.
+Busca en ingles, espanol, portugues o frances. No incluyas avisos publicados solo en otros idiomas. Conserva el idioma original de cada oportunidad.
