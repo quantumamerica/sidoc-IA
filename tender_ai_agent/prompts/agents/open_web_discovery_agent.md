@@ -16,7 +16,8 @@ Contexto de ejecucion:
 
 Instrucciones:
 
-- Busca oportunidades en cualquier idioma relevante para la region.
+- Busca oportunidades publicadas en espanol, ingles, portugues o frances. No incluyas avisos escritos en otros idiomas.
+- En `language` pone el codigo ISO 639-1 del idioma del aviso (es, en, pt, fr).
 - Usa las consultas tematicas y los terminos regionales como base, pero puedes reformularlas para encontrar fuentes oficiales.
 - Devuelve solo oportunidades desde fuentes oficiales o publicas verificables: portales de contratacion, ministerios, reguladores, utilities publicas, operadores de sistema, municipios, bancos multilaterales, agencias ONU, fondos climaticos u organismos internacionales.
 - No uses agregadores, noticias, blogs, LinkedIn, redes sociales, bolsas de trabajo ni paginas comerciales como fuente final.

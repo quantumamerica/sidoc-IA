@@ -50,6 +50,8 @@ class Settings(BaseModel):
     negocio_rules_strong_threshold: float = 0.45
     negocio_rules_margin: float = 0.12
     negocio_assignment_delay_seconds: float = 0.0
+    # Juez 3: modelo de Claude que asigna el negocio (usa ANTHROPIC_API_KEY).
+    negocio_judge_model: str = "claude-opus-5-5"
 
     database_url: str | None = None
     db_table_name: str = "licitacion"
@@ -73,6 +75,8 @@ class Settings(BaseModel):
     request_timeout_seconds: int = 60
     max_results_per_source: int = 20
     deadline_grace_days: int = 1
+    # Idiomas que pasan la elegibilidad (codigos ISO 639-1).
+    allowed_languages: list[str] = Field(default_factory=lambda: ["es", "en", "pt", "fr"])
 
     @property
     def config_dir(self) -> Path:
@@ -164,6 +168,7 @@ def load_settings(project_root: Path) -> Settings:
         negocio_rules_strong_threshold=float(os.getenv("NEGOCIO_RULES_STRONG_THRESHOLD", "0.45")),
         negocio_rules_margin=float(os.getenv("NEGOCIO_RULES_MARGIN", "0.12")),
         negocio_assignment_delay_seconds=float(os.getenv("NEGOCIO_ASSIGNMENT_DELAY_SECONDS", "0")),
+        negocio_judge_model=os.getenv("NEGOCIO_JUDGE_MODEL", "claude-opus-5-5") or "claude-opus-5-5",
         database_url=os.getenv("DATABASE_URL") or None,
         db_table_name=os.getenv("DB_TABLE_NAME") or os.getenv("DB_OPPORTUNITIES_TABLE", "licitacion"),
         default_db_estado=os.getenv("DEFAULT_DB_ESTADO", "Sin Analizar"),
@@ -184,4 +189,5 @@ def load_settings(project_root: Path) -> Settings:
         request_timeout_seconds=int(os.getenv("REQUEST_TIMEOUT_SECONDS", "60")),
         max_results_per_source=int(os.getenv("MAX_RESULTS_PER_SOURCE", "20")),
         deadline_grace_days=int(os.getenv("DEADLINE_GRACE_DAYS", "1")),
+        allowed_languages=[lang.lower() for lang in _parse_csv(os.getenv("ALLOWED_LANGUAGES"), ["es", "en", "pt", "fr"])],
     )

@@ -5,7 +5,8 @@ import re
 import time
 from dataclasses import dataclass, field
 
-from clients.gemini_client import GeminiClient
+from clients.anthropic_client import AnthropicClient
+from clients.base import BaseAIClient
 from config.db_catalogs import _catalog_key
 from config.settings import Settings
 from models.schemas import NegocioDefinition, ValidatedOpportunity
@@ -27,7 +28,7 @@ WEIGHT_EXCLUDING = -2.0
 SCORE_SATURATION = 4.0
 
 METHOD_RULES = "rules"
-METHOD_GEMINI = "gemini"
+METHOD_CLAUDE = "claude"
 METHOD_FALLBACK = "fallback"
 
 
@@ -63,7 +64,7 @@ class NegocioDecision:
 
 
 class NegocioRuleScorer:
-    """Scoring determinista por palabras clave sobre el texto de la oportunidad."""
+    """Scoring por palabras clave. Ya no decide el negocio: solo respalda al Juez 3 si Claude falla."""
 
     def __init__(self, definitions: list[NegocioDefinition]) -> None:
         self.definitions = definitions
@@ -83,7 +84,7 @@ class NegocioRuleScorer:
         return sorted(scores, key=lambda item: (-item.score, item.prioridad))
 
     def decide(self, scores: list[NegocioScore], *, strong_threshold: float, margin: float) -> RuleOutcome | None:
-        """Decision por reglas. None significa que hay que consultar a Gemini."""
+        """Decision por reglas (solo para el fallback y la calibracion por CLI)."""
         if not scores:
             return None
 
@@ -149,18 +150,41 @@ class NegocioRuleScorer:
         return [keyword for keyword, pattern in patterns if pattern.search(normalized_text)]
 
 
+def negocio_schema(slugs: list[str]) -> dict:
+    """Esquema JSON del Juez 3: el slug solo puede ser uno del catalogo."""
+    return {
+        "type": "object",
+        "additionalProperties": False,
+        "properties": {
+            "negocio_slug": {"type": "string", "enum": slugs},
+            "confidence": {"type": "number"},
+            "alternativa_slug": {"anyOf": [{"type": "string", "enum": slugs}, {"type": "null"}]},
+            "reason": {"type": "string"},
+        },
+        "required": ["negocio_slug", "confidence", "alternativa_slug", "reason"],
+    }
+
+
 class NegocioAssignmentService:
-    """Asigna una unidad de negocio de QUANTUM a cada oportunidad que va a la base."""
+    """Juez 3: Claude asigna la unidad de negocio de QUANTUM a cada oportunidad que va a la base.
+
+    Ya no decide por palabras clave. Las reglas de `negocios.yaml` solo se usan si Claude no
+    responde (sin ANTHROPIC_API_KEY o con error), y en ese caso la oportunidad queda marcada
+    para revision humana.
+    """
 
     def __init__(
         self,
         settings: Settings,
-        client: GeminiClient | None = None,
+        client: BaseAIClient | None = None,
         prompt_loader: PromptLoader | None = None,
         catalog: NegocioCatalog | None = None,
     ) -> None:
         self.settings = settings
-        self.client = client or GeminiClient(settings)
+        if client is None:
+            client = AnthropicClient(settings)
+            client.model = settings.negocio_judge_model
+        self.client = client
         self.prompt_loader = prompt_loader or PromptLoader(settings.prompts_dir)
         self.catalog = catalog or NegocioCatalog(settings)
         self.strong_threshold = settings.negocio_rules_strong_threshold
@@ -185,29 +209,28 @@ class NegocioAssignmentService:
             )
             return opportunities
 
-        gemini_available = self.client.is_configured()
-        if not gemini_available:
+        judge_available = self.client.is_configured()
+        if not judge_available:
             logger.warning(
-                "Asignacion de negocio sin Gemini: GOOGLE_API_KEY no configurada. "
-                "Se asigna solo por reglas y fallback."
+                "Juez 3 (negocio) sin ANTHROPIC_API_KEY: se asigna por palabras clave y "
+                "las oportunidades quedan marcadas para revision humana."
             )
 
         methods: dict[str, int] = {}
         sin_id: list[str] = []
         for index, opportunity in enumerate(opportunities):
-            decision, used_gemini = self._decide(opportunity, gemini_available=gemini_available)
+            decision = self._decide(opportunity, judge_available=judge_available)
             self._apply_decision(opportunity, decision)
             methods[decision.method] = methods.get(decision.method, 0) + 1
             if decision.negocio_id is None:
                 sin_id.append(decision.slug or "sin_asignar")
-            if used_gemini and self.delay_seconds > 0 and index < len(opportunities) - 1:
+            if judge_available and self.delay_seconds > 0 and index < len(opportunities) - 1:
                 time.sleep(self.delay_seconds)
 
         logger.info(
-            "Asignacion de negocio completada entrada=%s por_reglas=%s por_gemini=%s fallback=%s",
+            "Asignacion de negocio completada entrada=%s por_claude=%s fallback=%s",
             len(opportunities),
-            methods.get(METHOD_RULES, 0),
-            methods.get(METHOD_GEMINI, 0),
+            methods.get(METHOD_CLAUDE, 0),
             methods.get(METHOD_FALLBACK, 0),
         )
         if sin_id:
@@ -221,87 +244,37 @@ class NegocioAssignmentService:
             )
         return opportunities
 
-    def classify_text(self, text: str, *, use_gemini: bool = False) -> tuple[list[NegocioScore], NegocioDecision]:
-        """Clasifica un texto suelto. Usado por el CLI para calibrar keywords."""
+    def classify_text(self, text: str, *, use_judge: bool = False) -> tuple[list[NegocioScore], NegocioDecision]:
+        """Clasifica un texto suelto. Usado por el CLI: con use_judge consulta a Claude."""
         scores = self.scorer.score_all(text)
-        outcome = self.scorer.decide(scores, strong_threshold=self.strong_threshold, margin=self.margin)
-        if outcome is not None:
-            return scores, self._decision_from_rules(outcome, scores)
-
-        if use_gemini and self.client.is_configured():
-            context = {
-                "titulo": text,
-                "organismo": "",
-                "pais": "",
-                "tema": "",
-                "categoria": "",
-                "resumen": "",
-                "descripcion": "",
-            }
-            decision = self._ask_gemini(context, scores, title=text)
+        if use_judge and self.client.is_configured():
+            context = {key: "" for key in self._build_context_keys()}
+            context["titulo"] = text
+            decision = self._ask_judge(context, title=text)
             if decision is not None:
                 return scores, decision
+        return scores, self._fallback_decision(text, "consulta sin Juez 3")
 
-        return scores, self._fallback_decision(scores, "reglas no concluyentes")
-
-    def _decide(
-        self,
-        opportunity: ValidatedOpportunity,
-        *,
-        gemini_available: bool,
-    ) -> tuple[NegocioDecision, bool]:
+    def _decide(self, opportunity: ValidatedOpportunity, *, judge_available: bool) -> NegocioDecision:
         context = self._build_context(opportunity)
-        scores = self.scorer.score_all(self._scoring_text(context))
-        outcome = self.scorer.decide(scores, strong_threshold=self.strong_threshold, margin=self.margin)
-
-        if outcome is not None:
-            return self._decision_from_rules(outcome, scores), False
-
-        if gemini_available:
-            decision = self._ask_gemini(context, scores, title=context["titulo"])
+        if judge_available:
+            decision = self._ask_judge(context, title=context["titulo"])
             if decision is not None:
-                return decision, True
-            return self._fallback_decision(scores, "juez de negocio sin veredicto utilizable"), True
+                return decision
+            return self._fallback_decision(self._scoring_text(context), "Juez 3 sin veredicto utilizable")
+        return self._fallback_decision(self._scoring_text(context), "Juez 3 sin ANTHROPIC_API_KEY")
 
-        return self._fallback_decision(scores, "Gemini no configurado"), False
-
-    def _decision_from_rules(self, outcome: RuleOutcome, scores: list[NegocioScore]) -> NegocioDecision:
-        chosen = next(item for item in scores if item.slug == outcome.slug)
-        if outcome.detail == "dominante":
-            reason = f"Palabras clave dominantes: {', '.join(chosen.dominant_hits[:5])}."
-        elif outcome.detail == "prioridad":
-            reason = f"Empate de score resuelto por prioridad {chosen.prioridad}."
-        else:
-            reason = f"Score de reglas {chosen.score} sobre el resto."
-        return NegocioDecision(
-            slug=chosen.slug,
-            nombre=chosen.nombre,
-            negocio_id=self.catalog.negocio_id(chosen.slug),
-            confidence=chosen.score,
-            method=METHOD_RULES,
-            detail=outcome.detail,
-            reason=reason,
-            scores=self._scores_map(scores),
-        )
-
-    def _ask_gemini(
-        self,
-        context: dict[str, str],
-        scores: list[NegocioScore],
-        *,
-        title: str,
-    ) -> NegocioDecision | None:
-        variables = {
-            **context,
-            "negocios_catalogo": self.catalog.catalog_summary(),
-            "candidatos_reglas": self._candidates_hint(scores),
-        }
+    def _ask_judge(self, context: dict[str, str], *, title: str) -> NegocioDecision | None:
+        variables = {**context, "negocios_catalogo": self.catalog.catalog_summary()}
         prompt = self.prompt_loader.render_file(PROMPT_PATH, variables)
-        response = self.client.run_agent(prompt, response_format="json", stage="negocio_assignment")
+        slugs = [definition.slug for definition in self.catalog.definitions]
+        response = self.client.run_agent(
+            prompt, response_format="json", stage="negocio_assignment", json_schema=negocio_schema(slugs)
+        )
 
         if response.error or response.parsed_json is None:
             logger.warning(
-                "Asignacion de negocio sin veredicto utilizable titulo=%r error=%s; se usa fallback.",
+                "Juez 3 sin veredicto utilizable titulo=%r error=%s; se usa fallback.",
                 title[:80],
                 response.error,
             )
@@ -309,46 +282,47 @@ class NegocioAssignmentService:
 
         payload = response.parsed_json
         if not isinstance(payload, dict):
-            logger.warning("Asignacion de negocio con formato inesperado titulo=%r; se usa fallback.", title[:80])
+            logger.warning("Juez 3 con formato inesperado titulo=%r; se usa fallback.", title[:80])
             return None
 
         slug = str(payload.get("negocio_slug") or "").strip()
         definition = self.catalog.by_slug(slug)
         if definition is None:
-            logger.warning(
-                "Asignacion de negocio con slug desconocido slug=%r titulo=%r; se usa fallback.",
-                slug,
-                title[:80],
-            )
+            logger.warning("Juez 3 con slug desconocido slug=%r titulo=%r; se usa fallback.", slug, title[:80])
             return None
 
-        reason = str(payload.get("reason") or "").strip() or "Sin justificacion provista por el asignador."
+        reason = str(payload.get("reason") or "").strip() or "Sin justificacion provista por el Juez 3."
         alternativa = str(payload.get("alternativa_slug") or "").strip()
-        if alternativa and self.catalog.by_slug(alternativa) is not None:
+        if alternativa and alternativa != slug and self.catalog.by_slug(alternativa) is not None:
             reason = f"{reason} Alternativa considerada: {alternativa}."
 
+        model = (response.metadata or {}).get("served_model") or response.model
         return NegocioDecision(
             slug=definition.slug,
             nombre=definition.nombre,
             negocio_id=self.catalog.negocio_id(definition.slug),
             confidence=self._coerce_score(payload.get("confidence")),
-            method=METHOD_GEMINI,
-            detail="llm",
+            method=METHOD_CLAUDE,
+            detail=model or "claude",
             reason=reason,
-            scores=self._scores_map(scores),
         )
 
-    def _fallback_decision(self, scores: list[NegocioScore], motivo: str) -> NegocioDecision:
-        best = scores[0] if scores else None
-        if best is not None and best.raw_score > 0:
+    def _fallback_decision(self, text: str, motivo: str) -> NegocioDecision:
+        """Solo si Claude no responde: mayor score de palabras clave, o DEFAULT_NEGOCIO_ID."""
+        scores = self.scorer.score_all(text)
+        outcome = self.scorer.decide(scores, strong_threshold=self.strong_threshold, margin=self.margin)
+        best = next((item for item in scores if item.slug == outcome.slug), None) if outcome else None
+        if best is None and scores and scores[0].raw_score > 0:
+            best = scores[0]
+        if best is not None:
             return NegocioDecision(
                 slug=best.slug,
                 nombre=best.nombre,
                 negocio_id=self.catalog.negocio_id(best.slug),
                 confidence=best.score,
                 method=METHOD_FALLBACK,
-                detail="mayor_score",
-                reason=f"Fallback por {motivo}: se toma el mayor score de reglas.",
+                detail="palabras_clave",
+                reason=f"Fallback por {motivo}: se toma el negocio de mayor score de palabras clave. Revisar.",
                 scores=self._scores_map(scores),
             )
 
@@ -359,7 +333,7 @@ class NegocioAssignmentService:
             confidence=None,
             method=METHOD_FALLBACK,
             detail="default",
-            reason=f"Fallback por {motivo}: sin senales de reglas, se usa DEFAULT_NEGOCIO_ID.",
+            reason=f"Fallback por {motivo}: sin senales de palabras clave, se usa DEFAULT_NEGOCIO_ID. Revisar.",
             scores=self._scores_map(scores),
         )
 
@@ -370,7 +344,23 @@ class NegocioAssignmentService:
         opportunity.negocio_confidence = decision.confidence
         opportunity.negocio_assignment_method = decision.method
         opportunity.negocio_scores = decision.scores
+        if decision.method == METHOD_FALLBACK:
+            opportunity.requires_human_review = True
+        opportunity.metadata = {
+            **(opportunity.metadata or {}),
+            "negocio_judge": {
+                "method": decision.method,
+                "model": decision.detail if decision.method == METHOD_CLAUDE else None,
+                "slug": decision.slug,
+                "confidence": decision.confidence,
+                "reason": decision.reason,
+            },
+        }
         opportunity.audit_notes = [*opportunity.audit_notes, self._build_note(decision)]
+
+    @staticmethod
+    def _build_context_keys() -> tuple[str, ...]:
+        return ("titulo", "organismo", "pais", "fuente", "tema", "categoria", "resumen", "descripcion", "motivo_juez")
 
     def _build_context(self, opportunity: ValidatedOpportunity) -> dict[str, str]:
         descripcion = (
@@ -380,14 +370,17 @@ class NegocioAssignmentService:
             or ""
         )
         resumen = opportunity.description_summary or opportunity.resumen_descrip or ""
+        judge = (opportunity.metadata or {}).get("ai_judge") or {}
         return {
             "titulo": self._title(opportunity),
             "organismo": opportunity.contracting_authority or opportunity.organismo_contratado or "",
             "pais": opportunity.country or opportunity.geographic_scope or "",
+            "fuente": opportunity.source_name or opportunity.fuente or "",
             "tema": opportunity.topic or opportunity.tema or "",
             "categoria": opportunity.category or opportunity.categoria or "",
             "resumen": resumen[:MAX_SUMMARY_CHARS],
             "descripcion": descripcion[:MAX_DESCRIPTION_CHARS],
+            "motivo_juez": str(judge.get("reason") or "")[:MAX_SUMMARY_CHARS],
         }
 
     @staticmethod
@@ -405,17 +398,6 @@ class NegocioAssignmentService:
         )
 
     @staticmethod
-    def _candidates_hint(scores: list[NegocioScore]) -> str:
-        top = [item for item in scores if item.raw_score > 0][:3]
-        if not top:
-            return "- Sin candidatos: el analisis por palabras clave no encontro senales."
-        return "\n".join(
-            f"- {item.slug}: score {item.score} (coincidencias: "
-            f"{', '.join([*item.dominant_hits, *item.strong_hits, *item.weak_hits][:6]) or 'ninguna'})"
-            for item in top
-        )
-
-    @staticmethod
     def _scores_map(scores: list[NegocioScore]) -> dict[str, float]:
         return {item.slug: item.score for item in scores}
 
@@ -426,9 +408,10 @@ class NegocioAssignmentService:
     @staticmethod
     def _build_note(decision: NegocioDecision) -> str:
         confianza = f"{decision.confidence:.2f}" if decision.confidence is not None else "n/d"
+        quien = "Juez 3 Claude" if decision.method == METHOD_CLAUDE else "fallback palabras clave"
         return (
             f"[Negocio] slug={decision.slug or 'sin_asignar'} metodo={decision.method}"
-            f" detalle={decision.detail} confianza={confianza}: {decision.reason}"
+            f" ({quien}) confianza={confianza}: {decision.reason}"
         )
 
     @staticmethod

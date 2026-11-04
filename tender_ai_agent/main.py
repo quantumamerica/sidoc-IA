@@ -124,9 +124,11 @@ def build_parser() -> argparse.ArgumentParser:
         help="Clasifica un texto suelto y muestra el score por negocio.",
     )
     negocios_parser.add_argument(
-        "--use-gemini",
+        "--use-judge",
+        "--use-claude",
+        dest="use_judge",
         action="store_true",
-        help="Con --classify, consulta a Gemini si las reglas no son concluyentes.",
+        help="Con --classify, consulta al Juez 3 (Claude) como en la corrida.",
     )
 
     return parser
@@ -413,7 +415,7 @@ def _suggest_db_match(nombre: str, db_rows: list[dict[str, object]]) -> str:
 
 def _classify_negocio(args: argparse.Namespace, settings: Settings, catalog: NegocioCatalog) -> int:
     service = NegocioAssignmentService(settings, catalog=catalog)
-    scores, decision = service.classify_text(args.classify, use_gemini=args.use_gemini)
+    scores, decision = service.classify_text(args.classify, use_judge=args.use_judge)
 
     print(f"Texto: {args.classify}\n")
     rows = [

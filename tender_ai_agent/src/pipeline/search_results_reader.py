@@ -32,7 +32,7 @@ READER_SCHEMA: dict[str, Any] = {
                     "description_raw": {"type": "string"},
                     "language": {"type": "string"},
                 },
-                "required": ["result_index", "raw_title"],
+                "required": ["result_index", "raw_title", "language"],
                 "additionalProperties": False,
             },
         }

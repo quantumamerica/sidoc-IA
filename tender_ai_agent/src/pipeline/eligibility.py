@@ -12,6 +12,10 @@ from models.schemas import (
     RejectionReason,
 )
 from utils.dates import deadline_still_open, possible_dates
+from utils.language import declared_languages, guess_language, non_latin_ratio
+
+# Idiomas que trabaja QUANTUM. Se puede cambiar con ALLOWED_LANGUAGES en el .env.
+DEFAULT_ALLOWED_LANGUAGES = ("es", "en", "pt", "fr")
 
 # Paginas que no son una licitacion: notas de prensa, planes de compras, listados de agregadores.
 NOT_A_TENDER_TERMS = (
@@ -68,8 +72,11 @@ def is_listing_url(url: str | None) -> bool:
 
 
 class EligibilityService:
-    def __init__(self, deadline_grace_days: int = 0) -> None:
+    def __init__(self, deadline_grace_days: int = 0, allowed_languages: tuple[str, ...] | list[str] | None = None) -> None:
         self.deadline_grace_days = deadline_grace_days
+        self.allowed_languages = {
+            lang.strip().lower() for lang in (allowed_languages or DEFAULT_ALLOWED_LANGUAGES) if lang and lang.strip()
+        }
 
     def filter(self, candidates: list[OpportunityCandidate]) -> tuple[list[OpportunityCandidate], list[RejectedOpportunity]]:
         approved: list[OpportunityCandidate] = []
@@ -117,6 +124,8 @@ class EligibilityService:
         title = " ".join(
             value or "" for value in [candidate.raw_title, candidate.normalized_title, candidate.titulo_estudio]
         ).lower()
+        if not self._language_allowed(candidate):
+            return EligibilityResult(candidate=candidate, is_eligible=False, reason=RejectionReason.LANGUAGE_NOT_ALLOWED)
         if any(term in title for term in NOT_A_TENDER_TERMS):
             return EligibilityResult(candidate=candidate, is_eligible=False, reason=RejectionReason.NOT_A_TENDER)
         if is_listing_url(candidate.official_url or candidate.url):
@@ -142,3 +151,36 @@ class EligibilityService:
             return EligibilityResult(candidate=candidate, is_eligible=False, reason=RejectionReason.EQUIPMENT_SUPPLY)
         candidate.eligibility_status = EligibilityStatus.ELIGIBLE
         return EligibilityResult(candidate=candidate, is_eligible=True)
+
+    def _language_allowed(self, candidate: OpportunityCandidate) -> bool:
+        """Lo declarado por el buscador manda; si no declara, se estima del titulo y la descripcion.
+
+        Un titulo escrito mayormente en otro alfabeto (arabe, cirilico, chino) se descarta siempre,
+        aunque el buscador lo haya marcado como ingles.
+        """
+        title = candidate.raw_title or candidate.normalized_title or candidate.titulo_estudio or ""
+        if non_latin_ratio(title) > 0.5:
+            return False
+        declared = declared_languages(candidate.language) | declared_languages(candidate.idioma)
+        if declared:
+            allowed = sorted(declared & self.allowed_languages)
+            if not allowed:
+                return False
+            self._set_language(candidate, allowed[0])
+            return True
+        text = " ".join(
+            value or "" for value in (title, candidate.description_raw or candidate.descripcion or "")
+        )
+        guessed = guess_language(text)
+        if guessed is None:
+            # Texto corto o ambiguo: no alcanza para descartar.
+            return True
+        if guessed not in self.allowed_languages:
+            return False
+        self._set_language(candidate, guessed)
+        return True
+
+    @staticmethod
+    def _set_language(candidate: OpportunityCandidate, code: str) -> None:
+        candidate.language = code
+        candidate.idioma = code

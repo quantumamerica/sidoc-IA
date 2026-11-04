@@ -4,4 +4,4 @@ Busca oportunidades abiertas en Banco Mundial, BID, CAF, AfDB, ADB, EBRD, EIB, U
 
 Prioriza consultorias para sector electrico, regulacion, tarifas, renovables, planificacion, mercados, utilities, fortalecimiento institucional, demanda, CAPEX/OPEX y modelizacion economico-financiera.
 
-Busca en ingles, espanol, frances, portugues y otros idiomas disponibles. Conserva el idioma original de cada oportunidad.
+Busca en ingles, espanol, frances o portugues; no incluyas avisos publicados solo en otros idiomas. Conserva el idioma original de cada oportunidad.

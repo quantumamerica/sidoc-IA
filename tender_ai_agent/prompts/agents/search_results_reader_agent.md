@@ -13,6 +13,8 @@ Reglas:
 - No incluyas: noticias o notas de prensa, paginas de listado o indice sin un aviso puntual, consultas publicas, planes de compras, adjudicaciones o resultados, vacantes laborales o consultores individuales, obras, suministro o instalacion de equipos.
 - No incluyas avisos marcados como cerrados ("Closed", "Cerrado", "Awarded") ni con un plazo anterior a la fecha actual.
 - Incluye avisos del sector aunque no estes seguro del encaje con QUANTUM: un juez posterior evalua la relevancia. Ante la duda sobre si es una convocatoria concreta, no lo incluyas.
+- En `language` pone el codigo ISO 639-1 del idioma en que esta escrito el aviso (es, en, pt, fr, de, ...), segun el titulo y el fragmento. No lo traduzcas ni lo adivines por el pais.
+- Solo se trabajan avisos en espanol, ingles, portugues o frances: no incluyas los escritos en otro idioma.
 - Si ningun resultado cumple, devolve una lista vacia.
 
 Resultados:

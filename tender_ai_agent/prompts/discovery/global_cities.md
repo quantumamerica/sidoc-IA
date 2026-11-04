@@ -4,4 +4,4 @@ Busca oportunidades abiertas en portales municipales, portales nacionales con op
 
 Prioriza programas de transicion energetica, regulacion, tarifas, planificacion urbana energetica, renovables, generacion distribuida, eficiencia, demanda, utilities y sostenibilidad financiera.
 
-Busca en cualquier idioma relevante segun pais o ciudad. Conserva el idioma original de cada oportunidad.
+Busca en espanol, ingles, portugues o frances segun pais o ciudad; no incluyas avisos publicados solo en otros idiomas. Conserva el idioma original de cada oportunidad.
