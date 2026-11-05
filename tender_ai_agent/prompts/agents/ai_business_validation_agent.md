@@ -64,7 +64,8 @@ Analiza el contexto provisto y devuelve EXCLUSIVAMENTE un objeto JSON valido, si
   "is_works_or_equipment": false,
   "is_tender_notice": true,
   "decision": "SI",
-  "reason": "Justificacion breve (1-2 frases)."
+  "reason": "Justificacion breve (1-2 frases).",
+  "deadline_found": ""
 }
 
 Reglas para los campos:
@@ -74,6 +75,7 @@ Reglas para los campos:
 - "is_tender_notice": false si no es una convocatoria concreta y abierta (noticia, anuncio, listado o indice, consulta publica, plan de compras, adjudicacion).
 - "decision": "SI" solo si recomendas avanzar; "NO" en caso contrario.
 - "reason": justificacion concisa basada solo en el contexto provisto. No inventes datos.
+- "deadline_found": fecha limite de presentacion de ofertas o expresiones de interes que figure en el contexto (campo Deadline, descripcion o evidencia), en formato AAAA-MM-DD. Si hay varias, la de presentacion de ofertas o expresiones de interes. Cadena vacia si no aparece ninguna. No la inventes ni la estimes.
 
 Oportunidad a evaluar:
 

@@ -8,6 +8,7 @@ from urllib.parse import parse_qsl, urlencode, urlsplit, urlunsplit
 from typing import Any
 
 from models.schemas import MappedOpportunity, ProviderComparisonResult, ProviderRunReport
+from pipeline.similarity import looks_like_same_opportunity
 
 try:
     from rapidfuzz import fuzz
@@ -260,9 +261,40 @@ class ProviderComparisonService:
             if key in seen:
                 duplicates.append(opportunity)
                 continue
+            match_index = self._find_similar(opportunity, unique)
+            if match_index is not None:
+                kept = unique[match_index]
+                # Se queda la copia que trae plazo; la otra pasa a duplicadas.
+                if kept.deadline is None and opportunity.deadline is not None:
+                    unique[match_index] = opportunity
+                    opportunity, kept = kept, opportunity
+                opportunity.duplicate_of_url = kept.url
+                opportunity.audit_notes = [
+                    *opportunity.audit_notes,
+                    f"[Duplicado] mismo aviso que {kept.url or kept.titulo_estudio} (titulo parecido, plazo compatible).",
+                ]
+                duplicates.append(opportunity)
+                seen.add(key)
+                continue
             seen.add(key)
             unique.append(opportunity)
         return unique, duplicates
+
+    @staticmethod
+    def _find_similar(item: MappedOpportunity, candidates: list[MappedOpportunity]) -> int | None:
+        for index, candidate in enumerate(candidates):
+            if looks_like_same_opportunity(
+                item.titulo_estudio,
+                candidate.titulo_estudio,
+                deadline_a=item.deadline,
+                deadline_b=candidate.deadline,
+                authority_a=item.organismo_contratado,
+                authority_b=candidate.organismo_contratado,
+                url_a=item.url,
+                url_b=candidate.url,
+            ):
+                return index
+        return None
 
     @staticmethod
     def _key(opportunity: MappedOpportunity) -> str:
