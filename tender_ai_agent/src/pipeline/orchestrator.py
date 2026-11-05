@@ -4,11 +4,20 @@ import logging
 from datetime import datetime, timedelta, timezone
 
 from config.settings import Settings
-from models.schemas import MappedOpportunity, PipelineReport, ProviderName, ProviderPipelineResult
+from models.schemas import (
+    MappedOpportunity,
+    PipelineReport,
+    PipelineStage,
+    ProviderName,
+    ProviderPipelineResult,
+    RejectedOpportunity,
+    RejectionReason,
+)
 from pipeline.audit import AuditLogger
 from pipeline.comparison import ProviderComparisonService
 from pipeline.persistence import PersistenceService
 from pipeline.provider_runner import ProviderPipelineRunner
+from pipeline.similarity import looks_like_same_opportunity
 from utils.source_loader import SourceLoader
 
 logger = logging.getLogger(__name__)
@@ -184,7 +193,6 @@ class PipelineOrchestrator:
                     )
 
         self.audit_logger.save_omitted_sources(run_id, all_omitted_sources)
-        self.audit_logger.save_rejections(run_id, all_discarded)
 
         mapped_by_provider = self._mapped_by_provider(provider_results)
         merged_mapped: list[MappedOpportunity] = []
@@ -203,6 +211,9 @@ class PipelineOrchestrator:
             merged_mapped = [item for result in provider_results for item in result.mapped]
 
         final_unique, final_duplicates = self.comparison.final_deduplicate(merged_mapped)
+        final_unique, expired_copies = self._drop_copies_of_expired(final_unique, all_discarded)
+        all_discarded.extend(expired_copies)
+        self.audit_logger.save_rejections(run_id, all_discarded)
         self.audit_logger.save_json(
             self.audit_logger.run_dir(run_id) / "duplicates.json",
             {
@@ -237,6 +248,59 @@ class PipelineOrchestrator:
         )
         self.audit_logger.save_report(report)
         return report
+
+    @staticmethod
+    def _drop_copies_of_expired(
+        opportunities: list[MappedOpportunity], discarded: list[RejectedOpportunity]
+    ) -> tuple[list[MappedOpportunity], list[RejectedOpportunity]]:
+        """Una copia sin plazo (agregador) del mismo aviso que en otra fuente figura vencido se descarta."""
+        expired = [
+            item
+            for item in discarded
+            if item.reason == RejectionReason.DEADLINE_EXPIRED.value
+        ]
+        if not expired:
+            return opportunities, []
+        kept: list[MappedOpportunity] = []
+        dropped: list[RejectedOpportunity] = []
+        for opportunity in opportunities:
+            if opportunity.deadline is not None:
+                kept.append(opportunity)
+                continue
+            match = next(
+                (
+                    item
+                    for item in expired
+                    if looks_like_same_opportunity(
+                        opportunity.titulo_estudio,
+                        item.normalized_title or item.raw_title or item.titulo_estudio,
+                        authority_a=opportunity.organismo_contratado,
+                        authority_b=item.organismo_contratado or item.contracting_authority,
+                        url_a=opportunity.url,
+                        url_b=item.official_url or item.url,
+                    )
+                ),
+                None,
+            )
+            if match is None:
+                kept.append(opportunity)
+                continue
+            expired_deadline = match.deadline_normalized or match.deadline
+            note = (
+                f"[Vencida] copia sin plazo del aviso {match.official_url or match.url or ''}"
+                f" que vencio el {expired_deadline.isoformat() if expired_deadline else 'n/d'}."
+            )
+            opportunity.audit_notes = [*opportunity.audit_notes, note]
+            logger.info("Descartada copia de aviso vencido url=%s original=%s", opportunity.url, match.official_url or match.url)
+            dropped.append(
+                RejectedOpportunity(
+                    **opportunity.model_dump(),
+                    title=opportunity.titulo_estudio,
+                    stage=PipelineStage.DEDUPLICATION,
+                    reason=RejectionReason.DEADLINE_EXPIRED,
+                )
+            )
+        return kept, dropped
 
     @staticmethod
     def _mapped_by_provider(results: list[ProviderPipelineResult]) -> dict[ProviderName, list[MappedOpportunity]]:

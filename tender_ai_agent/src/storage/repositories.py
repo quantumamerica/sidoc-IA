@@ -9,6 +9,8 @@ from models.schemas import DB_COLUMNS, IA_TRACE_COLUMNS, InsertResult, MappedOpp
 logger = logging.getLogger(__name__)
 
 DB_INSERT_COLUMNS = tuple(column for column in DB_COLUMNS if column != "id")
+# Ventana contra la que se buscan copias del mismo aviso con otra URL o titulo.
+SIMILAR_LOOKBACK_DAYS = 180
 
 
 class OpportunityRepository:
@@ -17,6 +19,7 @@ class OpportunityRepository:
         self.table_name = table_name
         self._table = None
         self._columns_checked = False
+        self._recent_rows: list[dict[str, Any]] | None = None
 
     @property
     def table(self) -> Any:
@@ -53,6 +56,7 @@ class OpportunityRepository:
             with self.engine.begin() as connection:
                 result = connection.execute(insert(self.table), row)
                 inserted_id = self._inserted_id(result)
+            self._remember(mapped_opportunity)
 
             logger.info("Insercion exitosa en %s url=%s", self.table_name, mapped_opportunity.url)
             return InsertResult(
@@ -167,6 +171,69 @@ class OpportunityRepository:
             opportunity.organismo_contratado,
         ):
             return "duplicate_similar_title_deadline_authority"
+        if opportunity.titulo_estudio and self.exists_similar_recent(opportunity):
+            return "duplicate_similar_title_recent"
+        return None
+
+    def exists_similar_recent(self, opportunity: MappedOpportunity) -> bool:
+        """Misma oportunidad ya cargada con otra URL o titulo (copias de agregadores, plazo faltante)."""
+        from pipeline.similarity import looks_like_same_opportunity
+
+        for row in self._load_recent_rows():
+            if looks_like_same_opportunity(
+                opportunity.titulo_estudio,
+                row.get("titulo_estudio"),
+                deadline_a=opportunity.deadline,
+                deadline_b=self._as_date(row.get("deadline")),
+                authority_a=opportunity.organismo_contratado,
+                authority_b=row.get("organismo_contratado"),
+                url_a=opportunity.url,
+                url_b=row.get("url"),
+            ):
+                return True
+        return False
+
+    def _load_recent_rows(self) -> list[dict[str, Any]]:
+        if self._recent_rows is not None:
+            return self._recent_rows
+        self._recent_rows = []
+        wanted = ("titulo_estudio", "deadline", "organismo_contratado", "url")
+        if "titulo_estudio" not in self.table.c:
+            return self._recent_rows
+        from sqlalchemy import select
+
+        columns = [self.table.c[name] for name in wanted if name in self.table.c]
+        statement = select(*columns)
+        if "fecha_carga" in self.table.c:
+            cutoff = datetime.now(timezone.utc) - timedelta(days=SIMILAR_LOOKBACK_DAYS)
+            statement = statement.where(self.table.c.fecha_carga >= cutoff)
+        try:
+            with self.engine.connect() as connection:
+                self._recent_rows = [dict(row._mapping) for row in connection.execute(statement).fetchall()]
+        except Exception:
+            logger.exception("No se pudieron leer las licitaciones recientes para buscar copias; se omite ese control.")
+            self._recent_rows = []
+        logger.info("Control de copias: %s licitaciones de los ultimos %s dias.", len(self._recent_rows), SIMILAR_LOOKBACK_DAYS)
+        return self._recent_rows
+
+    def _remember(self, opportunity: MappedOpportunity) -> None:
+        if self._recent_rows is None:
+            return
+        self._recent_rows.append(
+            {
+                "titulo_estudio": opportunity.titulo_estudio,
+                "deadline": opportunity.deadline,
+                "organismo_contratado": opportunity.organismo_contratado,
+                "url": opportunity.url,
+            }
+        )
+
+    @staticmethod
+    def _as_date(value: Any) -> date | None:
+        if isinstance(value, datetime):
+            return value.date()
+        if isinstance(value, date):
+            return value
         return None
 
     def _row_for_insert(self, opportunity: MappedOpportunity) -> dict[str, Any]:

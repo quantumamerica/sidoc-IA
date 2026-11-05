@@ -344,7 +344,10 @@ class NegocioAssignmentService:
         opportunity.negocio_confidence = decision.confidence
         opportunity.negocio_assignment_method = decision.method
         opportunity.negocio_scores = decision.scores
-        if decision.method == METHOD_FALLBACK:
+        needs_review = decision.method == METHOD_FALLBACK or (
+            decision.confidence is None or decision.confidence < self.settings.negocio_review_threshold
+        )
+        if needs_review:
             opportunity.requires_human_review = True
         opportunity.metadata = {
             **(opportunity.metadata or {}),
@@ -354,6 +357,7 @@ class NegocioAssignmentService:
                 "slug": decision.slug,
                 "confidence": decision.confidence,
                 "reason": decision.reason,
+                "needs_review": needs_review,
             },
         }
         opportunity.audit_notes = [*opportunity.audit_notes, self._build_note(decision)]

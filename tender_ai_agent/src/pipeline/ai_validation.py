@@ -3,6 +3,7 @@ from __future__ import annotations
 import logging
 import time
 from dataclasses import dataclass
+from datetime import date
 
 from clients.base import BaseAIClient
 from clients.judge import build_judge_client, judge_label
@@ -35,8 +36,17 @@ JUDGE_SCHEMA = {
         "is_tender_notice": {"type": "boolean"},
         "decision": {"type": "string", "enum": ["SI", "NO"]},
         "reason": {"type": "string"},
+        "deadline_found": {"type": "string"},
     },
-    "required": ["relevance_score", "is_consulting", "is_works_or_equipment", "is_tender_notice", "decision", "reason"],
+    "required": [
+        "relevance_score",
+        "is_consulting",
+        "is_works_or_equipment",
+        "is_tender_notice",
+        "decision",
+        "reason",
+        "deadline_found",
+    ],
 }
 
 
@@ -47,6 +57,8 @@ class JudgeVerdict:
     reason_text: str
     rejection_reason: RejectionReason | None = None
     model: str | None = None
+    # Plazo que el juez leyo en el texto aunque la extraccion no lo haya capturado.
+    deadline_found: date | None = None
 
 
 class AiBusinessValidationService:
@@ -156,7 +168,25 @@ class AiBusinessValidationService:
         is_tender_notice = self._coerce_bool(payload.get("is_tender_notice"), default=True)
         decision = str(payload.get("decision") or "").strip().upper()
         reason_text = str(payload.get("reason") or "").strip() or "Sin justificacion provista por el juez IA."
+        deadline_found = self._coerce_date(payload.get("deadline_found"))
+        verdict = self._classify(score, is_consulting, is_works, is_tender_notice, decision, reason_text, deadline_found)
+        verdict.deadline_found = deadline_found
+        return verdict
 
+    def _classify(
+        self,
+        score: float | None,
+        is_consulting: bool,
+        is_works: bool,
+        is_tender_notice: bool,
+        decision: str,
+        reason_text: str,
+        deadline_found: date | None,
+    ) -> JudgeVerdict:
+        # Plazo vencido segun el texto: se registra como vencida (no como baja relevancia) para que
+        # las copias del mismo aviso en agregadores sin fecha tambien se descarten.
+        if deadline_found is not None and deadline_found < today_utc_date():
+            return JudgeVerdict(False, score, reason_text, RejectionReason.DEADLINE_EXPIRED)
         if not is_tender_notice:
             return JudgeVerdict(False, score, reason_text, RejectionReason.NOT_A_TENDER)
         if is_works:
@@ -177,6 +207,8 @@ class AiBusinessValidationService:
         rejected: list[RejectedOpportunity],
     ) -> None:
         opportunity.ai_confidence = verdict.score
+        if verdict.deadline_found is not None and opportunity.deadline_normalized is None and opportunity.deadline is None:
+            opportunity.deadline_normalized = verdict.deadline_found
         opportunity.metadata = {
             **opportunity.metadata,
             "ai_judge": {"model": verdict.model, "score": verdict.score, "reason": verdict.reason_text},
@@ -215,6 +247,15 @@ class AiBusinessValidationService:
             except ValueError:
                 return None
         return None
+
+    @staticmethod
+    def _coerce_date(value: object) -> date | None:
+        if not isinstance(value, str) or not value.strip():
+            return None
+        try:
+            return date.fromisoformat(value.strip()[:10])
+        except ValueError:
+            return None
 
     @staticmethod
     def _coerce_bool(value: object, *, default: bool) -> bool:

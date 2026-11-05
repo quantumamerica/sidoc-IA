@@ -52,6 +52,8 @@ class Settings(BaseModel):
     negocio_assignment_delay_seconds: float = 0.0
     # Juez 3: modelo de Claude que asigna el negocio (usa ANTHROPIC_API_KEY).
     negocio_judge_model: str = "claude-opus-5-5"
+    # Por debajo de esta confianza del Juez 3 la asignacion de negocio queda marcada para revision.
+    negocio_review_threshold: float = 0.6
 
     database_url: str | None = None
     db_table_name: str = "licitacion"
@@ -169,6 +171,7 @@ def load_settings(project_root: Path) -> Settings:
         negocio_rules_margin=float(os.getenv("NEGOCIO_RULES_MARGIN", "0.12")),
         negocio_assignment_delay_seconds=float(os.getenv("NEGOCIO_ASSIGNMENT_DELAY_SECONDS", "0")),
         negocio_judge_model=os.getenv("NEGOCIO_JUDGE_MODEL", "claude-opus-5-5") or "claude-opus-5-5",
+        negocio_review_threshold=float(os.getenv("NEGOCIO_REVIEW_THRESHOLD", "0.6")),
         database_url=os.getenv("DATABASE_URL") or None,
         db_table_name=os.getenv("DB_TABLE_NAME") or os.getenv("DB_OPPORTUNITIES_TABLE", "licitacion"),
         default_db_estado=os.getenv("DEFAULT_DB_ESTADO", "Sin Analizar"),

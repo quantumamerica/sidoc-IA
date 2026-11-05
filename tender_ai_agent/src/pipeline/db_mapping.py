@@ -78,6 +78,13 @@ class DbMappingService:
         busqueda = raw.get("theme_name") if modalidad == "open_web" else raw.get("source_name")
         evidencia = opportunity.official_url or opportunity.url or next(iter(opportunity.evidence_urls or []), None)
         motivo = judge.get("reason")
+        negocio = metadata.get("negocio_judge") or {}
+        if negocio.get("needs_review"):
+            # licitacion no tiene columna de revision: el aviso va al inicio del motivo, que SGQ muestra.
+            confianza = negocio.get("confidence")
+            confianza_text = f"{confianza:.2f}" if isinstance(confianza, (int, float)) else "n/d"
+            aviso = f"[Revisar negocio: confianza {confianza_text}]"
+            motivo = f"{aviso} {motivo}" if motivo else aviso
         return {
             "ia_run_id": opportunity.run_id,
             "ia_modalidad": modalidad,
