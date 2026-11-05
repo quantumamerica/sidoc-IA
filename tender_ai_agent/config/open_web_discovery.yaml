@@ -131,6 +131,25 @@ themes:
       - renewable energy strategy
       - public finance
 
+  - id: digital_utilities_it
+    name: Software, GIS, SCADA, smart metering and data platforms for utilities
+    search_queries:
+      - "official tender software development information system for energy regulator or utility consulting deadline"
+      - "utility procurement GIS SCADA ADMS implementation consulting services RFP deadline"
+      - "public tender smart metering AMI MDM billing system consulting utility deadline"
+      - "government procurement data platform business intelligence energy water utility consultancy deadline"
+    keywords:
+      - software
+      - information system
+      - GIS
+      - SCADA
+      - smart metering
+      - AMI
+      - data platform
+      - business intelligence
+      - utility
+      - regulator
+
 regions:
   latam:
     languages:
