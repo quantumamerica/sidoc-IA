@@ -26,6 +26,33 @@ if errorlevel 1 (
     exit /b 1
 )
 
+rem El Programador de tareas no siempre tiene git en el PATH: se busca en las rutas
+rem habituales. Para forzar una, definir SIDOC_GIT_DIR (carpeta que contiene git.exe).
+set "PF86=%ProgramFiles(x86)%"
+set "GITDIR="
+if defined SIDOC_GIT_DIR if exist "%SIDOC_GIT_DIR%\git.exe" set "GITDIR=%SIDOC_GIT_DIR%"
+if not defined GITDIR (
+    for /f "delims=" %%g in ('where git 2^>nul') do if not defined GITDIR set "GITDIR=%%~dpg"
+)
+if not defined GITDIR if exist "%ProgramFiles%\Git\cmd\git.exe" set "GITDIR=%ProgramFiles%\Git\cmd"
+if not defined GITDIR if exist "%PF86%\Git\cmd\git.exe" set "GITDIR=%PF86%\Git\cmd"
+if not defined GITDIR if exist "%LOCALAPPDATA%\Programs\Git\cmd\git.exe" set "GITDIR=%LOCALAPPDATA%\Programs\Git\cmd"
+if not defined GITDIR (
+    for /d %%d in ("%LOCALAPPDATA%\GitHubDesktop\app-*") do if exist "%%d\resources\app\git\cmd\git.exe" set "GITDIR=%%d\resources\app\git\cmd"
+)
+if not defined GITDIR (
+    echo ERROR: no se encontro git. Definir SIDOC_GIT_DIR con la carpeta de git.exe. >> "%LOG_FILE%"
+    exit /b 1
+)
+set "PATH=%GITDIR%;%PATH%"
+echo git: %GITDIR% >> "%LOG_FILE%"
+
+git rev-parse --is-inside-work-tree >nul 2>&1
+if errorlevel 1 (
+    echo ERROR: %CD% no es un repositorio git o git no responde >> "%LOG_FILE%"
+    exit /b 1
+)
+
 set "CAMBIOS="
 for /f "delims=" %%l in ('git status --porcelain --untracked-files^=no') do set "CAMBIOS=1"
 if defined CAMBIOS (
