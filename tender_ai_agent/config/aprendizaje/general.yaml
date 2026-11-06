@@ -1,0 +1,15 @@
+# Aprendizaje a partir de las senales de SGQ (ver src/utils/aprendizaje.py).
+#
+# activo: false -> sidoc-IA usa solo los ejemplos con origen "base" y deja de lado todo lo
+# que agrego el loop. Es el interruptor general para volver atras sin tocar codigo.
+#
+# Este archivo es de edicion humana: el loop no puede modificarlo.
+activo: true
+
+# Ejemplos que no son de un negocio: paginas que no son convocatorias.
+ejemplos_si: []
+ejemplos_no:
+  - texto: '"Energy News" publicado en el sitio de Osinergmin: noticia, is_tender_notice=false.'
+    origen: base
+  - texto: '"Plan de Passation des Marches" del proyecto DREAM en Mauritania: plan de compras, is_tender_notice=false.'
+    origen: base

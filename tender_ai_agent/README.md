@@ -240,3 +240,10 @@ Si `DRY_RUN=true` o se ejecuta `python main.py run --dry-run`, no se insertan re
 - `outputs/reports`: reportes JSON de ejecucion.
 - `logs/audit`: descartes, errores y auditoria.
 
+
+## Aprendizaje desde SGQ (loop de senales)
+
+- `config/aprendizaje/<negocio>.yaml`: ejemplos SI/NO del juez de negocio y casos de asignacion del Juez 3, por negocio. `general.yaml` tiene el interruptor `activo` (con `false` solo se usan los ejemplos de origen `base`) y los ejemplos generales.
+- El loop de senales solo puede cambiar esos archivos de negocio, en ramas `aprendizaje/*`. El workflow `.github/workflows/aprendizaje.yml` valida cada PR con `scripts/validar_aprendizaje.py` (la version de `main`), corre los tests y, si todo pasa, lo mergea solo.
+- `ia_busqueda` se graba como `<tipo>:<id>:<region> | <nombre>` (`tema`, `fuente` o `api`) para atribuir las senales de SGQ a una entrada exacta de la config.
+- `actualizar_sidoc_ia.bat`: `git pull --ff-only` de `main` (programado L-V 15:00 en la VM). Log en `actualizar_log.txt`.

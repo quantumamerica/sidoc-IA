@@ -144,6 +144,33 @@ def test_anthropic_client() -> None:
     assert abs(response.estimated_cost - (1000 * 4 + 100 * 20) / 1_000_000) < 1e-12
 
 
+def test_ia_busqueda_clave() -> None:
+    from models.schemas import ValidatedOpportunity
+    from pipeline.db_mapping import DbMappingService
+
+    def busqueda(source_id: str, raw: dict) -> str | None:
+        opportunity = ValidatedOpportunity(
+            provider=ProviderName.PERPLEXITY,
+            region="africa",
+            source_id=source_id,
+            source_name="Nombre de respaldo",
+            official_url="https://example.org/aviso",
+            raw_title="Tariff study",
+            description_raw="Tariff study for the regulator.",
+            metadata={"raw_response_metadata": raw},
+        )
+        return DbMappingService().map_one(opportunity).to_db_dict()["ia_busqueda"]
+
+    assert busqueda("african_development_bank", {"discovery_mode": "contextual", "source_name": "AfDB"}) == (
+        "fuente:african_development_bank:africa | AfDB"
+    )
+    assert busqueda("api_world_bank", {"discovery_mode": "api", "connector_id": "world_bank", "source_name": "WB"}) == (
+        "api:world_bank:africa | WB"
+    )
+    # Sin id de tema queda el nombre, como antes.
+    assert busqueda("x", {"discovery_mode": "open_web", "theme_name": "Gas"}) == "Gas"
+
+
 def test_ia_trace_mapping() -> None:
     from models.schemas import IA_TRACE_COLUMNS, ValidatedOpportunity
     from pipeline.db_mapping import DbMappingService
@@ -159,13 +186,18 @@ def test_ia_trace_mapping() -> None:
         description_raw="Consulting services for regulatory development.",
         ai_confidence=0.85,
         metadata={
-            "raw_response_metadata": {"discovery_mode": "open_web", "theme_name": "Electricity tariffs"},
+            "raw_response_metadata": {
+                "discovery_mode": "open_web",
+                "theme_id": "electricity_tariffs_regulation",
+                "theme_name": "Electricity tariffs",
+                "region": "latam",
+            },
             "ai_judge": {"model": "claude-opus-5-5", "score": 0.85, "reason": "REOI concreta de regulacion."},
         },
     )
     mapped = DbMappingService().map_one(opportunity)
     row = mapped.to_db_dict()
-    assert row["ia_modalidad"] == "open_web" and row["ia_busqueda"] == "Electricity tariffs"
+    assert row["ia_modalidad"] == "open_web" and row["ia_busqueda"] == "tema:electricity_tariffs_regulation:latam | Electricity tariffs"
     assert row["ia_modelo_juez"] == "claude-opus-5-5" and row["ia_puntaje"] == 0.85
     assert row["ia_evidencia_url"] == "https://nowgrenada.com/2026/10/reoi-cegeb/"
 
@@ -199,6 +231,7 @@ def main() -> None:
     test_listing_urls()
     test_judge_client_selection()
     test_anthropic_client()
+    test_ia_busqueda_clave()
     test_ia_trace_mapping()
     print("OK")
 

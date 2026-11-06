@@ -32,19 +32,7 @@ Criterios de evaluacion:
 - Plazo: si el deadline es anterior a la fecha actual ({{ fecha_actual }}), decision "NO".
 - Ante la duda entre "es una convocatoria concreta" y "es una pagina informativa", decidi "NO" y explicalo en reason: los consultores prefieren no ver ruido.
 
-Ejemplos de oportunidades que los consultores de QUANTUM aceptaron (decision "SI"):
-- "Consultancy for retail tariff reform" de la comision reguladora de Gujarat (GERC): reforma tarifaria para un regulador.
-- Revision tarifaria convocada por Ofgem (regulador del Reino Unido): tarifas y requisitos de ingresos.
-- Base de datos e indicadores energeticos de Africa (AEIS) para AFREC: sistema de informacion para un organismo del sector.
-- Politica tarifaria de electricidad de Camerun: diseno tarifario sectorial.
-
-Ejemplos de oportunidades que los consultores rechazaron (decision "NO"):
-- Programa de eficiencia energetica de GIZ en Kosovo: implementacion de eficiencia, sin componente tarifario.
-- Contratos de desempeno energetico (ESPC) en Botswana: gestion de medidas de eficiencia.
-- UK PACT en Camerun sobre carbono y clima: clima sin diseno regulatorio del sector.
-- Preparacion de planes SIPs/SNAPs para convocatorias LIFE de CINEA: preparacion de propuestas de financiamiento.
-- "Energy News" publicado en el sitio de Osinergmin: noticia, is_tender_notice=false.
-- "Plan de Passation des Marches" del proyecto DREAM en Mauritania: plan de compras, is_tender_notice=false.
+{{ ejemplos_aprendidos }}
 
 Ejemplos de paginas que no son convocatorias (decision "NO", vistos en corridas de octubre 2026):
 - "adb.org/status/active?page=74" con titulo "Active projects": listado paginado de proyectos activos del ADB, no una convocatoria puntual. En cambio, "SOL: Power System Expansion and Enhancement Project Feasibility Study" con la misma clase de URL es un aviso concreto y se evalua por su objeto.

@@ -1,0 +1,12 @@
+# Ejemplos del negocio Desarrollo IT para el juez de negocio y el Juez 3 (ver general.yaml).
+#
+# ejemplos_si / ejemplos_no: oportunidades que los consultores aceptaron o rechazaron.
+#   Las ve el juez de negocio. El loop puede tener hasta 3 SI y 3 NO propios (los "base" no cuentan).
+# asignacion: casos "esto es de Desarrollo IT, no de X" que vienen de derivaciones en SGQ.
+#   Los ve el Juez 3. El loop puede tener hasta 6 propios.
+# origen: "base" para los escritos a mano; el loop pone "licitacion:<id> <senal>".
+ejemplos_si:
+  - texto: 'Base de datos e indicadores energeticos de Africa (AEIS) para AFREC: sistema de informacion para un organismo del sector.'
+    origen: base
+ejemplos_no: []
+asignacion: []

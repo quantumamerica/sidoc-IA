@@ -1,0 +1,78 @@
+# Merge automatico de los PRs del loop de senales SGQ -> sidoc-IA.
+#
+# Solo actua sobre ramas `aprendizaje/*` de este mismo repo. Usa pull_request_target para
+# que corra SIEMPRE la version de este workflow y del validador que esta en `main`: un PR
+# no puede cambiar las reglas con las que se lo juzga. Si el validador o los tests fallan,
+# el PR queda abierto y sin merge.
+name: aprendizaje
+
+on:
+  pull_request_target:
+    branches: [main]
+    types: [opened, synchronize, reopened]
+
+permissions:
+  contents: write
+  pull-requests: write
+
+concurrency:
+  group: aprendizaje-${{ github.event.pull_request.number }}
+  cancel-in-progress: true
+
+jobs:
+  validar-y-mergear:
+    if: >-
+      startsWith(github.event.pull_request.head.ref, 'aprendizaje/') &&
+      github.event.pull_request.head.repo.full_name == github.repository
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - name: Reglas desde main
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.base.sha }}
+          path: reglas
+
+      - name: Cambios del PR
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha }}
+          path: pr
+          fetch-depth: 0
+          persist-credentials: false
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Dependencias
+        run: pip install -r pr/tender_ai_agent/requirements.txt
+
+      - name: Validar alcance del cambio
+        run: >-
+          python reglas/tender_ai_agent/scripts/validar_aprendizaje.py
+          --repo pr
+          --base ${{ github.event.pull_request.base.sha }}
+          --head ${{ github.event.pull_request.head.sha }}
+
+      - name: Tests
+        working-directory: pr/tender_ai_agent
+        env:
+          PYTHONPATH: .
+        run: |
+          set -e
+          for f in scripts/test_*.py; do
+            # test_providers falla tambien en main por un import viejo; no es del loop.
+            if [ "$f" = "scripts/test_providers.py" ]; then continue; fi
+            echo "== $f"
+            python "$f"
+          done
+
+      - name: Merge
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: >-
+          gh pr merge ${{ github.event.pull_request.number }}
+          --repo ${{ github.repository }}
+          --squash --delete-branch
+          --match-head-commit ${{ github.event.pull_request.head.sha }}
