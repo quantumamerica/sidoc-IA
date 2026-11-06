@@ -14,6 +14,7 @@ from models.schemas import (
     RejectionReason,
     ValidatedOpportunity,
 )
+from utils.aprendizaje import ORDEN_NEGOCIOS, cargar_aprendizaje
 from utils.dates import today_utc_date
 from utils.prompt_loader import PromptLoader
 
@@ -74,6 +75,8 @@ class AiBusinessValidationService:
         self.client = client or build_judge_client(settings)
         self.prompt_loader = prompt_loader or PromptLoader(settings.prompts_dir)
         self.threshold = settings.ai_validation_threshold
+        # Se leen una vez por corrida: el loop de senales los cambia por PR, no en caliente.
+        self.ejemplos_aprendidos = cargar_aprendizaje(settings.config_dir, ORDEN_NEGOCIOS).ejemplos_juez_negocio()
         self.delay_seconds = settings.ai_validation_delay_seconds
 
     def validate(
@@ -141,6 +144,7 @@ class AiBusinessValidationService:
         publicacion = opportunity.publication_date_normalized or opportunity.fecha_publicacion
         return {
             "fecha_actual": today_utc_date().isoformat(),
+            "ejemplos_aprendidos": self.ejemplos_aprendidos,
             "fuente": opportunity.source_name or opportunity.fuente or "",
             "fecha_publicacion": publicacion.isoformat() if publicacion else "",
             "evidencia": (opportunity.evidence_text or "")[:MAX_EVIDENCE_CHARS],

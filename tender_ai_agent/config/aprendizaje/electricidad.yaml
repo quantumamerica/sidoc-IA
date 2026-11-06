@@ -1,0 +1,16 @@
+# Ejemplos del negocio Electricidad para el juez de negocio y el Juez 3 (ver general.yaml).
+#
+# ejemplos_si / ejemplos_no: oportunidades que los consultores aceptaron o rechazaron.
+#   Las ve el juez de negocio. El loop puede tener hasta 3 SI y 3 NO propios (los "base" no cuentan).
+# asignacion: casos "esto es de Electricidad, no de X" que vienen de derivaciones en SGQ.
+#   Los ve el Juez 3. El loop puede tener hasta 6 propios.
+# origen: "base" para los escritos a mano; el loop pone "licitacion:<id> <senal>".
+ejemplos_si:
+  - texto: '"Consultancy for retail tariff reform" de la comision reguladora de Gujarat (GERC): reforma tarifaria para un regulador.'
+    origen: base
+  - texto: 'Revision tarifaria convocada por Ofgem (regulador del Reino Unido): tarifas y requisitos de ingresos.'
+    origen: base
+  - texto: 'Politica tarifaria de electricidad de Camerun: diseno tarifario sectorial.'
+    origen: base
+ejemplos_no: []
+asignacion: []

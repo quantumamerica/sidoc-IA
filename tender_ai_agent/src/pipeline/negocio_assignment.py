@@ -11,6 +11,7 @@ from config.db_catalogs import _catalog_key
 from config.settings import Settings
 from models.schemas import NegocioDefinition, ValidatedOpportunity
 from pipeline.negocio_catalog import NegocioCatalog
+from utils.aprendizaje import ORDEN_NEGOCIOS, cargar_aprendizaje
 from utils.prompt_loader import PromptLoader
 
 logger = logging.getLogger(__name__)
@@ -187,6 +188,7 @@ class NegocioAssignmentService:
         self.client = client
         self.prompt_loader = prompt_loader or PromptLoader(settings.prompts_dir)
         self.catalog = catalog or NegocioCatalog(settings)
+        self.ejemplos_asignacion = cargar_aprendizaje(settings.config_dir, ORDEN_NEGOCIOS).ejemplos_asignacion()
         self.strong_threshold = settings.negocio_rules_strong_threshold
         self.margin = settings.negocio_rules_margin
         self.delay_seconds = settings.negocio_assignment_delay_seconds
@@ -265,7 +267,11 @@ class NegocioAssignmentService:
         return self._fallback_decision(self._scoring_text(context), "Juez 3 sin ANTHROPIC_API_KEY")
 
     def _ask_judge(self, context: dict[str, str], *, title: str) -> NegocioDecision | None:
-        variables = {**context, "negocios_catalogo": self.catalog.catalog_summary()}
+        variables = {
+            **context,
+            "negocios_catalogo": self.catalog.catalog_summary(),
+            "ejemplos_asignacion": self.ejemplos_asignacion,
+        }
         prompt = self.prompt_loader.render_file(PROMPT_PATH, variables)
         slugs = [definition.slug for definition in self.catalog.definitions]
         response = self.client.run_agent(

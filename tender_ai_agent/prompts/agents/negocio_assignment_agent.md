@@ -23,6 +23,8 @@ Reglas de asignacion:
 - Tarifas electricas, revisiones tarifarias, rate cases, costo de servicio, VNR, tasa de capital, contabilidad regulatoria, licencias y reforma regulatoria del sector electrico, codigos de red, calidad de servicio, perdidas, distribucion y transmision electrica (incluida su planificacion) van a "electricidad".
 - Si la oportunidad mezcla sectores, elige el que tenga mas peso en el objeto del contrato. Usa la prioridad del catalogo solo si el peso es realmente equivalente.
 
+{{ ejemplos_asignacion }}
+
 Restriccion de salida:
 
 - Debes elegir siempre una de las unidades listadas.
