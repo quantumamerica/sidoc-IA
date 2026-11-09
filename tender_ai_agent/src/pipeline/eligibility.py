@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import re
+import unicodedata
 from urllib.parse import urlparse
 
 from models.schemas import (
@@ -145,7 +146,7 @@ class EligibilityService:
         ]
         if deadlines and not any(deadline_still_open(value, grace_days=self.deadline_grace_days) for value in deadlines):
             return EligibilityResult(candidate=candidate, is_eligible=False, reason=RejectionReason.DEADLINE_EXPIRED)
-        if any(term in text for term in ["epc", "civil works", "construction", "obra", "construccion", "construcción"]):
+        if is_works_title(title):
             return EligibilityResult(candidate=candidate, is_eligible=False, reason=RejectionReason.EPC_OR_WORKS)
         if any(term in text for term in ["equipment supply", "supply of equipment", "suministro", "equipamiento"]):
             return EligibilityResult(candidate=candidate, is_eligible=False, reason=RejectionReason.EQUIPMENT_SUPPLY)
@@ -184,3 +185,23 @@ class EligibilityService:
     def _set_language(candidate: OpportunityCandidate, code: str) -> None:
         candidate.language = code
         candidate.idioma = code
+
+
+# Obra o construccion como objeto del aviso. Se mira solo el titulo y por palabra entera: en la
+# descripcion casi toda consultoria de redes o generacion menciona obras ("prioridades de las obras
+# de expansion", "supervision de la obra"), y "construction" aparece dentro de "reconstruction".
+WORKS_TERMS = re.compile(
+    r"\b(epc|civil works|construction|obras?|construccion|construcao|obras civiles|works contract)\b"
+)
+# Si el titulo dice que se contrata un servicio sobre la obra, decide el juez (que ya distingue obra
+# de consultoria con is_works_or_equipment).
+CONSULTING_TITLE_TERMS = re.compile(
+    r"\b(consult\w*|supervis\w*|interventor\w*|estudios?|study|studies|assessment|evaluaci\w*|"
+    r"revisi\w*|review|revalidaci\w*|diseno|design|asistencia tecnica|technical assistance|"
+    r"auditor\w*|fiscalizaci\w*|asesor\w*|advisory|feasibility|factibilidad|viabilidad|planificaci\w*|planning)\b"
+)
+
+
+def is_works_title(title: str) -> bool:
+    plain = "".join(c for c in unicodedata.normalize("NFKD", title.lower()) if not unicodedata.combining(c))
+    return bool(WORKS_TERMS.search(plain)) and not CONSULTING_TITLE_TERMS.search(plain)
