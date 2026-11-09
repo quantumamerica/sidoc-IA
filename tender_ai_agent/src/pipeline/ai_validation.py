@@ -211,8 +211,14 @@ class AiBusinessValidationService:
         rejected: list[RejectedOpportunity],
     ) -> None:
         opportunity.ai_confidence = verdict.score
-        if verdict.deadline_found is not None and opportunity.deadline_normalized is None and opportunity.deadline is None:
-            opportunity.deadline_normalized = verdict.deadline_found
+        if verdict.deadline_found is not None:
+            # El juez lee el plazo en la pagina. Manda si no habia fecha o si la guardada ya vencio y la
+            # del juez no: pasa con avisos de EE. UU. ("12/02/2026" es 2-dic, no 12-feb).
+            current = opportunity.deadline_normalized or opportunity.deadline
+            today = today_utc_date()
+            if current is None or (current < today <= verdict.deadline_found):
+                opportunity.deadline_normalized = verdict.deadline_found
+                opportunity.deadline = verdict.deadline_found
         opportunity.metadata = {
             **opportunity.metadata,
             "ai_judge": {"model": verdict.model, "score": verdict.score, "reason": verdict.reason_text},

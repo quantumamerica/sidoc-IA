@@ -65,6 +65,21 @@ def title_tokens(title: str | None, url: str | None = None) -> set[str]:
     return {word for word in words if word not in STOPWORDS and len(word) > 1}
 
 
+# Codigo de la convocatoria escrito en el titulo: "RFP 27-017AG", "B260316", "WB-OP00459459".
+# Tiene que mezclar letras y digitos, o digitos con guion, para no confundirlo con un anio o un numero suelto.
+SOLICITATION_CODE = re.compile(r"\b(?=[a-z0-9-]*\d)(?:[a-z]{1,4}-?\d{4,}[a-z0-9-]*|\d{2,4}-\d{2,}[a-z0-9-]*)\b")
+
+# "2026", "2026-2030" o "2026-27" son anios o periodos, no codigos.
+YEAR_OR_RANGE = re.compile(r"(19|20)\d{2}(-((19|20)?\d{2}))?")
+
+
+def solicitation_codes(title: str | None) -> set[str]:
+    if not title:
+        return set()
+    text = _strip_accents(title).lower()
+    return {code.strip("-") for code in SOLICITATION_CODE.findall(text) if not YEAR_OR_RANGE.fullmatch(code)}
+
+
 def _deadlines_compatible(left: date | None, right: date | None) -> bool:
     if left is None or right is None:
         return True
@@ -95,6 +110,15 @@ def looks_like_same_opportunity(
     url_a: str | None = None,
     url_b: str | None = None,
 ) -> bool:
+    # El mismo codigo de convocatoria en los dos titulos, del mismo organismo y con plazos que no se
+    # contradicen, es la misma oportunidad aunque un agregador reescriba el resto ("BESS" por
+    # "Battery Energy Storage System").
+    if (
+        solicitation_codes(title_a) & solicitation_codes(title_b)
+        and _deadlines_compatible(deadline_a, deadline_b)
+        and not _authorities_conflict(authority_a, authority_b)
+    ):
+        return True
     tokens_a = title_tokens(title_a, url_a)
     tokens_b = title_tokens(title_b, url_b)
     smaller, larger = (tokens_a, tokens_b) if len(tokens_a) <= len(tokens_b) else (tokens_b, tokens_a)

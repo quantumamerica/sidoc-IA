@@ -55,6 +55,13 @@ CASES = [
         "B260040 - Consultoría para el fortalecimiento de la metodología de la planificación de la expansión del sistema eléctrico costarricense considerando alta participación de generación renovable variable",
         date(2026, 8, 11), "IDB", "https://beo-procurement.iadb.org/en/node/214880", True,
     ),
+    # Corrida 20261107_000002: govly reescribe el titulo ("BESS"), pero el codigo RFP 27-017AG es el mismo.
+    (
+        "City of Corona PlanetBids RFP 27-017AG - BESS feasibility study and optional implementation planning", NOV19,
+        "City of Corona Utilities Department", "https://app.govly.com/public/opportunities/17206900",
+        "City of Corona Electric Utility Battery Energy Storage System Feasibility Study (RFP 27-017AG)", None,
+        "City of Corona", "https://www.highergov.com/sl/contract-opportunity/ca-city-of-corona-electric-utility-battery-75021971/", True,
+    ),
     # Distintas: mismo tema generico en otra ciudad, o plazos que no se tocan.
     (
         "Cost of Service and Rate Study", NOV19, "City of Columbia (MO)", "https://a.example/1",
@@ -68,6 +75,14 @@ CASES = [
     (
         "CM3592 - Consultancy", date(2026, 11, 9), "Yorkshire Water", "https://a.example/1",
         "CM3600 - Consultancy", date(2026, 11, 9), "Yorkshire Water", "https://b.example/2", False,
+    ),
+    (
+        "RFP 27-017AG - Feasibility study", NOV19, "City of Corona", "https://a.example/1",
+        "RFP 27-017AG - Tariff review", NOV19, "Ofgem", "https://b.example/2", False,
+    ),
+    (
+        "National electricity expansion plan 2026-2030", None, "Ministry of Energy of Peru", "https://a.example/1",
+        "Gas distribution tariff review 2026-2030", None, "Ministry of Energy of Peru", "https://b.example/2", False,
     ),
     (
         "Utility Rate Study - Water, Sewer and Solid Waste Disposal", None, "Town of X", "https://a.example/1",
@@ -154,6 +169,41 @@ def main() -> int:
         failures.append(f"Juez con plazo vencido: motivo {rejected[0].reason if rejected else 'aprobada'}")
     elif rejected[0].deadline_normalized != date(2026, 8, 11):
         failures.append("Juez con plazo vencido: no se guardo la fecha que leyo.")
+
+    # Plazo de EE. UU. leido al reves (Milpitas: "12/02/2026" se guardo 12-feb y es 2-dic): manda el juez.
+    us_date_service = AiBusinessValidationService(
+        build_settings(),
+        client=FakeClient(
+            {
+                "relevance_score": 0.85,
+                "is_consulting": True,
+                "is_works_or_equipment": False,
+                "is_tender_notice": True,
+                "decision": "SI",
+                "reason": "Estudio de tarifas de agua; el plazo es el 2 de diciembre.",
+                "deadline_found": "2099-12-02",
+            }
+        ),
+    )
+    milpitas = ValidatedOpportunity(
+        provider=ProviderName.PERPLEXITY,
+        titulo_estudio="Utility Rate Study and Financial Planning Consultant",
+        url="https://www.cleat.ai/government/contracts/utility-rate-study",
+        deadline_normalized=date(2026, 2, 12),
+    )
+    approved, _ = us_date_service.validate([milpitas])
+    if not approved or approved[0].deadline_normalized != date(2099, 12, 2):
+        failures.append(f"Plazo mal leido no corregido por el juez: {approved[0].deadline_normalized if approved else 'rechazada'}")
+    # Si la fecha guardada sigue vigente, no se pisa.
+    vigente = ValidatedOpportunity(
+        provider=ProviderName.PERPLEXITY,
+        titulo_estudio="Utility Rate Study and Financial Planning Consultant",
+        url="https://x/vigente",
+        deadline_normalized=date(2099, 1, 15),
+    )
+    approved, _ = us_date_service.validate([vigente])
+    if not approved or approved[0].deadline_normalized != date(2099, 1, 15):
+        failures.append("El juez piso un plazo guardado que seguia vigente.")
 
     # Marca de revision visible en ia_motivo_juez cuando el Juez 3 duda.
     item = ValidatedOpportunity(
