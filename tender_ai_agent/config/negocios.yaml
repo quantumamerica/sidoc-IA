@@ -118,8 +118,7 @@ negocios:
       Agua y saneamiento: agua potable, aguas residuales, alcantarillado y pluviales. Costo de
       servicio y tarifas, planificacion economico-financiera, regulacion, fortalecimiento
       institucional, benchmarking y agua no contabilizada, planes de negocio, asequibilidad y
-      subsidios, PPP y concesiones, reformas y gobernanza, gestion comercial. Tambien tarifas
-      y PPP de residuos solidos municipales.
+      subsidios, PPP y concesiones, reformas y gobernanza, gestion comercial.
     keywords_dominantes:
       - agua potable
       - agua y saneamiento
@@ -173,8 +172,6 @@ negocios:
       - agua no contabilizada
       - perdidas de agua
       - water loss
-      - residuos solidos
-      - solid waste
     keywords_debiles:
       - agua
       - water
@@ -365,7 +362,15 @@ negocios:
     descripcion: >-
       Transicion energetica y energias renovables: solar, eolica, almacenamiento,
       descarbonizacion, eficiencia energetica, movilidad electrica y generacion distribuida.
+      Tambien residuos solidos: tarifas, costos, gestion, PPP y financiamiento del servicio.
     keywords_dominantes:
+      - residuos solidos
+      - solid waste
+      - municipal solid waste
+      - residuos solidos urbanos
+      - residuos urbanos
+      - waste management
+      - gestion de residuos
       - transicion energetica
       - transicao energetica
       - energy transition
