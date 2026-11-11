@@ -150,6 +150,65 @@ themes:
       - utility
       - regulator
 
+  # Agua y Generacion: temas que pasaron los consultores el 11-nov-2026.
+  - id: water_tariffs_finance
+    name: Water and wastewater rate studies, financial planning and affordability
+    search_queries:
+      - "official RFP water wastewater sewer rate study cost of service consulting deadline"
+      - "public tender water utility financial plan financial model capital improvement plan rate consultant deadline"
+      - "procurement water tariff affordability social tariff subsidy design study consultancy deadline"
+      - "water and sanitation PPP concession transaction advisory feasibility study consulting services deadline"
+    keywords:
+      - water rate study
+      - cost of service
+      - wastewater
+      - sewer
+      - financial planning
+      - impact fees
+      - affordability
+      - tariff
+      - PPP
+      - concession
+
+  - id: water_regulation_utility_performance
+    name: Water sector regulation, institutional strengthening and utility performance
+    search_queries:
+      - "official tender water sector economic regulation regulatory framework tariff regulation consultancy deadline"
+      - "procurement water utility institutional strengthening capacity building performance improvement consulting deadline"
+      - "tender water utility benchmarking efficiency non-revenue water reduction commercial management consultancy deadline"
+      - "expression of interest water sector reform governance regionalization business plan utility consulting firm deadline"
+    keywords:
+      - water regulation
+      - regulatory framework
+      - institutional strengthening
+      - benchmarking
+      - non-revenue water
+      - commercial management
+      - business plan
+      - sector reform
+      - water utility
+      - sanitation
+
+  - id: wholesale_power_markets_procurement
+    name: Wholesale power markets, energy procurement and auctions
+    search_queries:
+      - "official tender wholesale electricity market study dispatch simulation price forecast consulting deadline"
+      - "national energy and capacity auction power purchase tender regulator distribution company call for bids generators deadline"
+      - "consulting services design power purchase tender energy auction evaluation of bids procurement advisor deadline"
+      - "utility RFP power supply portfolio contract management energy procurement cost projection consultant deadline"
+      - "distribution company medium voltage network expansion plan investment plan consulting tender deadline"
+    keywords:
+      - wholesale market
+      - dispatch
+      - energy prices
+      - generation expansion
+      - power purchase
+      - energy auction
+      - supply contracts
+      - medium voltage
+      - distribution planning
+      - transmission rights
+
 regions:
   latam:
     languages:
