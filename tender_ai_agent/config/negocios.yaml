@@ -115,8 +115,11 @@ negocios:
     sidoc_id: 4
     prioridad: 2
     descripcion: >-
-      Agua y saneamiento: agua potable, aguas residuales, alcantarillado, tarifas de agua
-      y regulacion de prestadores de agua.
+      Agua y saneamiento: agua potable, aguas residuales, alcantarillado y pluviales. Costo de
+      servicio y tarifas, planificacion economico-financiera, regulacion, fortalecimiento
+      institucional, benchmarking y agua no contabilizada, planes de negocio, asequibilidad y
+      subsidios, PPP y concesiones, reformas y gobernanza, gestion comercial. Tambien tarifas
+      y PPP de residuos solidos municipales.
     keywords_dominantes:
       - agua potable
       - agua y saneamiento
@@ -162,6 +165,16 @@ negocios:
       - irrigation
       - prestador de agua
       - operador de agua
+      - rate study
+      - sewer rate
+      - stormwater
+      - aguas pluviales
+      - non-revenue water
+      - agua no contabilizada
+      - perdidas de agua
+      - water loss
+      - residuos solidos
+      - solid waste
     keywords_debiles:
       - agua
       - water
@@ -255,8 +268,11 @@ negocios:
     sidoc_id: 11
     prioridad: 4
     descripcion: >-
-      Mercados mayoristas electricos (MEM), modelos de redes electricas, despacho,
-      subastas de energia y potencia, expansion y planificacion de la generacion.
+      Mercados mayoristas electricos (MEM): simulacion del despacho, precios, margenes,
+      expansion y evaluacion de proyectos de generacion. Licitaciones de compra de energia y
+      potencia y subastas (diseno, organizacion, evaluacion de ofertas). Gestion y liquidacion
+      de contratos de abastecimiento. Planificacion de redes de media tension y planes de
+      inversion de distribuidoras. Derechos de transmision regional del MER.
     keywords_dominantes:
       - mercado mayorista
       - mercado electrico mayorista
@@ -310,6 +326,16 @@ negocios:
       - remuneracion de la generacion
       - energia firme
       - potencia firme
+      - compra de energia
+      - power procurement
+      - power supply procurement
+      - contratos de abastecimiento
+      - media tension
+      - medium voltage
+      - plan de inversiones
+      - mercado electrico regional
+      - derechos de transmision
+      - transmission rights
     keywords_debiles:
       - generacion
       - generation
