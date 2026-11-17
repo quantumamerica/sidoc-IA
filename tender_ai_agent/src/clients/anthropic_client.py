@@ -47,10 +47,17 @@ class AnthropicClient(BaseAIClient):
             try:
                 import anthropic
 
+                # Una clave que no pertenece a un workspace (sk-ant-usr-...) exige este encabezado.
+                headers = (
+                    {"anthropic-workspace-id": self.settings.anthropic_workspace_id}
+                    if self.settings.anthropic_workspace_id
+                    else None
+                )
                 client = anthropic.Anthropic(
                     api_key=self.settings.anthropic_api_key,
                     timeout=float(self.settings.request_timeout_seconds),
                     max_retries=0,  # los reintentos los maneja BaseAIClient._with_retries
+                    default_headers=headers,
                 )
                 output_config: dict[str, Any] = {"effort": self.settings.anthropic_effort}
                 if response_format == "json" and json_schema:
