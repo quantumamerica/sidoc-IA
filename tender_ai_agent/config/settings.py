@@ -32,6 +32,8 @@ class Settings(BaseModel):
     google_api_key: str | None = None
     gemini_model: str = "gemini-2.5-flash-lite"
     anthropic_api_key: str | None = None
+    # ID del workspace de la Console (wrkspc_...). Hace falta si la clave no pertenece a un workspace.
+    anthropic_workspace_id: str | None = None
     anthropic_model: str = "claude-opus-5-5"
     anthropic_effort: str = "low"
     ai_judge_provider: str = "anthropic"
@@ -154,6 +156,7 @@ def load_settings(project_root: Path) -> Settings:
         google_api_key=os.getenv("GOOGLE_API_KEY") or None,
         gemini_model=os.getenv("GEMINI_MODEL", "gemini-2.5-flash-lite"),
         anthropic_api_key=os.getenv("ANTHROPIC_API_KEY") or None,
+        anthropic_workspace_id=(os.getenv("ANTHROPIC_WORKSPACE_ID") or "").strip() or None,
         anthropic_model=os.getenv("ANTHROPIC_MODEL", "claude-opus-5-5") or "claude-opus-5-5",
         anthropic_effort=os.getenv("ANTHROPIC_EFFORT", "low") or "low",
         ai_judge_provider=(os.getenv("AI_JUDGE_PROVIDER", "anthropic") or "anthropic").strip().lower(),
